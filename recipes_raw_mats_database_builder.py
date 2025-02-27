@@ -2,8 +2,9 @@ import os
 import json
 
 import networkx as nx
-import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
 
 from tqdm import tqdm
 
@@ -131,7 +132,8 @@ def display_graph_sample(graph, target_item, depth=1):
             subgraph_nodes.update(new_nodes)
         subgraph = graph.subgraph(subgraph_nodes)
 
-    plt.figure(figsize=(20, 18))
+    fig, ax = plt.subplots(figsize=(20, 18), facecolor='black')  # Black background
+    ax.set_facecolor('black')  # Black axes background
 
     pos = nx.spring_layout(subgraph, k=0.5, iterations=100)
 
@@ -140,12 +142,9 @@ def display_graph_sample(graph, target_item, depth=1):
     max_degree = max(node_degrees.values())
     node_sizes = [((node_degrees[node] - min_degree) / (max_degree - min_degree) * 1500) + 200 for node in subgraph.nodes()]
 
-    nx.draw(subgraph, pos, with_labels=True,
-            node_size=node_sizes,
-            node_color='lightblue',
-            font_size=6,
-            font_weight='bold',
-            alpha=0.7)
+    node_colors = ['white' for _ in subgraph.nodes()]  # Default node color (white)
+    nodes = nx.draw_networkx_nodes(subgraph, pos, node_size=node_sizes, node_color=node_colors, ax=ax)
+    labels = nx.draw_networkx_labels(subgraph, pos, font_size=6, font_color='white', ax=ax)  # White labels
 
     if target_item == 'all':
         edge_colors = []
@@ -162,15 +161,18 @@ def display_graph_sample(graph, target_item, depth=1):
         min_weight = min(edge_colors)
         normalized_weights = [(w - min_weight) / (max_weight - min_weight) for w in edge_colors]
 
-        cmap = cm.viridis
+        # Use the 'RdPu' colormap (red to magenta)
+        cmap = cm.get_cmap('RdPu')
 
         edge_colors = [cmap(w) for w in normalized_weights]
 
-        nx.draw_networkx_edges(subgraph, pos, edge_color=edge_colors)
+        nx.draw_networkx_edges(subgraph, pos, edge_color=edge_colors, ax=ax)
 
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_weight, vmax=max_weight))
         sm.set_array([])
-        plt.colorbar(sm, label="Average Edge Weight", ax=plt.gca())
+        cbar = plt.colorbar(sm, label="Average Edge Weight", ax=ax, shrink=0.7)  # Shrink colorbar
+        cbar.ax.yaxis.label.set_color('white')  # White colorbar label
+        cbar.ax.tick_params(colors='white')  # White colorbar ticks
 
     else:
         edge_labels = {}
@@ -181,12 +183,27 @@ def display_graph_sample(graph, target_item, depth=1):
                 edge_labels[(u, v)] = f"{weight_uv:.2f} ↔ {weight_vu:.2f}"
             else:
                 edge_labels[(u, v)] = f"{weight_uv:.2f}"
-        nx.draw_networkx_edge_labels(subgraph, pos, edge_labels=edge_labels, font_size=5)
+        nx.draw_networkx_edge_labels(subgraph, pos, edge_labels=edge_labels, font_size=5, font_color='white', ax=ax)  # White edge labels
 
     if target_item != 'all':
-        plt.title(f"Crafting Dependencies for {target_item}")
+        plt.title(f"Crafting Dependencies for {target_item}", color='white')  # White title
     else:
-        plt.title("Entire Crafting Graph - Edges Colored by Average Weight")
+        plt.title("Entire Crafting Graph - Edges Colored by Average Weight", color='white')  # White title
+
+    def on_pick(event):
+        ind = event.ind[0]
+        node = list(subgraph.nodes())[ind]
+        
+        # Highlight connected nodes
+        highlighted_nodes = [node] + list(subgraph.neighbors(node))
+        
+        node_colors = ['white' if n not in highlighted_nodes else 'yellow' for n in subgraph.nodes()]
+        nodes.set_facecolor(node_colors)
+        fig.canvas.draw_idle()
+
+    nodes.set_picker(True)
+    fig.canvas.mpl_connect('pick_event', on_pick)
+
     plt.show()
 
 def find_shortest_crafting_route(graph, start_item, end_item):
