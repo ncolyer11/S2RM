@@ -9,6 +9,7 @@ AXIOM_MATERIALS = ['stone', 'cobblestone'] # XXX some materials like iron need t
 # to declare that ingots should be considered raw materials and not their other forms
 
 def add_ingredient(ingredients: dict, item: str):
+    # If their are multiple items available, just take the first one
     item = (item if not isinstance(item, list) else item[0]).replace('minecraft:', '')
     # If the ingredient isn't already in the dictionary, add it, otherwise increment the count
     ingredients[item] = ingredients.setdefault(item, 0) + 1
@@ -20,15 +21,12 @@ def get_shaped_ingredients(recipe) -> dict[str, int]:
 
     for key in pattern:
         item = item_keys[key]
-        # If their are multiple items available, just take the first one
-        if isinstance(item, list):  
-            item = item[0]
         add_ingredient(ingredients, item)
 
     ingredients['count'] = recipe['result']['count']
     return ingredients
 
-def get_shapeless_ingredients(recipe) -> dict[str, int] | None:
+def get_shapeless_ingredients(recipe) -> dict[str, int]:
     ingredients = {}
     for item in recipe['ingredients']:
         add_ingredient(ingredients, item)
