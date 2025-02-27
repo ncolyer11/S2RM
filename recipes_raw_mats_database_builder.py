@@ -2,6 +2,10 @@ import os
 import json
 from tqdm import tqdm
 
+# TODO Manage the following edge cases for items with multiple recipes:
+# dye_*_carpet, dye_*_bed, 
+
+
 IGNORE_ITEMS = ['bundle']
 TAKE_CRAFTING_METHODS = ['crafting_shaped', 'crafting_shapeless', 'smelting', 'crafting_transumte']
 AXIOM_MATERIALS = ['stone', 'cobblestone'] # XXX some materials like iron need to be raw and part of 
@@ -56,7 +60,7 @@ def get_items_from_craft_type(item_name: str, recipe: dict, craft_type: str) -> 
         assert craft_type not in TAKE_CRAFTING_METHODS, \
             "Crafting type not recognised."
 
-        print(f"Skipping {item_name} with crafting type {craft_type}\n")
+        # print(f"Skipping {item_name} with crafting type {craft_type}\n")
         return None
 
 def ignore_item(item_name: str):
@@ -92,36 +96,30 @@ def main():
     raw_materials_cost = {}
     for item_name, recipe in recipe_json_raw_data.items():
         craft_type = recipe['type'].replace('minecraft:', '')
-        print(f"Processing {item_name} with crafting type {craft_type}")
-        if craft_type == 'crafting_shapeless':
-            print(f"WE INn HERE")
         if ignore_item(item_name):
-            print(f"Item: {item_name} not needed to schematic materials list")
+            # print(f"Item: {item_name} not needed to schematic materials list")
             continue
+
+        # print(f"Processing {item_name} with crafting type {craft_type}")
+        # Return a dictionary of material types and their required quantity
         items = get_items_from_craft_type(item_name, recipe, craft_type)
-    
         if items is None:
             continue
         
-        # Return a dictionary of material types and their required quantity
-        if craft_type in ['smelting', 'crafting_transmute']:
-            print(f"Item: {item_name} -> Count: 1")
-        else: 
-            print(f"Item: {item_name} -> Count: {recipe['result']['count']}")
+        # if craft_type in ['smelting', 'crafting_transmute']:
+        #     print(f"Item: {item_name} -> Count: 1")
+        # else: 
+        #     print(f"Item: {item_name} -> Count: {recipe['result']['count']}")
         
         # Remove text after '_from' to ignore alternate methods
         item_name = item_name.split('_from')[0]
-        
         if item_name not in raw_materials_cost:
             raw_materials_cost[item_name] = items
-        else:
-            # Only overwrite if shaped or shapeless method
-            if craft_type in ['crafting_shaped', 'crafting_shapeless']:
-                if craft_type == 'crafting_shapeless':
-                    print(f"WE IN HERE")
-                raw_materials_cost[item_name] = items
+        # Only overwrite if shaped or shapeless method
+        elif craft_type in ['crafting_shaped', 'crafting_shapeless']:
+            raw_materials_cost[item_name] = items
         
-        print(f"Ingredients: {items}\n")
+        # print(f"Ingredients: {items}\n")
     
     for item_name, ingredients in raw_materials_cost.items():
         print(f"Item: {item_name} -> Ingredients: {ingredients}\n")
