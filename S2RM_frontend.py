@@ -17,6 +17,8 @@ from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 
 # XXX go through mats list on debug file to see what else can be compacted
 
+version = "1.0.0"
+
 class S2RMFrontend(QWidget):
     def __init__(self):
         super().__init__()
@@ -38,11 +40,13 @@ class S2RMFrontend(QWidget):
         exit_action = self.file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
         self.menu_bar.addMenu(self.file_menu)
-
-        self.view_menu = QMenu("View", self)  # Store view_menu
+        
+        # Store view_menu
+        self.view_menu = QMenu("View", self)  
         dark_mode_action = self.view_menu.addAction("Dark Mode")
         dark_mode_action.setCheckable(True)
         dark_mode_action.triggered.connect(self.toggleDarkMode)
+        dark_mode_action.setChecked(True)
         self.menu_bar.addMenu(self.view_menu)
         layout.addWidget(self.menu_bar)
 
@@ -123,7 +127,7 @@ class S2RMFrontend(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
-        self.setGeometry(300, 300, 800, 600)
+        self.setGeometry(20, 20, 750, 850)
         
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
@@ -133,6 +137,7 @@ class S2RMFrontend(QWidget):
         layout.addWidget(self.credits_and_source_label)
         
         self.updateCreditsLabel()
+        self.toggleDarkMode(True)
 
     def toggleDarkMode(self, checked):
         self.dark_mode = checked
@@ -414,15 +419,19 @@ class S2RMFrontend(QWidget):
         # Choose colors based on mode
         if self.dark_mode:
             link_color = "#ADD8E6"  # Light blue for dark mode
+            version_color = "#FFD700"  # Gold for dark mode
         else:
             link_color = "#0066CC"  # More pleasant dark blue for light mode
+            version_color = "#FF4500"  # Slightly darker orange for light mode
         
         # Set the text with inline styling for the links
+        non_breaking_spaces = "&nbsp;" * 10
         self.credits_and_source_label.setText(
             f'<a style="color: {link_color};" '
             f'href="https://youtube.com/ncolyer">Made by ncolyer</a> | '
+            f'<span style="color: {version_color};">Version: {version}</span> | '
             f'<a style="color: {link_color};" '
-            f'href="https://github.com/ncolyer11/S2RM">Source</a>'
+            f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
