@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 import json
 import random
@@ -11,60 +12,99 @@ from matplotlib import colors
 
 from tqdm import tqdm
 
-# TODO Manage the following edge cases for items with multiple recipes:
-# replace tagged material groups with base material e.g. planks -> oak_planks
-# handle recipes where items are left behind, e.g. buckets in cake recipe, bottles in honey block recipe
-# add a toggle for outputting in blocks vs ingots
+# TODO:
+# - redstone blocks currently have just themselves as a raw material instead of 9 redstone
+# - add a toggle for outputting in blocks vs ingots
 
-IGNORE_ITEMS_REGEX = r'(dye_\w+_(bed|carpet|wool))|bundle'
+IGNORE_ITEMS_REGEX = r'(dye_\w+_(bed|carpet))|bundle'
 AXIOM_MATERIALS_REGEX = r"""
-    (stone|cobblestone|\w+ingot|slime_ball|redstone|\w+smithing_template|bone_meal|wheat|stick|
-    resin_clump|coal|diamond|dried_kelp|emerald|honey_bottle|lapis_lazuli|raw_\w+(?!_block))|\w+dye$
+    (stone|cobblestone|\w+_ingot$|slime_ball|redstone|\w+smithing_template|bone_meal|
+    wheat|quartz|resin_clump|coal|diamond|dried_kelp|emerald|honey_bottle|lapis_lazuli|white_wool|
+    raw_\w+(?!_block)|\w+dye|leather)$
 """
 
-TAKE_CRAFTING_METHODS = ['crafting_shaped', 'crafting_shapeless', 'smelting', 'crafting_transumte']
-
 NODE_COLOUR = '#102d5c'
+
+# Convert a tagged material category to its cheapest base material
+TAGGED_MATERIALS_BASE = {
+    # Logs and wood-related materials
+    "#logs": "oak_log",
+    "#logs_that_burn": "oak_log",
+    "#oak_logs": "oak_log",
+    "#birch_logs": "birch_log",
+    "#spruce_logs": "spruce_log",
+    "#jungle_logs": "jungle_log",
+    "#acacia_logs": "acacia_log",
+    "#dark_oak_logs": "dark_oak_log",
+    "#pale_oak_logs": "pale_oak_log",
+    "#cherry_logs": "cherry_log",
+    "#mangrove_logs": "mangrove_log",
+    "#warped_stems": "warped_stem",
+    "#crimson_stems": "crimson_stem",
+    "#bamboo_blocks": "bamboo_block",
+    "#planks": "oak_planks",
+    "#wooden_slabs": "oak_slab",
+    
+    # Tool and crafting materials
+    "#wooden_tool_materials": "oak_planks",
+    "#stone_tool_materials": "cobblestone",
+    "#iron_tool_materials": "iron_ingot",
+    "#diamond_tool_materials": "diamond",
+    "#gold_tool_materials": "gold_ingot",
+    "#stone_crafting_materials": "cobblestone",
+    
+    # Fuels and smelting-related materials
+    "#coals": "coal",
+    "#soul_fire_base_blocks": "soul_sand",
+    "#smelts_to_glass": "sand",
+    
+    # Miscellaneous materials
+    "#leaves": "oak_leaves",
+    "#eggs": "egg",
+    "#wool": "white_wool",
+}
 
 ######################
 ### RECIPE RELATED ###
 ######################
 def get_raw_materials_cost_dict(recipe_json_raw_data: dict) -> dict:
     raw_materials_cost = {}
-    skipped = []
+    
     for item_name, recipe in recipe_json_raw_data.items():
         craft_type = recipe['type'].replace('minecraft:', '')
         if ignore_item(item_name):
-            skipped.append(item_name)
-            # print(f"Item: {item_name} not needed to schematic materials list")
             continue
 
-        # print(f"Processing {item_name} with crafting type {craft_type}")
         # Return a dictionary of material types and their required quantity
-        items = get_items_from_craft_type(recipe, craft_type)
-        if items is None:
-            # print(f"Skipping {item_name} with crafting type {craft_type}\n")
-            skipped.append(item_name)
+        if (items := get_items_from_craft_type(recipe, craft_type)) is None:
             continue
-        
-        # if craft_type in ['smelting', 'crafting_transmute']:
-        #     print(f"Item: {item_name} -> Count: 1")
-        # else: 
-        #     print(f"Item: {item_name} -> Count: {recipe['result']['count']}")
-        
-        # Remove text after '_from' to ignore alternate methods
+
+        # Remove text after & incl '_from' to ignore alternate methods and 'dye_' from wool recipes
         item_name = item_name.split('_from')[0]
+        item_name = re.sub(r'^dye_', '', item_name)
+        
+        modified_items = {}
+        for ingredient, data in items.items():
+            # Change the name of a hashed material inside items to its base material name
+            if ingredient.startswith('#'):
+                base_material = TAGGED_MATERIALS_BASE[ingredient]
+                modified_items[base_material] = data
+            else:
+                modified_items[ingredient] = data
+
         if item_name not in raw_materials_cost:
-            raw_materials_cost[item_name] = items
+            raw_materials_cost[item_name] = modified_items
         # Only overwrite if shaped or shapeless method
-        elif craft_type in ['crafting_shaped', 'crafting_shapeless']:
-            raw_materials_cost[item_name] = items
-        
-        # print(f"Ingredients: {items}\n")
-        
-    return raw_materials_cost, skipped
+        elif craft_type in ['crafting_shaped', 'crafting_shapeless'] and item_name != 'stick':
+            raw_materials_cost[item_name] = modified_items
+    
+    return raw_materials_cost
 
 def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
+    group = recipe.get('group', None)
+    if group is not None and group == 'wool':
+        craft_type = 'dye_wool'
+
     match craft_type:
         case 'crafting_shaped':
             return get_shaped_ingredients(recipe)
@@ -77,6 +117,11 @@ def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
         case 'crafting_transmute':
             dye = recipe['material'].replace('minecraft:', '')
             return {'shulker_box': 1.0, dye: 1.0, 'count': 1.0}
+        case 'dye_wool':
+            if (dye := recipe['ingredients'][0].replace('minecraft:', '')) == 'white_dye':
+                return {'white_wool': 1.0, 'count': 1.0}
+            else:
+                return {'white_wool': 1.0, dye: 1.0, 'count': 1.0}
         case _:
             return None
 
@@ -168,7 +213,7 @@ def display_graph_sample(graph, target_item, depth=1):
 
     node_colors = [NODE_COLOUR for _ in subgraph.nodes()]
     nodes = nx.draw_networkx_nodes(subgraph, pos, node_size=node_sizes, node_color=node_colors, ax=ax)
-    labels = nx.draw_networkx_labels(subgraph, pos, font_size=5, font_color='#ededed', ax=ax)  # Slightly larger, grey-blue labels
+    labels = nx.draw_networkx_labels(subgraph, pos, font_size=5, font_color='#ededed', ax=ax)
 
     edge_colors = []
     for u, v, d in subgraph.edges(data=True):
@@ -193,18 +238,6 @@ def display_graph_sample(graph, target_item, depth=1):
 
     nx.draw_networkx_edges(subgraph, pos, edge_color=edge_colors, ax=ax)
 
-        # sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_weight, vmax=max_weight))
-        # sm.set_array([])
-        # cbar = plt.colorbar(sm, label="Average Edge Weight", ax=ax, shrink=0.7)
-        # cbar.ax.yaxis.label.set_color('white')
-        # cbar.ax.tick_params(colors='white')
-
-
-    # if target_item != 'all':
-    #     plt.title(f"Crafting Dependencies for {target_item}", color='white')
-    # else:
-    #     plt.title("Entire Crafting Graph - Edges Colored by Average Weight", color='white')
-
     def on_pick(event):
         ind = event.ind[0]
         node = list(subgraph.nodes())[ind]
@@ -227,11 +260,11 @@ def display_graph_sample(graph, target_item, depth=1):
                 node_colors.append(NODE_COLOUR)
             else:
                 if n == node:
-                    node_colors.append('#c4aa00')  # Selected node is a slightly darker yellow
+                    node_colors.append('#c4aa00')
                 else:
                     # Calculate desaturated orange based on depth
                     node_depth = 0
-                    nodes_to_check = [(node, 0)]  # (node, depth)
+                    nodes_to_check = [(node, 0)] # (node, depth)
                     visited = {node}
                     while n not in visited and nodes_to_check:
                         current_node, depth = nodes_to_check.pop(0)
@@ -244,8 +277,8 @@ def display_graph_sample(graph, target_item, depth=1):
                                 nodes_to_check.append((neighbor, depth + 1))
                                 visited.add(neighbor)
 
-                    desaturation_factor = min(node_depth / 5.0, 1.0)  # Desaturate more with depth
-                    r, g, b = colors.hex2color('#ffa500')  # Orange in RGB
+                    desaturation_factor = min(node_depth / 5.0, 1.0) # Desaturate more with depth
+                    r, g, b = colors.hex2color('#ffa500')
                     r = r + (1 - r) * desaturation_factor
                     g = g + (1 - g) * desaturation_factor
                     b = b + (1 - b) * desaturation_factor
@@ -327,6 +360,9 @@ def add_ingredient(ingredients: dict, item: str):
     item = (item if not isinstance(item, list) else min(item, key=len)).replace('minecraft:', '')
     ingredients[item] = ingredients.setdefault(item, 0) + 1.0
 
+#####################################
+### RAW MATERIALS LIST GENERATION ###
+#####################################
 def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
     # Open items.json and get items field
     with open('items.json', 'r') as file:
@@ -345,44 +381,51 @@ def get_ingredients(graph, target_item) -> list[dict]:
     """
     Lists all raw materials needed to craft a target item, handling circular dependencies.
     """
+    # Convert 'uncraftable' (created outside a crafting table) to their raw base material
+    target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)
+    target_item = re.sub(r'(\w+)_concrete$', r'\1_concrete_powder', target_item)
+    target_item = re.sub(r'(exposed|weathered|oxidized)_', '', target_item)
+    if target_item in ['waxed_copper', 'copper']:
+        target_item += '_block'
+
     # Return single item if it doesn't have a crafting recipe
     if target_item not in graph:
         return [{"item": target_item, "quantity": 1.0}]
 
-    raw_materials = set()
-    visited = set() # Track visited nodes to detect cycles
-    _get_ingredients_recursive(graph, target_item, raw_materials, visited)
+    raw_materials = defaultdict(float)
+    _get_ingredients_recursive(graph, target_item, raw_materials)
 
-    return [{"item": item, "quantity": quantity} for item, quantity in raw_materials]
+    # Convert to sorted list, highest quantity first, then by item name alphabetically
+    return sorted(
+        [{"item": item, "quantity": quantity} for item, quantity in raw_materials.items()],
+        key=lambda x: (-x["quantity"], x["item"])
+    )
 
-def _get_ingredients_recursive(graph, target_item, raw_materials, visited, quantity=1.0):
+def _get_ingredients_recursive(graph, target_item, raw_materials, quantity=1.0):
     """
     Recursive helper function to find raw materials, handling circular dependencies.
     """
-    if re.match(AXIOM_MATERIALS_REGEX, target_item, re.VERBOSE): # Cycle detected
-        print(f"Axiomatic detected: {target_item}")
-        raw_materials.add((target_item, quantity))
+    if target_item == 'netherite_ingot':
+        _get_ingredients_recursive(graph, 'netherite_scrap', raw_materials, 4 * quantity)
+        _get_ingredients_recursive(graph, 'gold_ingot', raw_materials, 4 * quantity)
         return
-
-    visited.add(target_item)
+    elif re.match(AXIOM_MATERIALS_REGEX, target_item, re.VERBOSE): # Cycle detected
+        # print(f"Axiomatic detected: {target_item}")
+        raw_materials[target_item] += quantity
+        return
 
     predecessors = list(graph.predecessors(target_item))
     if not predecessors: # Base case: no predecessors, it's a raw material
-        raw_materials.add((target_item, quantity))
-        visited.remove(target_item)
+        raw_materials[target_item] += quantity
         return
 
     for ingredient in predecessors:
         weight = graph[ingredient][target_item]['weight']
-        _list_crafting_recipes_recursive(graph, ingredient, raw_materials, visited, quantity * weight)
-
-    visited.remove(target_item)
+        _get_ingredients_recursive(graph, ingredient, raw_materials, quantity * weight)
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
-    raw_materials_cost, skipped = get_raw_materials_cost_dict(recipe_json_raw_data)
-    # for item_name, ingredients in raw_materials_cost.items():
-    #     print(f"Item: {item_name} -> Ingredients: {ingredients}\n")
+    raw_materials_cost = get_raw_materials_cost_dict(recipe_json_raw_data)
         
     recipe_graph = build_crafting_graph(raw_materials_cost)
     generate_master_raw_mats_list(recipe_graph)

@@ -1,3 +1,5 @@
+import json
+import math
 import re
 import os
 
@@ -6,9 +8,56 @@ import tkinter as tk
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
+ITEM_TAGS = {
+    # Internally used shorthands for various items
+    "redstone_comparator": "comparator",
+    "redstone_repeater": "repeater",
+    "redstone_dust": "redstone",
+    "lapis_lazuli_block": "lapis_block",
+    "deepslate_lapis_lazuli_ore": "deepslate_lapis_ore",
+    "lapis_lazuli_ore": "lapis_ore",
+    "smooth_quartz_block": "smooth_quartz",
+    "jack_o'lantern": "jack_o_lantern",
+    "vines": "vine",
+    "hay_bale": "hay_block",
+    "monster_spawner": "spawner",
+    "jigsaw_block": "jigsaw",
+    
+    # UK Translations
+    "compressed_ice": "packed_ice",
+    "biscuit": "cookie",
+    
+    # Canadian Translations
+    "beet_seeds": "beetroot_seeds",
+    "moon_daisy": "oxeye_daisy",
+    
+    # NZ Translations
+    "watermelon": "melon",
+    "watermelon_seeds": "melon_seeds",
+    "ender_dragon_head": "dragon_head",
+}
+
+def convert_name_to_tag(name):
+    """Converts a name to a tag name."""
+    name = clean_string(name).lower()
+    
+    # Replace spaces with underscores and remove trailing underscores
+    name = re.sub(r'\s+', '_', name)
+    name = re.sub(r'_+$', '', name)
+
+    # 'Correcting' British to American spelling
+    name = re.sub(r'chiselled_', 'chiseled_', name)
+    name = re.sub(r'grey', 'gray', name)
+    name = re.sub(r'dised', 'dized', name)
+
+    # block_of_<name> -> <name>_block
+    name = re.sub(r'block_of_(\w+)', r'\1_block', name)
+    
+    return ITEM_TAGS.get(name, name)
+
 def clean_string(s):
     """Removes control characters, symbols, and trailing text."""
-    return re.sub(r'[^a-zA-Z0-9\s].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
+    return re.sub(r'[^a-zA-Z\'\s].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
 
 def process_material_list(input_file):
     with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
@@ -25,7 +74,8 @@ def process_material_list(input_file):
             material = parts[1].strip() # First part is just a blank before the first '|'
             quantity = parts[2].strip()
 
-            cleaned_material = clean_string(material)
+            # Remove weird characters and convert to item tag name
+            cleaned_material = convert_name_to_tag(material)
             materials[cleaned_material] = int(quantity)
 
     return materials
@@ -64,11 +114,39 @@ def select_file():
             filetypes=(("Text files", "*.txt"), ("All files", "*.*")),
         )
 
+    return file_path
+
+def main():
+    file_path = select_file()
     if file_path:
         materials_dict = process_material_list(file_path)
-        print("Processed Materials Dictionary:")
-        print(materials_dict)
     else:
         print("No file selected")
+        return
+    
+    with open("raw_materials_table.json", "r") as f:
+        materials_table = json.load(f)
+    
+    total_materials = {}
+    for material, quantity in materials_dict.items():
+        if material in materials_table:
+            for raw_material in materials_table[material]:
+                rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
+                rm_needed = rm_quantity * quantity
+                total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
+        else:
+            raise ValueError(f"Material {material} not found in materials table.")
 
-select_file()
+    # Ceil each quantity to the nearest int
+    for material, quantity in total_materials.items():
+        total_materials[material] = math.ceil(quantity)
+        
+    # Sort by highest quantity, then if equal quantity, sort by name
+    total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
+
+    with open("raw_materials.json", "w") as f:
+        json.dump(total_materials, f, indent=4)
+
+
+if __name__ == "__main__":
+    main()
