@@ -5,19 +5,24 @@ import os
 import json
 import math
 
+import numpy as np
+
 from S2RM_backend import process_material_list
 
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
-                               QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit)
+                               QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
 from PySide6.QtGui import QIcon, QPalette, QColor
 from PySide6.QtCore import Qt
 
-from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
+from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 
-# XXX go through mats list on debug file to see what else can be compacted
 
-version = "1.0.0"
+PROGRAM_VERSION = "1.1.0"
+OUTPUT_JSON_VERSION = 3 # Manually track the version of the output json files for compatibility
+
+DARK_INPUT_CELL = "#111a14"
+LIGHT_INPUT_CELL = "#b6e0c4"
 
 class S2RMFrontend(QWidget):
     def __init__(self):
@@ -26,6 +31,8 @@ class S2RMFrontend(QWidget):
         self.output_type = "ingots"
         self.ice_type = "ice"
         
+        self.input_items = {}
+        self.exclude_items = []
         self.collected_data = {}
         self.dark_mode = True
 
@@ -115,19 +122,23 @@ class S2RMFrontend(QWidget):
     
         # Table Display
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Material", "Quantity", "Collected", ""])
+        headers = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected", ""]
+        self.table.setColumnCount(len(headers))
+        self.table.setHorizontalHeaderLabels(headers)
         layout.addWidget(self.table)
-        self.table.setColumnWidth(0, 170)
+        self.table.setColumnWidth(0, 210)
         self.table.setColumnWidth(1, 200)
         self.table.setColumnWidth(2, 80)
+        self.table.setColumnWidth(3, 170)
+        self.table.setColumnWidth(4, 200)
+        self.table.setColumnWidth(5, 80)
         
         header = self.table.horizontalHeader()
         header.setStretchLastSection(True)
 
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
-        self.setGeometry(20, 20, 750, 850)
+        self.setGeometry(20, 20, 1150, 850)
         
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
@@ -139,30 +150,94 @@ class S2RMFrontend(QWidget):
         self.updateCreditsLabel()
         self.toggleDarkMode(True)
 
-    def toggleDarkMode(self, checked):
-        self.dark_mode = checked
-        if self.dark_mode:
-            self.setDarkMode()
-        else:
-            self.setLightMode()
+    def selectFile(self):
+        litematica_dir = self.get_litematica_dir()
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir, "Text files (*.txt);;All files (*.*)")
+        if file_path:
+            self.file_path = file_path
+            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
+            materials_dict = process_material_list(self.file_path)
+            # Set column 0 of self.table to the keys of materials_dict, and column 1 to checkboxes enabled to true
+            self.input_items = materials_dict
+            self.displayInputMaterials()
+
+    def displayInputMaterials(self):
+        input_items = list(self.input_items.items())
+        row_count = len(input_items)
+        
+        # Ensure the table has enough rows
+        self.table.setRowCount(max(self.table.rowCount(), row_count))
+        
+        # Determine which quantities to use
+        use_exclude_items = len(self.input_items) == len(self.exclude_items)
+        
+        for row, (material, inp_quant) in enumerate(input_items):
+            # Column 0: Material name (non-editable)
+            material_item = QTableWidgetItem(material)
+            material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 0, material_item)
+            
+            # Column 1: Input quantity (non-editable)
+            quantity_item = QTableWidgetItem(str(inp_quant))
+            quantity_item.setFlags(quantity_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 1, quantity_item)
+            
+            # Column 2: exclude quantity (editable)
+            exc_quant = self.exclude_items[row] if use_exclude_items else 0
+            self.__set_exclude_input_cell(row, 2, exc_quant)
+        
+        self.saveInputNumbers()
+
+    def saveInputNumbers(self):
+        self.exclude_items = []  # Initialize or reset the list
+        for row in range(self.table.rowCount()):
+            # Get the value from the third column (number input)
+            number_value = self.table.item(row, 2).text()
+            required_quantity = float(self.table.item(row, 1).text())
+            
+            try:
+                number_value = clamp(float(number_value), 0, required_quantity)
+            except ValueError:
+                if number_value.strip().lower() in ["all", "a"]:  # Allow 'all' or 'a' to represent the full quantity
+                    number_value = required_quantity
+                # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
+                elif (number_value := process_exclude_string(number_value)) == -1:
+                    # If user enters something proper invalid reset to 0
+                    number_value = 0
+                
+                number_value = clamp(number_value, 0, required_quantity)
+                self.__set_exclude_input_cell(row, 2, number_value)
+            
+            # Add the value to the exclude_items list
+            self.exclude_items.append(round(number_value))
 
     def processMaterials(self):
+        # Ensure exclude input items list is up to date 
+        self.saveInputNumbers()
+
         if not hasattr(self, "file_path"):
             return
 
+        raw_materials_table_path = resource_path("raw_materials_table.json")
+        with open(raw_materials_table_path, "r") as f:
+            materials_table = json.load(f)
+        # If the file path is a .txt file, use it directly
         if self.file_path.endswith("txt"):
-            materials_dict = process_material_list(self.file_path)
-            raw_materials_table_path = resource_path("raw_materials_table.json")
-            with open(raw_materials_table_path, "r") as f:
-                materials_table = json.load(f)
-            total_materials = self.__get_total_mats_from_txt(materials_dict, materials_table)
-            
+            litematica_mats_list_path = self.file_path
+        # Otherwise, if the file path is a .json file, extract the litematica_mats_list_path
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
-                total_materials = json.load(f)['materials']
-                
+                table_dict = json.load(f)
+                if "litematica_mats_list_path" in table_dict:
+                    litematica_mats_list_path = table_dict["litematica_mats_list_path"]
+                else:
+                    print("No litematica material list.txt path found in JSON file.")
+                    return
         else:
             raise ValueError(f"Invalid file type: {self.file_path}")
+
+        total_materials = self.__get_total_mats_from_txt(litematica_mats_list_path, materials_table)
 
         # Round final quantities up
         for material, quantity in total_materials.items():
@@ -182,9 +257,11 @@ class S2RMFrontend(QWidget):
         
         self.total_materials = total_materials
         self.displayMaterials()
+        self.displayInputMaterials()
 
     def filterAndDisplayMaterials(self, search_term):
         materials = self.filterMaterials(search_term)
+        self.displayInputMaterials()
         self.displayMaterials(materials)
 
     def filterMaterials(self, search_term):
@@ -193,7 +270,7 @@ class S2RMFrontend(QWidget):
             for material, quantity in self.total_materials.items():
                 if search_term.lower() in material.lower():
                     filtered_materials[material] = quantity
-
+        
         return filtered_materials
 
     def displayMaterials(self, materials=None):
@@ -204,11 +281,17 @@ class S2RMFrontend(QWidget):
         # Deepcopy the materials to avoid modifying the original
         mats_frmtd = copy.deepcopy(materials)
         self.__format_quantities(mats_frmtd)
-        self.table.setRowCount(len(mats_frmtd))
+        self.table.setRowCount(max(self.table.rowCount(), len(mats_frmtd)))
+        # delete data in row len(mats_frmtd) to end of table for column 3 and 4
+        for row in range(len(mats_frmtd), self.table.rowCount()):
+            self.__set_raw_materials_cell(row, 3, "")
+            self.__set_raw_materials_cell(row, 4, "")
+            self.table.setCellWidget(row, 5, None)
+
         row = 0
         for material, quantity in mats_frmtd.items() if isinstance(mats_frmtd, dict) else mats_frmtd:
-            self.table.setItem(row, 0, QTableWidgetItem(material))
-            self.table.setItem(row, 1, QTableWidgetItem(str(quantity)))
+            self.__set_raw_materials_cell(row, 3, material)
+            self.__set_raw_materials_cell(row, 4, str(quantity))
             
             # Add checkbox
             checkbox = QCheckBox()
@@ -222,102 +305,127 @@ class S2RMFrontend(QWidget):
             checkbox_layout.setAlignment(Qt.AlignCenter)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
 
-            self.table.setCellWidget(row, 2, checkbox_widget)
+            self.table.setCellWidget(row, 5, checkbox_widget)
 
             row += 1
 
     def saveJson(self):
+        # Simplify things by making each column a key
+        table_dict = {}
+        self.saveInputNumbers()
+        
+        table_dict["version"] = OUTPUT_JSON_VERSION
+        
+        if hasattr(self, "file_path"):
+            table_dict["litematica_mats_list_path"] = self.file_path
+
+        if hasattr(self, "input_items"):
+            table_dict["input_items"] = list(self.input_items.keys()) 
+            table_dict["input_quantities"] = list(self.input_items.values())
+
+        if hasattr(self, "exclude_items"):
+            table_dict["exclude_input"] = self.exclude_items
+
         if hasattr(self, "total_materials"):
-            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-            file_dialog = QFileDialog()
-            file_path, _ = file_dialog.getSaveFileName(
-                self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
-                "JSON files (*.json);;All files (*.*)"
-            )
-            if file_path:
-                try:
-                    save_data = {"materials": self.total_materials, "collected": self.collected_data}
-                    with open(file_path, "w") as f:
-                        json.dump(save_data, f, indent=4)
-                    print(f"JSON saved successfully to: {file_path}")
-                except Exception as e:
-                    print(f"Error saving JSON: {e}")
-        else:
-            print("No materials to save.")
+            table_dict["raw_materials"] = list(self.total_materials.keys())
+            table_dict["raw_quantities"] = list(self.total_materials.values())
+
+        if hasattr(self, "collected_data"):
+            table_dict["collected"] = self.collected_data
+
+        # If there's nothing to save, return early
+        if not table_dict:
+            print("No data to save.")
+            return
+
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getSaveFileName(
+            self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
+            "JSON files (*.json);;All files (*.*)"
+        )
+        if file_path:
+            try:
+                with open(file_path, "w") as f:
+                    json.dump(table_dict, f, indent=4)
+                print(f"JSON saved successfully to: {file_path}")
+            except Exception as e:
+                print(f"Error saving JSON: {e}")
 
     def openJson(self):
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")  # Default to Desktop
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
-            self, "Open JSON File", "", "JSON files (*.json);;All files (*.*)"
+            self, "Open JSON File", desktop_path, "JSON files (*.json);;All files (*.*)"
         )
         if file_path:
             with open(file_path, "r") as f:
-                data = json.load(f)
+                table_dict = json.load(f)
 
-            materials = data.get("materials", {})
-            self.collected_data = data.get("collected", {})
+                if "version" not in table_dict or table_dict["version"] != OUTPUT_JSON_VERSION:
+                    if "version" not in table_dict:
+                        version = "not specified"
+                    else:
+                        version = table_dict["version"]
 
-            if not all(isinstance(k, str) and isinstance(v, int) for k, v in materials.items()):
-                raise ValueError("JSON file must be in the format: {\"material\": quantity} for materials.\n"
-                                 f"Found: {next(iter(materials.items()))}")
+                    message = (
+                        "Warning: The materials table you are trying to open is uses an incompatible format.\n\n"
+                        f"Expected version: '{OUTPUT_JSON_VERSION}'.\nFound Version: '{version}'.\n\n"
+                        "Backporting is not currently supported.\n"
+                        "Therefore, the selected materials table cannot be opened."
+                    )
+                    QMessageBox.warning(
+                        self,
+                        "Incompatible Materials Table",
+                        message,
+                    )
+                    return
 
-            self.displayMaterials(materials)
-            self.total_materials = materials  # Store the loaded data
+            print(f"JSON opened successfully from: {file_path}")
+
+            # Reset the table
+            self.table.setRowCount(0)
+            self.file_path = ""
+            self.input_items = {}
+            self.exclude_items = []
+            self.total_materials = {}
+            self.collected_data = {}
+
+            if "litematica_mats_list_path" in table_dict:
+                self.file_path = table_dict["litematica_mats_list_path"]
+
+            if "input_items" in table_dict:
+                self.input_items = {item: quantity for item, quantity in 
+                                    zip(table_dict["input_items"], table_dict["input_quantities"])}
+
+            if "exclude_input" in table_dict:
+                self.exclude_items = np.round(table_dict["exclude_input"]).tolist()
+
+            if "raw_materials" in table_dict:
+                self.total_materials = {material: quantity for material, quantity in
+                                        zip(table_dict["raw_materials"], table_dict["raw_quantities"])}
+
+            if "collected" in table_dict:
+                self.collected_data = table_dict["collected"]
+
+            self.displayInputMaterials()
+            self.displayMaterials(self.total_materials)
             self.file_path = file_path
             self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
+        else:
+            print("No file selected")
 
     def clearMaterials(self):
-        self.table.setRowCount(0)  # Clear the table
+        self.table.setRowCount(0) # Clear the table
         if hasattr(self, "total_materials"):
-            del self.total_materials  # Remove the total_materials attribute
-        self.collected_data.clear() # clear collected data.
+            del self.total_materials
+        if hasattr(self, "input_items"):
+            del self.input_items
+        if hasattr(self, "exclude_items"):
+            del self.exclude_items
+        self.collected_data.clear()
 
 ######### Helper and Private Methods #########
-
-    def __get_total_mats_from_txt(self, materials_dict, materials_table) -> dict:
-        total_materials = {}
-        for material, quantity in materials_dict.items():
-            if material in materials_table:
-                for raw_material in materials_table[material]:
-                    rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
-
-                    # Keep or 'freeze' the original ice type if specified
-                    if self.ice_type == "freeze":
-                        if material == "packed_ice":
-                            rm_name = "packed_ice"
-                            rm_quantity = rm_quantity / 9
-                        elif material == "blue_ice":
-                            rm_name = "blue_ice"
-                            rm_quantity = rm_quantity / 81
-                                                   
-                    rm_needed = rm_quantity * quantity
-                    total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
-            else:
-                raise ValueError(f"Material {material} not found in materials table.")
-        
-        return total_materials
-
-    def __format_quantities(self, total_materials):
-        for material, quantity in total_materials.items():
-            if quantity >= SHULKER_BOX_STACK_SIZE:
-                num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
-                remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
-            elif quantity >= STACK_SIZE:
-                num_stacks = quantity // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
-            else:
-                total_materials[material] = str(quantity)
-
-    def selectFile(self):
-        litematica_dir = self.get_litematica_dir()
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir, "Text files (*.txt);;All files (*.*)")
-        if file_path:
-            self.file_path = file_path
-            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
 
     def get_litematica_dir(self):
         """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
@@ -329,7 +437,7 @@ class S2RMFrontend(QWidget):
             appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "config", "litematica")
             if os.path.exists(appdata_litematica_path):
                 return appdata_litematica_path
-        return ""  # Return an empty string if directory not found
+        return "" # Return an empty string if directory not found
 
     def updateOutputType(self):
         self.output_type = "ingots" if self.ingots_radio.isChecked() else "blocks"
@@ -339,6 +447,13 @@ class S2RMFrontend(QWidget):
     
     def updateCollected(self, material, state):
         self.collected_data[material] = Qt.CheckState(state) == Qt.CheckState.Checked
+
+    def toggleDarkMode(self, checked):
+        self.dark_mode = checked
+        if self.dark_mode:
+            self.setDarkMode()
+        else:
+            self.setLightMode()
 
     def setDarkMode(self):
         palette = QPalette()
@@ -391,6 +506,8 @@ class S2RMFrontend(QWidget):
             QMenu::item { background-color: #353535; color: white; }
             QMenu::item:selected { background-color: #4A4A4A; }
         """)
+        
+        self.setEditableCellStyles(DARK_INPUT_CELL)  # Dark mode cell color
 
         # Make credits and source text brighter
         self.updateCreditsLabel()
@@ -411,9 +528,19 @@ class S2RMFrontend(QWidget):
         self.menu_bar.setStyleSheet("")
         self.file_menu.setStyleSheet("")
         self.view_menu.setStyleSheet("")
+        
+        self.setEditableCellStyles(LIGHT_INPUT_CELL)  # Light mode cell color
 
         # Reset credits and source text color
         self.updateCreditsLabel()
+    
+    def setEditableCellStyles(self, hex_color):
+        """Sets background color for editable cells."""
+        for row in range(self.table.rowCount()):
+            # Assuming the editable column is the 3rd column (index 2)
+            number_item = self.table.item(row, 2)
+            if number_item and number_item.flags() & Qt.ItemIsEditable:
+                number_item.setBackground(QColor(hex_color))
 
     def updateCreditsLabel(self):
         # Choose colors based on mode
@@ -429,10 +556,61 @@ class S2RMFrontend(QWidget):
         self.credits_and_source_label.setText(
             f'<a style="color: {link_color};" '
             f'href="https://youtube.com/ncolyer">Made by ncolyer</a> | '
-            f'<span style="color: {version_color};">Version: {version}</span> | '
+            f'<span style="color: {version_color};">Version: {PROGRAM_VERSION}</span> | '
             f'<a style="color: {link_color};" '
             f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
+
+    def __get_total_mats_from_txt(self, file_path, materials_table) -> dict:
+        self.input_items = process_material_list(file_path)
+        total_materials = {}
+        for input_item_idx, (material, quantity) in enumerate(self.input_items.items()):
+            if material in materials_table:
+                exclude_quantity = self.exclude_items[input_item_idx]
+                for raw_material in materials_table[material]:
+                    rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
+
+                    # Keep or 'freeze' the original ice type if specified
+                    if self.ice_type == "freeze":
+                        if material == "packed_ice":
+                            rm_name = "packed_ice"
+                            rm_quantity = rm_quantity / ICE_PER_ICE
+                        elif material == "blue_ice":
+                            rm_name = "blue_ice"
+                            rm_quantity = rm_quantity / (ICE_PER_ICE ** 2)
+                                                   
+                    rm_needed = rm_quantity * (quantity - exclude_quantity)
+                    total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
+            else:
+                raise ValueError(f"Material {material} not found in materials table.")
+        
+        return total_materials
+
+    def __format_quantities(self, total_materials):
+        for material, quantity in total_materials.items():
+            if quantity >= SHULKER_BOX_STACK_SIZE:
+                num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
+                remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
+                remaining_items = quantity % STACK_SIZE
+                total_materials[material] = f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
+            elif quantity >= STACK_SIZE:
+                num_stacks = quantity // STACK_SIZE
+                remaining_items = quantity % STACK_SIZE
+                total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
+            else:
+                total_materials[material] = str(quantity)
+        
+    def __set_exclude_input_cell(self, row, col, quantity):
+        cell_colour = DARK_INPUT_CELL if self.dark_mode else LIGHT_INPUT_CELL
+        number_item = QTableWidgetItem(str(quantity))  # Default value or you can leave it empty
+        number_item.setFlags(number_item.flags() | Qt.ItemIsEditable)  # Make the cell editable
+        number_item.setBackground(QColor(cell_colour))
+        self.table.setItem(row, col, number_item)      
+
+    def __set_raw_materials_cell(self, row, col, val):
+        item = QTableWidgetItem(val)
+        item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Make non-editable
+        self.table.setItem(row, col, item)
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
@@ -469,11 +647,58 @@ def add_resources(processed_materials: dict, material: str, block_name: str, qua
     if remaining_ingots > compact_num:
         raise ValueError(f"Error: {material} has more than {compact_num} remaining ingots.")
 
+def process_exclude_string(input_string):
+    """
+    Processes the input string according to the given rules:
+
+    1.  Extracts digits from the string.
+    2.  Multiplies each digit by 64 if followed by 's', and by 64*27 if followed by 'sb'.
+    3.  Calculates the sum of the multiplied digits.
+    4.  Handles cases where the text following the digit is 's' or 'sb' (case-insensitive).
+
+    Args:
+        input_string: The input string to process.
+
+    Returns:
+        The sum of the multiplied digits.
+    """
+
+    if not input_string:
+        return -1
+    
+    # Check if input matches the allowed characters pattern, not fully exhaustive e.g.
+    # 'sb1' should be invalid but it isn't so don't go crazy with this
+    if not re.fullmatch(r'(\d|\s|s|sb)+', input_string, re.IGNORECASE):
+        return -1
+
+    # Check for invalid combinations (e.g., 'ss', 'sss', etc.)
+    if 'ss' in input_string or 'sss' in input_string:
+        return -1
+    
+    total = 0
+    matches = re.finditer(r"(\d)(sb|s)?", input_string, re.IGNORECASE)
+
+    for match in matches:
+        digit = int(match.group(1))
+        suffix = match.group(2)
+
+        if suffix:
+            if suffix.lower() == 's':
+                total += digit * 64
+            elif suffix.lower() == 'sb':
+                total += digit * 64 * 27
+        else:
+            total += digit
+
+    return total
+
+def clamp(n, smallest, largest):
+    return max(smallest, min(n, largest))
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    icon_path = resource_path("icon/icon.ico")
-    print(icon_path)
-    app_icon = QIcon(icon_path)
+    app_icon = QIcon(resource_path("icon/icon.ico"))
     app.setWindowIcon(app_icon)
     window = S2RMFrontend()
     window.show()
