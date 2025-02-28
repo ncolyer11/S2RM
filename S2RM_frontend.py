@@ -229,6 +229,9 @@ class S2RMFrontend(QWidget):
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
                 table_dict = json.load(f)
+                # TODO: ahh don't think this is necessary as you can just reconstruct
+                # total_materials from the input_items columns that way the json can work
+                # without needing the text file in a specific spot - XXX this a bug actually tbh
                 if "litematica_mats_list_path" in table_dict:
                     litematica_mats_list_path = table_dict["litematica_mats_list_path"]
                 else:
