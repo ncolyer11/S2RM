@@ -1,3 +1,4 @@
+import copy
 import re
 import sys
 import os
@@ -12,7 +13,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
 from PySide6.QtGui import QIcon, QPalette, QColor
 from PySide6.QtCore import Qt
 
-from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE
+from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 
 # XXX go through mats list on debug file to see what else can be compacted
 
@@ -24,7 +25,7 @@ class S2RMFrontend(QWidget):
         self.ice_type = "ice"
         
         self.collected_data = {}
-        self.dark_mode = False
+        self.dark_mode = True
 
         self.initUI()
 
@@ -146,13 +147,14 @@ class S2RMFrontend(QWidget):
 
         if self.file_path.endswith("txt"):
             materials_dict = process_material_list(self.file_path)
-            with open("raw_materials_table.json", "r") as f:
+            raw_materials_table_path = resource_path("raw_materials_table.json")
+            with open(raw_materials_table_path, "r") as f:
                 materials_table = json.load(f)
             total_materials = self.__get_total_mats_from_txt(materials_dict, materials_table)
             
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
-                total_materials = json.load(f)
+                total_materials = json.load(f)['materials']
                 
         else:
             raise ValueError(f"Invalid file type: {self.file_path}")
@@ -193,11 +195,13 @@ class S2RMFrontend(QWidget):
         # Ensure displayed materials still conform to the search term
         if materials is None:
             materials = self.filterMaterials(self.search_bar.text())
-    
-        self.__format_quantities(materials)
-        self.table.setRowCount(len(materials))
+
+        # Deepcopy the materials to avoid modifying the original
+        mats_frmtd = copy.deepcopy(materials)
+        self.__format_quantities(mats_frmtd)
+        self.table.setRowCount(len(mats_frmtd))
         row = 0
-        for material, quantity in materials.items() if isinstance(materials, dict) else materials:
+        for material, quantity in mats_frmtd.items() if isinstance(mats_frmtd, dict) else mats_frmtd:
             self.table.setItem(row, 0, QTableWidgetItem(material))
             self.table.setItem(row, 1, QTableWidgetItem(str(quantity)))
             
@@ -225,7 +229,6 @@ class S2RMFrontend(QWidget):
                 self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
                 "JSON files (*.json);;All files (*.*)"
             )
-            print(self.collected_data)
             if file_path:
                 try:
                     save_data = {"materials": self.total_materials, "collected": self.collected_data}
@@ -459,7 +462,9 @@ def add_resources(processed_materials: dict, material: str, block_name: str, qua
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app_icon = QIcon("icon.ico")
+    icon_path = resource_path("icon/icon.ico")
+    print(icon_path)
+    app_icon = QIcon(icon_path)
     app.setWindowIcon(app_icon)
     window = S2RMFrontend()
     window.show()

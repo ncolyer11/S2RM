@@ -8,7 +8,7 @@ from tqdm import tqdm
 from collections import defaultdict
 
 from graph_recipes import build_crafting_graph, display_graph_sample, list_crafting_recipes
-from constants import IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, TAGGED_MATERIALS_BASE
+from constants import IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, TAGGED_MATERIALS_BASE, resource_path
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
@@ -120,6 +120,7 @@ def ignore_item(item_name: str):
 ###############
 def get_recipe_data_from_json(folder_path: str = './recipe') -> dict:
     recipe_json_raw_data = {}
+    folder_path = resource_path(folder_path)
     # Loop through every recipe.json file
     file_list = [f for f in os.listdir(folder_path) if f.endswith('.json')]
     total_files = len(file_list)
@@ -145,7 +146,8 @@ def add_ingredient(ingredients: dict, item: str):
 #####################################
 def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
     # Open items.json and get items field
-    with open('items.json', 'r') as file:
+    items_path = resource_path('items.json')
+    with open(items_path, 'r') as file:
         master_items_list = json.load(file)['items']
     
     master_raw_mats_list = {}

@@ -1,4 +1,8 @@
 # Numbers
+import os
+import sys
+
+
 STACK_SIZE = 64
 SHULKER_BOX_SIZE = 27
 SHULKER_BOX_STACK_SIZE = STACK_SIZE * SHULKER_BOX_SIZE
@@ -80,3 +84,14 @@ ITEM_TAGS = {
     "watermelon_seeds": "melon_seeds",
     "ender_dragon_head": "dragon_head",
 }
+
+# Helper
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)

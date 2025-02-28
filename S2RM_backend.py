@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
-from constants import ITEM_TAGS
+from constants import ITEM_TAGS, resource_path
 
 # TODO:
 # - add a toggle for outputting in blocks vs ingots
@@ -100,7 +100,8 @@ def main():
         print("No file selected")
         return
     
-    with open("raw_materials_table.json", "r") as f:
+    raw_mats_table_path = resource_path("raw_materials_table.json")
+    with open(raw_mats_table_path, "r") as f:
         materials_table = json.load(f)
     
     total_materials = {}
@@ -120,6 +121,7 @@ def main():
     # Sort by highest quantity, then if equal quantity, sort by name
     total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
 
+    # Write to file
     with open("raw_materials.json", "w") as f:
         json.dump(total_materials, f, indent=4)
 
