@@ -6,7 +6,7 @@ import math
 
 from S2RM_backend import process_material_list
 
-from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit)
 from PySide6.QtGui import QIcon
@@ -22,6 +22,8 @@ class S2RMFrontend(QWidget):
 
         self.output_type = "ingots"
         self.ice_type = "ice"
+        
+        self.collected_data = {}
 
         self.initUI()
 
@@ -101,11 +103,12 @@ class S2RMFrontend(QWidget):
     
         # Table Display
         self.table = QTableWidget()
-        self.table.setColumnCount(2)
-        self.table.setHorizontalHeaderLabels(["Material", "Quantity"])
+        self.table.setColumnCount(3)
+        self.table.setHorizontalHeaderLabels(["Material", "Quantity", "Collected"])
         layout.addWidget(self.table)
         self.table.setColumnWidth(0, 170)
         self.table.setColumnWidth(1, 200)
+        self.table.setColumnWidth(2, 80)
 
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
@@ -131,8 +134,7 @@ class S2RMFrontend(QWidget):
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
                 total_materials = json.load(f)
-            
-            
+                
         else:
             raise ValueError(f"Invalid file type: {self.file_path}")
 
@@ -172,23 +174,44 @@ class S2RMFrontend(QWidget):
         # Ensure displayed materials still conform to the search term
         if materials is None:
             materials = self.filterMaterials(self.search_bar.text())
+    
         self.__format_quantities(materials)
         self.table.setRowCount(len(materials))
         row = 0
         for material, quantity in materials.items() if isinstance(materials, dict) else materials:
             self.table.setItem(row, 0, QTableWidgetItem(material))
             self.table.setItem(row, 1, QTableWidgetItem(str(quantity)))
+            
+            # Add checkbox
+            checkbox = QCheckBox()
+            checkbox.setChecked(self.collected_data.get(material, False))
+            checkbox.stateChanged.connect(lambda state, mat=material: self.updateCollected(mat, state))
+          
+            # Create a widget to center the checkbox
+            checkbox_widget = QWidget()
+            checkbox_layout = QHBoxLayout(checkbox_widget)
+            checkbox_layout.addWidget(checkbox)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+
+            self.table.setCellWidget(row, 2, checkbox_widget)
+
             row += 1
 
     def saveJson(self):
         if hasattr(self, "total_materials"):
             desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
             file_dialog = QFileDialog()
-            file_path, _ = file_dialog.getSaveFileName(self, "Save JSON File", os.path.join(desktop_path, "raw_materials.json"), "JSON files (*.json);;All files (*.*)")
+            file_path, _ = file_dialog.getSaveFileName(
+                self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
+                "JSON files (*.json);;All files (*.*)"
+            )
+            print(self.collected_data)
             if file_path:
                 try:
+                    save_data = {"materials": self.total_materials, "collected": self.collected_data}
                     with open(file_path, "w") as f:
-                        json.dump(self.total_materials, f, indent=4)
+                        json.dump(save_data, f, indent=4)
                     print(f"JSON saved successfully to: {file_path}")
                 except Exception as e:
                     print(f"Error saving JSON: {e}")
@@ -197,24 +220,30 @@ class S2RMFrontend(QWidget):
 
     def openJson(self):
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Open JSON File", "", "JSON files (*.json);;All files (*.*)")
+        file_path, _ = file_dialog.getOpenFileName(
+            self, "Open JSON File", "", "JSON files (*.json);;All files (*.*)"
+        )
         if file_path:
             with open(file_path, "r") as f:
                 data = json.load(f)
-            # Check the json is "material": quantity format, just check the first
-            if not all(isinstance(k, str) and isinstance(v, int) for k, v in data.items()):
-                raise ValueError("JSON file must be in the format: {\"material\": quantity}.\n"
-                                 f"Found: {next(iter(data.items()))}")
-     
-            self.displayMaterials(data)
-            self.total_materials = data # Store the loaded data
+
+            materials = data.get("materials", {})
+            self.collected_data = data.get("collected", {})
+
+            if not all(isinstance(k, str) and isinstance(v, int) for k, v in materials.items()):
+                raise ValueError("JSON file must be in the format: {\"material\": quantity} for materials.\n"
+                                 f"Found: {next(iter(materials.items()))}")
+
+            self.displayMaterials(materials)
+            self.total_materials = materials  # Store the loaded data
             self.file_path = file_path
             self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
-                
+
     def clearMaterials(self):
         self.table.setRowCount(0)  # Clear the table
         if hasattr(self, "total_materials"):
             del self.total_materials  # Remove the total_materials attribute
+        self.collected_data.clear() # clear collected data.
 
 ######### Helper and Private Methods #########
 
@@ -254,7 +283,6 @@ class S2RMFrontend(QWidget):
                 total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
             else:
                 total_materials[material] = str(quantity)
-                
 
     def selectFile(self):
         litematica_dir = self.get_litematica_dir()
@@ -281,6 +309,9 @@ class S2RMFrontend(QWidget):
             
     def updateIceType(self):
         self.ice_type = "ice" if self.ice_radio.isChecked() else "freeze"
+    
+    def updateCollected(self, material, state):
+        self.collected_data[material] = Qt.CheckState(state) == Qt.CheckState.Checked
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
