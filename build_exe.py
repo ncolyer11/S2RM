@@ -28,7 +28,7 @@ for file in DATA_FILES + OTHER_FILES:
     if os.path.exists(file_path):
         add_data_args.extend(["--add-data", f"{file}{ADD_DATA_FLAG}"])
 
-# Construct PyInstaller command (without --windowed to allow terminal output)
+# Construct PyInstaller command (with --noconsole to hide terminal output)
 pyinstaller_cmd = [
     "pyinstaller",  # Call pyinstaller directly
     "--onefile",  # Export as one file
@@ -37,6 +37,7 @@ pyinstaller_cmd = [
     "--hidden-import", "PySide6",
     "--distpath", DIST_DIR,  # Specify output directory
     "--name", "S2RM",
+    "--noconsole",  # Hide the terminal window
     FRONTEND_SCRIPT
 ] + add_data_args
 

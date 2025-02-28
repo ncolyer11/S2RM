@@ -10,8 +10,27 @@ from unicodedata import category as unicode_category
 
 from constants import ITEM_TAGS, resource_path
 
-# TODO:
-# - add a toggle for outputting in blocks vs ingots
+
+def process_material_list(input_file):
+    with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
+        lines = f.readlines()
+
+    # (tail -n+6 | head -n-3)
+    lines = lines[5:-3]
+
+    # (cut -d'|' -f2,3)
+    materials = {}
+    for line in lines:
+        parts = line.strip().split('|')
+        if len(parts) > 2:
+            material = parts[1].strip() # First part is just a blank before the first '|'
+            quantity = parts[2].strip()
+
+            # Remove weird characters and convert to item tag name
+            cleaned_material = convert_name_to_tag(material)
+            materials[cleaned_material] = int(quantity)
+
+    return materials
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
@@ -34,27 +53,6 @@ def convert_name_to_tag(name):
 def clean_string(s):
     """Removes control characters, symbols, and trailing text."""
     return re.sub(r'[^a-zA-Z\'\s].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
-
-def process_material_list(input_file):
-    with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
-        lines = f.readlines()
-
-    # (tail -n+6 | head -n-3)
-    lines = lines[5:-3]
-
-    # (cut -d'|' -f2,3)
-    materials = {}
-    for line in lines:
-        parts = line.strip().split('|')
-        if len(parts) > 2:
-            material = parts[1].strip() # First part is just a blank before the first '|'
-            quantity = parts[2].strip()
-
-            # Remove weird characters and convert to item tag name
-            cleaned_material = convert_name_to_tag(material)
-            materials[cleaned_material] = int(quantity)
-
-    return materials
 
 def get_litematica_dir():
     """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
@@ -124,7 +122,6 @@ def main():
     # Write to file
     with open("raw_materials.json", "w") as f:
         json.dump(total_materials, f, indent=4)
-
 
 if __name__ == "__main__":
     main()
