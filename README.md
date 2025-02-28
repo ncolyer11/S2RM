@@ -1,6 +1,8 @@
 # S2RM: Schematic to Raw Materials
-
 Calculates raw material needs from Litematica material lists, extracting recipe data from Minecraft's `.jar` files. "Raw materials" are somewhat subjective.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1e52266e-220c-4df5-88c4-c9ccae86d53f" width="600">
+</p>
 
 **Warning:** The recipe data extraction is limited to the first 1000 entries from the recipe folder, omitting 373 entries.
 
