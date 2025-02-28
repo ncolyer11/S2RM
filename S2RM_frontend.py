@@ -56,9 +56,9 @@ class S2RMFrontend(QWidget):
 
         # Ice Type Selection
         ice_layout = QHBoxLayout()
-        self.ice_radio = QRadioButton("Ice")
+        self.ice_radio = QRadioButton("Only Ice")
         self.ice_radio.setChecked(True)  # Default to Ice
-        self.packed_ice_radio = QRadioButton("Packed Ice")
+        self.packed_ice_radio = QRadioButton("Freeze Ice")
         ice_layout.addWidget(self.ice_radio)
         ice_layout.addWidget(self.packed_ice_radio)
         layout.addLayout(ice_layout)
@@ -94,7 +94,7 @@ class S2RMFrontend(QWidget):
         search_layout = QHBoxLayout()
         self.search_label = QLabel("Search:")
         self.search_bar = QLineEdit()
-        self.search_bar.textChanged.connect(self.filterMaterials)
+        self.search_bar.textChanged.connect(self.filterAndDisplayMaterials)
         search_layout.addWidget(self.search_label)
         search_layout.addWidget(self.search_bar)
         layout.addLayout(search_layout)
@@ -118,32 +118,6 @@ class S2RMFrontend(QWidget):
         credits_and_source_label.setOpenExternalLinks(True)
         layout.addWidget(credits_and_source_label)
 
-    def selectFile(self):
-        litematica_dir = self.get_litematica_dir()
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir, "Text files (*.txt);;All files (*.*)")
-        if file_path:
-            self.file_path = file_path
-            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
-
-    def get_litematica_dir(self):
-        """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
-        s_drive_path = r"S:\mc\.minecraft\config\litematica"
-        if os.path.exists(s_drive_path):
-            return s_drive_path
-        appdata_path = os.getenv('APPDATA')
-        if appdata_path:
-            appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "config", "litematica")
-            if os.path.exists(appdata_litematica_path):
-                return appdata_litematica_path
-        return ""  # Return an empty string if directory not found
-
-    def updateOutputType(self):
-        self.output_type = "ingots" if self.ingots_radio.isChecked() else "blocks"
-            
-    def updateIceType(self):
-        self.ice_type = "ice" if self.ice_radio.isChecked() else "packed_ice"
-
     def processMaterials(self):
         if not hasattr(self, "file_path"):
             return
@@ -157,6 +131,8 @@ class S2RMFrontend(QWidget):
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
                 total_materials = json.load(f)
+            
+            
         else:
             raise ValueError(f"Invalid file type: {self.file_path}")
 
@@ -176,58 +152,27 @@ class S2RMFrontend(QWidget):
         # Convert to dict and sort by quantity (descending) then by material name (ascending)
         total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
         
-        # Loop through and add num shulker boxes and stacks in brackets (if applicable)
-        self.__format_quantities(total_materials)
-        
-        self.displayMaterials(total_materials)
         self.total_materials = total_materials
-        # Update the search filter
-        self.filterMaterials(self.search_bar.text())
+        self.displayMaterials()
+
+    def filterAndDisplayMaterials(self, search_term):
+        materials = self.filterMaterials(search_term)
+        self.displayMaterials(materials)
 
     def filterMaterials(self, search_term):
+        filtered_materials = {}
         if hasattr(self, "total_materials"):
-            filtered_materials = {}
             for material, quantity in self.total_materials.items():
                 if search_term.lower() in material.lower():
                     filtered_materials[material] = quantity
-            self.displayMaterials(filtered_materials)
 
-    def __get_total_mats_from_txt(self, materials_dict, materials_table) -> dict:
-        total_materials = {}
-        for material, quantity in materials_dict.items():
-            if material in materials_table:
-                for raw_material in materials_table[material]:
-                    rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
+        return filtered_materials
 
-                    if self.ice_type == "packed_ice" and rm_name == "ice":
-                        rm_name = "packed_ice"
-                        rm_quantity /= 9  # 9 ice per packed ice
-                    elif self.ice_type == "ice" and rm_name == "packed_ice":
-                        rm_name = "ice"
-                        rm_quantity *= 9  # 9 ice per packed ice
-
-                    rm_needed = rm_quantity * quantity
-                    total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
-            else:
-                raise ValueError(f"Material {material} not found in materials table.")
-        
-        return total_materials
-
-    def __format_quantities(self, total_materials):
-        for material, quantity in total_materials.items():
-            if quantity >= SHULKER_BOX_STACK_SIZE:
-                num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
-                remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
-            elif quantity >= STACK_SIZE:
-                num_stacks = quantity // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
-            else:
-                total_materials[material] = str(quantity) 
-
-    def displayMaterials(self, materials):
+    def displayMaterials(self, materials=None):
+        # Ensure displayed materials still conform to the search term
+        if materials is None:
+            materials = self.filterMaterials(self.search_bar.text())
+        self.__format_quantities(materials)
         self.table.setRowCount(len(materials))
         row = 0
         for material, quantity in materials.items() if isinstance(materials, dict) else materials:
@@ -254,21 +199,88 @@ class S2RMFrontend(QWidget):
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(self, "Open JSON File", "", "JSON files (*.json);;All files (*.*)")
         if file_path:
-            try:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-                self.__format_quantities(data)
-                self.displayMaterials(data)
-                self.total_materials = data  # Store the loaded data
-                self.file_path = file_path
-                self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
-            except Exception as e:
-                print(f"Error opening/reading JSON: {e}")
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            # Check the json is "material": quantity format, just check the first
+            if not all(isinstance(k, str) and isinstance(v, int) for k, v in data.items()):
+                raise ValueError("JSON file must be in the format: {\"material\": quantity}.\n"
+                                 f"Found: {next(iter(data.items()))}")
+     
+            self.displayMaterials(data)
+            self.total_materials = data # Store the loaded data
+            self.file_path = file_path
+            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
                 
     def clearMaterials(self):
         self.table.setRowCount(0)  # Clear the table
         if hasattr(self, "total_materials"):
             del self.total_materials  # Remove the total_materials attribute
+
+######### Helper and Private Methods #########
+
+    def __get_total_mats_from_txt(self, materials_dict, materials_table) -> dict:
+        total_materials = {}
+        for material, quantity in materials_dict.items():
+            if material in materials_table:
+                for raw_material in materials_table[material]:
+                    rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
+
+                    # Keep or 'freeze' the original ice type if specified
+                    if self.ice_type == "freeze":
+                        if material == "packed_ice":
+                            rm_name = "packed_ice"
+                            rm_quantity = rm_quantity / 9
+                        elif material == "blue_ice":
+                            rm_name = "blue_ice"
+                            rm_quantity = rm_quantity / 81
+                                                   
+                    rm_needed = rm_quantity * quantity
+                    total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
+            else:
+                raise ValueError(f"Material {material} not found in materials table.")
+        
+        return total_materials
+
+    def __format_quantities(self, total_materials):
+        for material, quantity in total_materials.items():
+            if quantity >= SHULKER_BOX_STACK_SIZE:
+                num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
+                remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
+                remaining_items = quantity % STACK_SIZE
+                total_materials[material] = f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
+            elif quantity >= STACK_SIZE:
+                num_stacks = quantity // STACK_SIZE
+                remaining_items = quantity % STACK_SIZE
+                total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
+            else:
+                total_materials[material] = str(quantity)
+                
+
+    def selectFile(self):
+        litematica_dir = self.get_litematica_dir()
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir, "Text files (*.txt);;All files (*.*)")
+        if file_path:
+            self.file_path = file_path
+            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
+
+    def get_litematica_dir(self):
+        """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
+        s_drive_path = r"S:\mc\.minecraft\config\litematica"
+        if os.path.exists(s_drive_path):
+            return s_drive_path
+        appdata_path = os.getenv('APPDATA')
+        if appdata_path:
+            appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "config", "litematica")
+            if os.path.exists(appdata_litematica_path):
+                return appdata_litematica_path
+        return ""  # Return an empty string if directory not found
+
+    def updateOutputType(self):
+        self.output_type = "ingots" if self.ingots_radio.isChecked() else "blocks"
+            
+    def updateIceType(self):
+        self.ice_type = "ice" if self.ice_radio.isChecked() else "freeze"
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
