@@ -9,7 +9,7 @@ from S2RM_backend import process_material_list
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit)
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPalette, QColor
 from PySide6.QtCore import Qt
 
 from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE
@@ -24,6 +24,7 @@ class S2RMFrontend(QWidget):
         self.ice_type = "ice"
         
         self.collected_data = {}
+        self.dark_mode = False
 
         self.initUI()
 
@@ -31,12 +32,18 @@ class S2RMFrontend(QWidget):
         layout = QVBoxLayout()
 
         # Menu Bar
-        menu_bar = QMenuBar()
-        file_menu = QMenu("File", self)
-        exit_action = file_menu.addAction("Exit")
+        self.menu_bar = QMenuBar()  # Store the menu bar as an instance variable
+        self.file_menu = QMenu("File", self)  # Store file_menu
+        exit_action = self.file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
-        menu_bar.addMenu(file_menu)
-        layout.addWidget(menu_bar)
+        self.menu_bar.addMenu(self.file_menu)
+
+        self.view_menu = QMenu("View", self)  # Store view_menu
+        dark_mode_action = self.view_menu.addAction("Dark Mode")
+        dark_mode_action.setCheckable(True)
+        dark_mode_action.triggered.connect(self.toggleDarkMode)
+        self.menu_bar.addMenu(self.view_menu)
+        layout.addWidget(self.menu_bar)
 
         # File Selection
         file_layout = QHBoxLayout()
@@ -103,12 +110,15 @@ class S2RMFrontend(QWidget):
     
         # Table Display
         self.table = QTableWidget()
-        self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(["Material", "Quantity", "Collected"])
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["Material", "Quantity", "Collected", ""])
         layout.addWidget(self.table)
         self.table.setColumnWidth(0, 170)
         self.table.setColumnWidth(1, 200)
         self.table.setColumnWidth(2, 80)
+        
+        header = self.table.horizontalHeader()
+        header.setStretchLastSection(True)
 
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
@@ -116,10 +126,19 @@ class S2RMFrontend(QWidget):
         
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
-        credits_and_source_label = QLabel('<a href="https://youtube.com/ncolyer">Made by ncolyer</a> | <a href="https://github.com/ncolyer11/S2RM">Source</a>')
-        credits_and_source_label.setAlignment(Qt.AlignCenter)
-        credits_and_source_label.setOpenExternalLinks(True)
-        layout.addWidget(credits_and_source_label)
+        self.credits_and_source_label = QLabel()
+        self.credits_and_source_label.setAlignment(Qt.AlignCenter)
+        self.credits_and_source_label.setOpenExternalLinks(True)
+        layout.addWidget(self.credits_and_source_label)
+        
+        self.updateCreditsLabel()
+
+    def toggleDarkMode(self, checked):
+        self.dark_mode = checked
+        if self.dark_mode:
+            self.setDarkMode()
+        else:
+            self.setLightMode()
 
     def processMaterials(self):
         if not hasattr(self, "file_path"):
@@ -312,6 +331,96 @@ class S2RMFrontend(QWidget):
     
     def updateCollected(self, material, state):
         self.collected_data[material] = Qt.CheckState(state) == Qt.CheckState.Checked
+
+    def setDarkMode(self):
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.WindowText, Qt.white)
+        palette.setColor(QPalette.Base, QColor(25, 25, 25))
+        palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+        palette.setColor(QPalette.ToolTipBase, Qt.white)
+        palette.setColor(QPalette.ToolTipText, Qt.white)
+        palette.setColor(QPalette.Text, Qt.white)
+        palette.setColor(QPalette.Button, QColor(53, 53, 53))
+        palette.setColor(QPalette.ButtonText, Qt.white)
+        palette.setColor(QPalette.BrightText, Qt.red)
+        palette.setColor(QPalette.Link, QColor(42, 130, 218))
+        palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+        palette.setColor(QPalette.HighlightedText, Qt.black)
+        self.setPalette(palette)
+
+        # Apply dark mode to specific widgets
+        self.file_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.process_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.save_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.open_json_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.clear_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.search_bar.setStyleSheet("QLineEdit { background-color: #191919; color: white; }")
+        self.table.setStyleSheet("""
+            QTableWidget { background-color: #191919; color: white; gridline-color: #353535;}
+            QHeaderView::section { background-color: #353535; color: white; }
+            QTableCornerButton::section { background-color: #353535; }
+        """)
+
+        self.menu_bar.setStyleSheet("""
+            QMenuBar { background-color: #252525; color: white; }
+            QMenuBar::item { background-color: #252525; color: white; }  # Style the menu items
+            QMenuBar::item:selected { background-color: #4A4A4A; }
+            QMenu { background-color: #252525; color: white; }
+            QMenu::item { background-color: #252525; color: white; }  # Style the menu items
+            QMenu::item:selected { background-color: #4A4A4A; }
+        """)
+
+        # Apply styles to the menus
+        self.file_menu.setStyleSheet("""
+            QMenu { background-color: #353535; color: white; }
+            QMenu::item { background-color: #353535; color: white; }
+            QMenu::item:selected { background-color: #4A4A4A; }
+        """)
+
+        self.view_menu.setStyleSheet("""
+            QMenu { background-color: #353535; color: white; }
+            QMenu::item { background-color: #353535; color: white; }
+            QMenu::item:selected { background-color: #4A4A4A; }
+        """)
+
+        # Make credits and source text brighter
+        self.updateCreditsLabel()
+
+    def setLightMode(self):
+        self.setPalette(QApplication.style().standardPalette())
+
+        # Reset styles for specific widgets
+        self.file_button.setStyleSheet("")
+        self.process_button.setStyleSheet("")
+        self.save_button.setStyleSheet("")
+        self.open_json_button.setStyleSheet("")
+        self.clear_button.setStyleSheet("")
+        self.search_bar.setStyleSheet("")
+        self.table.setStyleSheet("")
+
+        # Reset menu styles
+        self.menu_bar.setStyleSheet("")
+        self.file_menu.setStyleSheet("")
+        self.view_menu.setStyleSheet("")
+
+        # Reset credits and source text color
+        self.updateCreditsLabel()
+
+    def updateCreditsLabel(self):
+        # Choose colors based on mode
+        if self.dark_mode:
+            link_color = "#ADD8E6"  # Light blue for dark mode
+        else:
+            link_color = "#0066CC"  # More pleasant dark blue for light mode
+        
+        # Set the text with inline styling for the links
+        self.credits_and_source_label.setText(
+            f'<a style="color: {link_color};" '
+            f'href="https://youtube.com/ncolyer">Made by ncolyer</a> | '
+            f'<a style="color: {link_color};" '
+            f'href="https://github.com/ncolyer11/S2RM">Source</a>'
+        )
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
