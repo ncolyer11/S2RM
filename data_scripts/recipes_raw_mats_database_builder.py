@@ -29,7 +29,7 @@ def get_raw_materials_cost_dict(recipe_json_raw_data: dict) -> dict:
     
     for item_name, recipe in recipe_json_raw_data.items():
         craft_type = recipe['type'].replace('minecraft:', '')
-        if ignore_item(item_name):
+        if re.match(IGNORE_ITEMS_REGEX, item_name):
             continue
 
         # Return a dictionary of material types and their required quantity
@@ -108,12 +108,6 @@ def get_smelting_ingredients(recipe) -> dict[str, int]:
     
     ingredients['count'] = 1.0
     return ingredients
-
-def ignore_item(item_name: str):
-    if re.match(IGNORE_ITEMS_REGEX, item_name):
-        return True
-
-    return False
 
 ###############
 ### HELPERS ###
