@@ -4,8 +4,6 @@ Calculates raw material needs from Litematica material lists, extracting recipe 
   <img src="https://github.com/user-attachments/assets/1e52266e-220c-4df5-88c4-c9ccae86d53f" width="600">
 </p>
 
-**Warning:** The recipe data extraction is limited to the first 1000 entries from the recipe folder, omitting 373 entries.
-
 ## About
 
 This tool automates the process of converting Litematica material lists into the necessary raw materials for Minecraft builds. It streamlines resource gathering by analyzing recipe data directly from Minecraft's `.jar` files. Users can choose output formats (ingots or blocks), track collected materials, and save/load progress in JSON format. The application also provides a search function and quantity formatting for clarity. Please note that the definition of "raw materials" can vary.
