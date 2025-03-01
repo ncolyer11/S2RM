@@ -19,10 +19,18 @@ from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_
 
 
 PROGRAM_VERSION = "1.1.1"
-OUTPUT_JSON_VERSION = 3 # Manually track the version of the output json files for compatibility
+OUTPUT_JSON_VERSION = 4 # Manually track the version of the output json files for compatibility
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
+
+# Constants for the table columns
+INPUT_ITEMS_COL_NUM = 0
+INPUT_QUANTITIES_COL_NUM = 1
+EXCLUDE_QUANTITIES_COL_NUM = 2
+RAW_MATERIALS_COL_NUM = 3
+RAW_QUANTITIES_COL_NUM = 4
+COLLECTIONS_COL_NUM = 5
 
 class S2RMFrontend(QWidget):
     def __init__(self):
@@ -43,9 +51,13 @@ class S2RMFrontend(QWidget):
 
         # Menu Bar
         self.menu_bar = QMenuBar()  # Store the menu bar as an instance variable
-        self.file_menu = QMenu("File", self)  # Store file_menu
+        
+        # Store file_menu
+        self.file_menu = QMenu("File", self)  
         exit_action = self.file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
+        export_to_csv_action = self.file_menu.addAction("Export to CSV")
+        export_to_csv_action.triggered.connect(self.exportCSV)
         self.menu_bar.addMenu(self.file_menu)
         
         # Store view_menu
@@ -126,12 +138,12 @@ class S2RMFrontend(QWidget):
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         layout.addWidget(self.table)
-        self.table.setColumnWidth(0, 210)
-        self.table.setColumnWidth(1, 200)
-        self.table.setColumnWidth(2, 80)
-        self.table.setColumnWidth(3, 170)
-        self.table.setColumnWidth(4, 200)
-        self.table.setColumnWidth(5, 80)
+        self.table.setColumnWidth(INPUT_ITEMS_COL_NUM, 210)
+        self.table.setColumnWidth(INPUT_QUANTITIES_COL_NUM, 200)
+        self.table.setColumnWidth(EXCLUDE_QUANTITIES_COL_NUM, 80)
+        self.table.setColumnWidth(RAW_MATERIALS_COL_NUM, 170)
+        self.table.setColumnWidth(RAW_QUANTITIES_COL_NUM, 200)
+        self.table.setColumnWidth(COLLECTIONS_COL_NUM, 80)
         
         header = self.table.horizontalHeader()
         header.setStretchLastSection(True)
@@ -176,16 +188,16 @@ class S2RMFrontend(QWidget):
             # Column 0: Material name (non-editable)
             material_item = QTableWidgetItem(material)
             material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
-            self.table.setItem(row, 0, material_item)
+            self.table.setItem(row, INPUT_ITEMS_COL_NUM, material_item)
             
             # Column 1: Input quantity (non-editable)
             quantity_item = QTableWidgetItem(str(inp_quant))
             quantity_item.setFlags(quantity_item.flags() & ~Qt.ItemIsEditable)
-            self.table.setItem(row, 1, quantity_item)
+            self.table.setItem(row, INPUT_QUANTITIES_COL_NUM, quantity_item)
             
             # Column 2: exclude quantity (editable)
             exc_quant = self.exclude_items[row] if use_exclude_items else 0
-            self.__set_exclude_input_cell(row, 2, exc_quant)
+            self.__set_exclude_input_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exc_quant)
         
         self.saveInputNumbers()
 
@@ -193,8 +205,8 @@ class S2RMFrontend(QWidget):
         self.exclude_items = []  # Initialize or reset the list
         for row in range(self.table.rowCount()):
             # Get the value from the third column (number input)
-            number_value = self.table.item(row, 2).text()
-            required_quantity = float(self.table.item(row, 1).text())
+            number_value = self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM).text()
+            required_quantity = float(self.table.item(row, INPUT_QUANTITIES_COL_NUM).text())
             
             try:
                 number_value = clamp(float(number_value), 0, required_quantity)
@@ -207,7 +219,7 @@ class S2RMFrontend(QWidget):
                     number_value = 0
                 
                 number_value = clamp(number_value, 0, required_quantity)
-                self.__set_exclude_input_cell(row, 2, number_value)
+                self.__set_exclude_input_cell(row, EXCLUDE_QUANTITIES_COL_NUM, number_value)
             
             # Add the value to the exclude_items list
             self.exclude_items.append(round(number_value))
@@ -284,14 +296,14 @@ class S2RMFrontend(QWidget):
         self.table.setRowCount(max(self.table.rowCount(), len(mats_frmtd)))
         # delete data in row len(mats_frmtd) to end of table for column 3 and 4
         for row in range(len(mats_frmtd), self.table.rowCount()):
-            self.__set_raw_materials_cell(row, 3, "")
-            self.__set_raw_materials_cell(row, 4, "")
-            self.table.setCellWidget(row, 5, None)
+            self.__set_raw_materials_cell(row, RAW_MATERIALS_COL_NUM, "")
+            self.__set_raw_materials_cell(row, RAW_QUANTITIES_COL_NUM, "")
+            self.table.setCellWidget(row, COLLECTIONS_COL_NUM, None)
 
         row = 0
         for material, quantity in mats_frmtd.items() if isinstance(mats_frmtd, dict) else mats_frmtd:
-            self.__set_raw_materials_cell(row, 3, material)
-            self.__set_raw_materials_cell(row, 4, str(quantity))
+            self.__set_raw_materials_cell(row, RAW_MATERIALS_COL_NUM, material)
+            self.__set_raw_materials_cell(row, RAW_QUANTITIES_COL_NUM, str(quantity))
             
             # Add checkbox
             checkbox = QCheckBox()
@@ -305,7 +317,7 @@ class S2RMFrontend(QWidget):
             checkbox_layout.setAlignment(Qt.AlignCenter)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
 
-            self.table.setCellWidget(row, 5, checkbox_widget)
+            self.table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
 
             row += 1
 
@@ -318,6 +330,12 @@ class S2RMFrontend(QWidget):
         
         if hasattr(self, "file_path"):
             table_dict["litematica_mats_list_path"] = self.file_path
+            
+        if hasattr(self, "output_type"):
+            table_dict["output_type"] = self.output_type
+        
+        if hasattr(self, "ice_type"):
+            table_dict["ice_type"] = self.ice_type
 
         if hasattr(self, "input_items"):
             table_dict["input_items"] = list(self.input_items.keys()) 
@@ -332,11 +350,6 @@ class S2RMFrontend(QWidget):
 
         if hasattr(self, "collected_data"):
             table_dict["collected"] = self.collected_data
-
-        # If there's nothing to save, return early
-        if not table_dict:
-            print("No data to save.")
-            return
 
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_dialog = QFileDialog()
@@ -362,16 +375,12 @@ class S2RMFrontend(QWidget):
             with open(file_path, "r") as f:
                 table_dict = json.load(f)
 
-                if "version" not in table_dict or table_dict["version"] != OUTPUT_JSON_VERSION:
-                    if "version" not in table_dict:
-                        version = "not specified"
-                    else:
-                        version = table_dict["version"]
-
+                version = table_dict.get("version", "not specified")
+                if version != OUTPUT_JSON_VERSION and not self.backportJson(table_dict, version):
                     message = (
                         "Warning: The materials table you are trying to open is uses an incompatible format.\n\n"
                         f"Expected version: '{OUTPUT_JSON_VERSION}'.\nFound Version: '{version}'.\n\n"
-                        "Backporting is not currently supported.\n"
+                        "Backporting is not supported between these versions.\n"
                         "Therefore, the selected materials table cannot be opened."
                     )
                     QMessageBox.warning(
@@ -390,6 +399,15 @@ class S2RMFrontend(QWidget):
             self.exclude_items = []
             self.total_materials = {}
             self.collected_data = {}
+            
+            if "output_type" in table_dict:
+                self.output_type = table_dict["output_type"]
+                self.__set_radio_button(self.output_type, ["blocks", "ingots"],
+                                        [self.blocks_radio, self.ingots_radio])
+            if "ice_type" in table_dict:
+                self.ice_type = table_dict["ice_type"]
+                self.__set_radio_button(self.ice_type, ["freeze", "ice"],
+                                        [self.packed_ice_radio, self.ice_radio])
 
             if "litematica_mats_list_path" in table_dict:
                 self.file_path = table_dict["litematica_mats_list_path"]
@@ -414,6 +432,57 @@ class S2RMFrontend(QWidget):
             self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
         else:
             print("No file selected")
+
+    def backportJson(self, table_dict, version):
+        # Backporting not supported below version 3
+        if OUTPUT_JSON_VERSION <= 3:
+            return False
+        elif OUTPUT_JSON_VERSION == 4:
+            if version == 3:
+                # Version 3 didn't have the 'output_type' and 'ice_type' fields
+                table_dict["output_type"] = self.output_type
+                table_dict["ice_type"] = self.ice_type
+
+                return True
+        else:
+            print(f"Backporting from version {version} to {OUTPUT_JSON_VERSION} is not supported.")
+            return False
+
+    def exportCSV(self):
+        """Export the current table to a CSV file."""
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getSaveFileName(
+            self, "Export CSV File", os.path.join(desktop_path, "raw_materials_table.csv"),
+            "CSV files (*.csv);;All files (*.*)"
+        )
+        if file_path:
+            try:
+                with open(file_path, "w") as f:
+                    # Write headers
+                    headers = [self.table.horizontalHeaderItem(col).text()
+                               if self.table.horizontalHeaderItem(col) 
+                               else f"Column {col+1}" 
+                               for col in range(self.table.columnCount())]
+                    f.write(",".join(headers) + "\n")
+                    
+                    # Write table contents
+                    for row in range(self.table.rowCount()):
+                        for col in range(self.table.columnCount() - 1):
+                            item = self.table.item(row, col)
+                            if item:
+                                f.write(item.text())
+                            # if not item, check if it's in the collected column
+                            elif col == COLLECTIONS_COL_NUM:
+                                widget = self.table.cellWidget(row, COLLECTIONS_COL_NUM)
+                                if widget:
+                                    checkbox = widget.layout().itemAt(0).widget()
+                                    f.write("Collected" if checkbox.isChecked() else "Not Collected")
+                            f.write(",")
+                        f.write("\n")
+                print(f"CSV saved successfully to: {file_path}")
+            except Exception as e:
+                print(f"Error saving CSV: {e}")
 
     def clearMaterials(self):
         self.table.setRowCount(0) # Clear the table
@@ -529,7 +598,7 @@ class S2RMFrontend(QWidget):
         self.file_menu.setStyleSheet("")
         self.view_menu.setStyleSheet("")
         
-        self.setEditableCellStyles(LIGHT_INPUT_CELL)  # Light mode cell color
+        self.setEditableCellStyles(LIGHT_INPUT_CELL)
 
         # Reset credits and source text color
         self.updateCreditsLabel()
@@ -537,19 +606,18 @@ class S2RMFrontend(QWidget):
     def setEditableCellStyles(self, hex_color):
         """Sets background color for editable cells."""
         for row in range(self.table.rowCount()):
-            # Assuming the editable column is the 3rd column (index 2)
-            number_item = self.table.item(row, 2)
+            number_item = self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)
             if number_item and number_item.flags() & Qt.ItemIsEditable:
                 number_item.setBackground(QColor(hex_color))
 
     def updateCreditsLabel(self):
         # Choose colors based on mode
         if self.dark_mode:
-            link_color = "#ADD8E6"  # Light blue for dark mode
-            version_color = "#FFD700"  # Gold for dark mode
+            link_color = "#ADD8E6" # Light blue for dark mode
+            version_color = "#FFD700" # Gold for dark mode
         else:
-            link_color = "#0066CC"  # More pleasant dark blue for light mode
-            version_color = "#FF4500"  # Slightly darker orange for light mode
+            link_color = "#0066CC" # More pleasant dark blue for light mode
+            version_color = "#FF4500" # Slightly darker orange for light mode
         
         # Set the text with inline styling for the links
         non_breaking_spaces = "&nbsp;" * 10
@@ -614,6 +682,27 @@ class S2RMFrontend(QWidget):
         item = QTableWidgetItem(val)
         item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Make non-editable
         self.table.setItem(row, col, item)
+
+    @staticmethod
+    def __set_radio_button(set_to_state, bool_states: list, radio_buttons: list):
+        """
+        Sets the radio button to the specified state.
+        
+        Parameters
+        ----------
+        set_to_state : bool
+            The state to set the radio button to.
+        bool_states : list
+            The boolean states corresponding to the radio buttons.
+        radio_buttons : list
+            The radio buttons to set.
+        """
+        if set_to_state == bool_states[0]:
+            radio_buttons[0].setChecked(True)
+        elif set_to_state == bool_states[1]:
+            radio_buttons[1].setChecked(True)
+        else:
+            raise ValueError(f"Invalid state: {set_to_state}")
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
@@ -687,9 +776,9 @@ def process_exclude_string(input_string):
 
         if suffix:
             if suffix.lower() == 's':
-                total += digit * 64
+                total += digit * STACK_SIZE
             elif suffix.lower() == 'sb':
-                total += digit * 64 * 27
+                total += digit * SHULKER_BOX_STACK_SIZE
         else:
             total += digit
 
