@@ -564,6 +564,7 @@ class S2RMFrontend(QWidget):
             self.setLightMode()
 
     def setDarkMode(self):
+        app.setStyle('Fusion')
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(53, 53, 53))
         palette.setColor(QPalette.WindowText, Qt.white)
@@ -621,6 +622,8 @@ class S2RMFrontend(QWidget):
         self.updateCreditsLabel()
 
     def setLightMode(self):
+        app.setStyle('windowsvista')
+        
         self.setPalette(QApplication.style().standardPalette())
 
         # Reset styles for specific widgets
@@ -828,9 +831,7 @@ def process_exclude_string(input_string):
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
-
 if __name__ == "__main__":
-    sys.argv += ['-platform', 'windows:darkmode=2']
     app = QApplication(sys.argv)
     app_icon = QIcon(resource_path("icon/icon.ico"))
     app.setWindowIcon(app_icon)
