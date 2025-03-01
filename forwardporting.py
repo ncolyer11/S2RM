@@ -1,8 +1,11 @@
+from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE
+
+
 NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
 CJ_ERR = 2    # Corrupt JSON Error
 
-OUTPUT_JSON_VERSION = 6 # Track the version of the output json files for forwardporting capability
+OUTPUT_JSON_VERSION = 7 # Track the version of the output json files for forwardporting capability
 OUTPUT_JSON_DEFAULT = {
     "version": OUTPUT_JSON_VERSION,
     "material_list_paths": [],
@@ -10,7 +13,7 @@ OUTPUT_JSON_DEFAULT = {
     "ice_type": "",
     "input_items": [],
     "input_quantities": [],
-    "exclude_input": [],
+    "exclude_text": [],
     "raw_materials": [],
     "raw_quantities": [],
     "collected": {}
@@ -51,6 +54,7 @@ def forwardportJson(table_dict, version: int) -> int:
         4: forwardporttoV4,
         5: forwardporttoV5,
         6: forwardporttoV6,
+        7: forwardporttoV7
     }
     
     # forwardport successively to the target version
@@ -59,7 +63,15 @@ def forwardportJson(table_dict, version: int) -> int:
             print(f"Forwardporting from version {version} to {target_version}.")
             if error_code := forwardport_methods[target_version](table_dict):
                 return print_forwardporting_error(version, error_code)
-
+     
+    # If any one of the following lists are empty, then they all should be, otherwise we have an error   
+    if not (bool(table_dict["input_items"]) == bool(table_dict["input_quantities"])
+        == bool(table_dict["exclude_text"]) == bool(table_dict["exclude_values"])):
+        return CJ_ERR
+    # Same with 'raw_materials' and 'raw_quantities'
+    if not (bool(table_dict["raw_materials"]) == bool(table_dict["raw_quantities"])):
+        return CJ_ERR
+    
     table_dict["version"] = OUTPUT_JSON_VERSION
 
     return NO_ERR
@@ -83,18 +95,18 @@ def forwardporttoV5(table_dict):
             del table_dict[key]
             table_dict[key] = original_table_dict_val
     
-    # If any one of 'input_items', input_quantities', or 'exclude_input' are empty, then they all should be, otherwise we have an error
-    if not (bool(table_dict["input_items"]) == bool(table_dict["input_quantities"])
-            == bool(table_dict["exclude_input"])):
-        return CJ_ERR
-    # Same with 'raw_materials' and 'raw_quantities'
-    if not (bool(table_dict["raw_materials"]) == bool(table_dict["raw_quantities"])):
-        return CJ_ERR
-    
 def forwardporttoV6(table_dict):
     """Versions below 6 used a single input materials path called 'litematica_mats_list_path'."""
-    table_dict["material_list_paths"] = [table_dict.pop("litematica_mats_list_path", [])] \
+    table_dict["material_list_paths"] = [table_dict.pop("litematica_mats_list_path")] \
     if "litematica_mats_list_path" in table_dict else []
+
+def forwardporttoV7(table_dict):
+    """
+    Versions below 7 don't have the exclude_values field instead of exclude_input (now formatted).
+    Also, an exclude_text field has been added."""
+    table_dict["exclude_values"] = table_dict.pop("exclude_input") \
+    if "exclude_input" in table_dict else []
+    table_dict["exclude_text"] = format_quantities(table_dict["exclude_values"])
 
 # Helper function to print forwardporting error message
 def print_forwardporting_error(version, ec):
@@ -104,3 +116,32 @@ def print_forwardporting_error(version, ec):
     else:
         print(f"There was an error ({ec}) whilst forwardporting from v{version} to v{OUTPUT_JSON_VERSION}.")
         return ec
+
+def format_quantities(total_materials: dict[str, int]|list[int]) -> list[str] | None:
+    """
+    If total_materials is a list of numbers, just output a formatted list of numbers. Otherwise,
+    format the total_materials dictionary.
+    """
+    if isinstance(total_materials, list):
+        return [get_shulkers_stacks_and_items(quantity) for quantity in total_materials]
+    elif isinstance(total_materials, dict):
+        for material, quantity in total_materials.items():
+            total_materials[material] = get_shulkers_stacks_and_items(quantity)
+    else:
+        raise TypeError("total_materials must be a list or dictionary.")
+
+def get_shulkers_stacks_and_items(quantity: int) -> str:
+    """
+    Return a formatted string of the quantity in the form of 'x (y SB + z stacks + a)'.
+    """
+    if quantity >= SHULKER_BOX_STACK_SIZE:
+        num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
+        remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
+        remaining_items = quantity % STACK_SIZE
+        return f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
+    elif quantity >= STACK_SIZE:
+        num_stacks = quantity // STACK_SIZE
+        remaining_items = quantity % STACK_SIZE
+        return f"{quantity} ({num_stacks} stacks + {remaining_items})"
+    else:
+        return str(quantity)       

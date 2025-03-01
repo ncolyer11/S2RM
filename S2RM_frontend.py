@@ -17,9 +17,10 @@ from PySide6.QtGui import QIcon, QPalette, QColor
 from PySide6.QtCore import Qt
 
 from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
-from forwardporting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
+# TODO: make helper function for formatting quantities and others used between frontend and backend
+from forwardporting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message, format_quantities
 
-# XXX bug fsr exclude sb s formatting is broken??
+# XXX cart storage schem input isnt gfetting sorted
 
 PROGRAM_VERSION = "1.2.0"
 
@@ -45,7 +46,8 @@ class S2RMFrontend(QWidget):
         self.ice_type = "ice"
         
         self.input_items = {}
-        self.exclude_items = []
+        self.exclude_text = []
+        self.exclude_values = []
         self.collected_data = {}
         self.dark_mode = True
         
@@ -208,15 +210,16 @@ class S2RMFrontend(QWidget):
         self.displayInputMaterials()
 
     def displayInputMaterials(self):
-        """"""
-        input_items = list(self.input_items.items())
-        row_count = len(input_items)
+        input_items_frmtd = copy.deepcopy(self.input_items)
+        format_quantities(input_items_frmtd)
+        input_items_frmtd = list(input_items_frmtd.items())
+        row_count = len(input_items_frmtd)
         
         # Ensure the table has enough rows
         self.table.setRowCount(row_count)
         
         # Determine which quantities to use
-        use_exclude_items = len(self.input_items) == len(self.exclude_items)
+        use_exclude_text = len(self.input_items) == len(self.exclude_text)
         
         # Delete data after new input items
         for row in range(row_count, self.table.rowCount()):
@@ -224,7 +227,7 @@ class S2RMFrontend(QWidget):
             self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
         
-        for row, (material, inp_quant) in enumerate(input_items):
+        for row, (material, inp_quant) in enumerate(input_items_frmtd):
             # Material name (non-editable)
             material_item = QTableWidgetItem(material)
             material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
@@ -236,33 +239,43 @@ class S2RMFrontend(QWidget):
             self.table.setItem(row, INPUT_QUANTITIES_COL_NUM, quantity_item)
             
             # Exclude quantity (editable)
-            exc_quant = self.exclude_items[row] if use_exclude_items else 0
-            self.__set_exclude_input_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exc_quant)
+            exclude_text = self.exclude_text[row] if use_exclude_text else 0
+            self.__set_exclude_text_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exclude_text)
         
         self.saveInputNumbers()
 
     def saveInputNumbers(self):
-        self.exclude_items = []  # Initialize or reset the list
+        self.exclude_text = []
+        self.exclude_values = []
         for row in range(self.table.rowCount()):
             # Get the value from the third column (number input)
-            number_value = self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM).text()
-            required_quantity = float(self.table.item(row, INPUT_QUANTITIES_COL_NUM).text())
-            
+            exclude_cell_text = self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM).text()
+            exclude_value = 0
+            # Convert the formatted text to a number
+            input_quantity = self.table.item(row, INPUT_QUANTITIES_COL_NUM).text()
+            required_quantity = int(input_quantity.split("(")[0].strip())
             try:
-                number_value = clamp(float(number_value), 0, required_quantity)
+                exclude_value = clamp(float(exclude_cell_text), 0, required_quantity)
             except ValueError:
-                if number_value.strip().lower() in ["all", "a"]:  # Allow 'all' or 'a' to represent the full quantity
-                    number_value = required_quantity
+                if exclude_cell_text.strip().lower() in ["all", "a"]:
+                    exclude_cell_text = "All"
+                    exclude_value = required_quantity
                 # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
-                elif (number_value := process_exclude_string(number_value)) == -1:
+                elif (exclude_value := process_exclude_string(exclude_cell_text)) == -1:
                     # If user enters something proper invalid reset to 0
-                    number_value = 0
+                    exclude_cell_text = "0"
+                    exclude_value = 0
                 
-                number_value = clamp(number_value, 0, required_quantity)
-                self.__set_exclude_input_cell(row, EXCLUDE_QUANTITIES_COL_NUM, number_value)
+                exclude_value = clamp(exclude_value, 0, required_quantity)
+
+            if exclude_value == required_quantity:
+                exclude_cell_text = "All"
+
+            self.__set_exclude_text_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exclude_cell_text)
             
-            # Add the value to the exclude_items list
-            self.exclude_items.append(round(number_value))
+            # Add the value to the exclude_text list
+            self.exclude_text.append(exclude_cell_text)
+            self.exclude_values.append(round(exclude_value))
 
     def displayMaterials(self, materials=None):
         # Ensure displayed materials still conform to the search term
@@ -271,7 +284,7 @@ class S2RMFrontend(QWidget):
 
         # Deepcopy the materials to avoid modifying the original
         mats_frmtd = copy.deepcopy(materials)
-        self.__format_quantities(mats_frmtd)
+        format_quantities(mats_frmtd)
         self.table.setRowCount(max(self.table.rowCount(), len(mats_frmtd)))
         # delete data in row len(mats_frmtd) to end of table for column 3 and 4
         for row in range(len(mats_frmtd), self.table.rowCount()):
@@ -389,7 +402,8 @@ class S2RMFrontend(QWidget):
         else:
             table_dict["input_items"], table_dict["input_quantities"] = [], []
         
-        self.__add_with_default(table_dict, "exclude_items", "exclude_input", [])
+        self.__add_with_default(table_dict, "exclude_text", "exclude_text", [])
+        self.__add_with_default(table_dict, "exclude_values", "exclude_values", [])
         
         if hasattr(self, "total_materials"):
             table_dict["raw_materials"] = list(self.total_materials.keys())
@@ -442,7 +456,8 @@ class S2RMFrontend(QWidget):
             self.table.setRowCount(0)
             self.file_paths = []
             self.input_items = {}
-            self.exclude_items = []
+            self.exclude_text = []
+            self.exclude_values = []
             self.total_materials = {}
             self.collected_data = {}
             
@@ -459,15 +474,24 @@ class S2RMFrontend(QWidget):
                 self.file_paths = table_dict["material_list_paths"]
 
             if "input_items" in table_dict and "input_quantities" in table_dict:
-                self.input_items = {item: quantity for item, quantity in 
+                input_items = {item: quantity for item, quantity in 
                                     zip(table_dict["input_items"], table_dict["input_quantities"])}
+                
+                # Make sure it's sorted
+                self.input_items = dict(sorted(input_items.items(), key=lambda x: (-x[1], x[0])))
 
-            if "exclude_input" in table_dict:
-                self.exclude_items = np.round(table_dict["exclude_input"]).tolist()
+            if "exclude_text" in table_dict:
+                self.exclude_text = table_dict["exclude_text"]
+            
+            if "exclude_values" in table_dict:
+                self.exclude_values = np.round(table_dict["exclude_values"]).tolist()
 
             if "raw_materials" in table_dict and "raw_quantities" in table_dict:
-                self.total_materials = {material: quantity for material, quantity in
+                total_materials = {material: quantity for material, quantity in
                                         zip(table_dict["raw_materials"], table_dict["raw_quantities"])}
+                
+                # Make sure it's sorted
+                self.total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
 
             if "collected" in table_dict:
                 self.collected_data = table_dict["collected"]
@@ -503,7 +527,7 @@ class S2RMFrontend(QWidget):
                             item = self.table.item(row, col)
                             if item:
                                 # Remove alt quantity amount with stacks and shulker boxes
-                                if col == RAW_QUANTITIES_COL_NUM:
+                                if col in [EXCLUDE_QUANTITIES_COL_NUM, RAW_QUANTITIES_COL_NUM]:
                                     quantity = item.text().split("(")[0].strip()
                                     f.write(quantity)
                                 else:
@@ -526,8 +550,10 @@ class S2RMFrontend(QWidget):
             self.total_materials = {}
         if hasattr(self, "input_items"):
             self.input_items = {}
-        if hasattr(self, "exclude_items"):
-            self.exclude_items = []
+        if hasattr(self, "exclude_text"):
+            self.exclude_text = []
+        if hasattr(self, "exclude_values"):
+            self.exclude_values = []
         
         self.file_paths = []
         self.file_label.setText(FILE_LABEL_TEXT)
@@ -675,7 +701,7 @@ class S2RMFrontend(QWidget):
         total_materials = {}
         for input_item_idx, (material, quantity) in enumerate(self.input_items.items()):
             if material in self.materials_table:
-                exclude_quantity = self.exclude_items[input_item_idx]
+                exclude_quantity = self.exclude_values[input_item_idx]
                 for raw_material in self.materials_table[material]:
                     rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
 
@@ -694,22 +720,8 @@ class S2RMFrontend(QWidget):
                 raise ValueError(f"Material {material} not found in materials table.")
         
         return total_materials
-    
-    def __format_quantities(self, total_materials):
-        for material, quantity in total_materials.items():
-            if quantity >= SHULKER_BOX_STACK_SIZE:
-                num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
-                remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
-            elif quantity >= STACK_SIZE:
-                num_stacks = quantity // STACK_SIZE
-                remaining_items = quantity % STACK_SIZE
-                total_materials[material] = f"{quantity} ({num_stacks} stacks + {remaining_items})"
-            else:
-                total_materials[material] = str(quantity)
-        
-    def __set_exclude_input_cell(self, row, col, quantity):
+
+    def __set_exclude_text_cell(self, row, col, quantity):
         cell_colour = DARK_INPUT_CELL if self.dark_mode else LIGHT_INPUT_CELL
         number_item = QTableWidgetItem(str(quantity))  # Default value or you can leave it empty
         number_item.setFlags(number_item.flags() | Qt.ItemIsEditable)  # Make the cell editable
