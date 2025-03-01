@@ -42,10 +42,12 @@ def forwardportJson(table_dict, version: int) -> int:
     """
     Forwardport a materials table dictionary to the latest version.
     
+    Porting is not supported if the program's json version is below 3, or if the input version is
+    below 2 (unspecified), or if the input version is higher than the program's json version.
+    
     Returns:
         True if successful, otherwise an error code.
     """
-    # Forwardporting not supported below version 3
     if version <= 2 or OUTPUT_JSON_VERSION <= 3 or version > OUTPUT_JSON_VERSION:
         return print_forwardporting_error(version, IV_ERR)
     
