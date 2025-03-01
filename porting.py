@@ -104,7 +104,8 @@ def forwardporttoV6(table_dict):
 def forwardporttoV7(table_dict):
     """
     Versions below 7 don't have the exclude_values field instead of exclude_input (now formatted).
-    Also, an exclude_text field has been added."""
+    Also, an exclude_text field has been added to track the SB and stacks format.
+    """
     table_dict["exclude_values"] = table_dict.pop("exclude_input") \
     if "exclude_input" in table_dict else []
     table_dict["exclude_text"] = format_quantities(table_dict["exclude_values"])
