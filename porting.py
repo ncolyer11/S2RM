@@ -1,6 +1,5 @@
 from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE
 
-
 NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
 CJ_ERR = 2    # Corrupt JSON Error

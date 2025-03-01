@@ -17,9 +17,7 @@ from PySide6.QtCore import Qt
 
 from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 # TODO: make helper function for formatting quantities and others used between frontend and backend
-from forwardporting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message, format_quantities
-
-# XXX cart storage schem input isnt gfetting sorted
+from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message, format_quantities
 
 PROGRAM_VERSION = "1.2.0"
 
