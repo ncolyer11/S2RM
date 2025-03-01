@@ -18,7 +18,7 @@ from PySide6.QtCore import Qt
 from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 
 
-PROGRAM_VERSION = "1.1.0"
+PROGRAM_VERSION = "1.1.1"
 OUTPUT_JSON_VERSION = 3 # Manually track the version of the output json files for compatibility
 
 DARK_INPUT_CELL = "#111a14"
@@ -224,23 +224,20 @@ class S2RMFrontend(QWidget):
             materials_table = json.load(f)
         # If the file path is a .txt file, use it directly
         if self.file_path.endswith("txt"):
-            litematica_mats_list_path = self.file_path
+            total_materials = self.__get_total_mats_from_txt(self.file_path, materials_table)
         # Otherwise, if the file path is a .json file, extract the litematica_mats_list_path
         elif self.file_path.endswith("json"):
             with open(self.file_path, "r") as f:
                 table_dict = json.load(f)
-                # TODO: ahh don't think this is necessary as you can just reconstruct
-                # total_materials from the input_items columns that way the json can work
-                # without needing the text file in a specific spot - XXX this a bug actually tbh
-                if "litematica_mats_list_path" in table_dict:
-                    litematica_mats_list_path = table_dict["litematica_mats_list_path"]
+                if "input_items" in table_dict and "input_quantities" in table_dict:
+                    self.input_items = {item: quantity for item, quantity in
+                                        zip(table_dict["input_items"], table_dict["input_quantities"])}
+                    total_materials = self.__get_total_mats_from_input(materials_table)
                 else:
-                    print("No litematica material list.txt path found in JSON file.")
+                    print("No input items found in JSON file.")
                     return
         else:
             raise ValueError(f"Invalid file type: {self.file_path}")
-
-        total_materials = self.__get_total_mats_from_txt(litematica_mats_list_path, materials_table)
 
         # Round final quantities up
         for material, quantity in total_materials.items():
@@ -566,6 +563,9 @@ class S2RMFrontend(QWidget):
 
     def __get_total_mats_from_txt(self, file_path, materials_table) -> dict:
         self.input_items = process_material_list(file_path)
+        return self.__get_total_mats_from_input(materials_table)
+
+    def __get_total_mats_from_input(self, materials_table) -> dict:
         total_materials = {}
         for input_item_idx, (material, quantity) in enumerate(self.input_items.items()):
             if material in materials_table:
@@ -586,9 +586,9 @@ class S2RMFrontend(QWidget):
                     total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
             else:
                 raise ValueError(f"Material {material} not found in materials table.")
-        
+            
         return total_materials
-
+    
     def __format_quantities(self, total_materials):
         for material, quantity in total_materials.items():
             if quantity >= SHULKER_BOX_STACK_SIZE:
