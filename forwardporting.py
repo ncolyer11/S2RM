@@ -136,12 +136,26 @@ def get_shulkers_stacks_and_items(quantity: int) -> str:
     """
     if quantity >= SHULKER_BOX_STACK_SIZE:
         num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
+        output_string = f"{quantity} ({num_shulker_boxes} SB"
+        
         remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
+        if remaining_stacks:
+            output_string += f" + {remaining_stacks} stacks"
+
         remaining_items = quantity % STACK_SIZE
-        return f"{quantity} ({num_shulker_boxes} SB + {remaining_stacks} stacks + {remaining_items})"
+        if remaining_items:
+            output_string += f" + {remaining_items}"
+
+        return output_string + ")"
+
     elif quantity >= STACK_SIZE:
         num_stacks = quantity // STACK_SIZE
+        output_string = f"{quantity} ({num_stacks} stacks"
+
         remaining_items = quantity % STACK_SIZE
-        return f"{quantity} ({num_stacks} stacks + {remaining_items})"
+        if remaining_items:
+            output_string += f" + {remaining_items}"
+            
+        return output_string + ")"
     else:
-        return str(quantity)       
+        return str(quantity)    

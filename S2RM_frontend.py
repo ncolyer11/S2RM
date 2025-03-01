@@ -1,10 +1,9 @@
-import copy
 import re
-import sys
 import os
+import sys
+import copy
 import json
 import math
-import sys
 
 import numpy as np
 
@@ -330,20 +329,7 @@ class S2RMFrontend(QWidget):
 
         # If self.file_paths is a single .json file, extract the new self.input_items
         if json_file_path is not None:
-            try:
-                with open(json_file_path, "r") as f:
-                    table_dict = json.load(f)
-                    if "input_items" in table_dict and "input_quantities" in table_dict:
-                        self.input_items = {item: quantity for item, quantity in
-                                            zip(table_dict["input_items"], table_dict["input_quantities"])}
-                    else:
-                        print("No input items found in JSON file.")
-                        return
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                return
-            
-            self.file_paths = json_file_path
+            self.__extract_input_items_from_json(json_file_path)
 
         # Get the dictionary of total raw materials needed
         total_materials = self.__get_total_mats_from_input()
@@ -364,7 +350,6 @@ class S2RMFrontend(QWidget):
             
         # Sort by quantity (descending) then by material name (ascending)
         total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
-        
         self.total_materials = total_materials
         self.displayMaterials()
         self.displayInputMaterials()
@@ -375,10 +360,27 @@ class S2RMFrontend(QWidget):
         self.displayMaterials(materials)
 
     def filterMaterials(self, search_term):
+        """Checks comma separated regex search terms against the raw materials."""
+        # Remove any blank search terms
+        if not (search_terms := [term.strip().strip("'") for term in search_term.split(",") if term.strip()]):
+            return self.total_materials
+
+        # Verify that each search term is a valid regex
+        valid_search_terms = []
+        for term in search_terms:
+            try:
+                re.compile(term)
+                valid_search_terms.append(term)
+            except re.error:
+                pass
+                
+        if not valid_search_terms:
+            return self.total_materials
+
         filtered_materials = {}
         if hasattr(self, "total_materials"):
             for material, quantity in self.total_materials.items():
-                if search_term.lower() in material.lower():
+                if any(re.search(search, material, re.IGNORECASE) for search in valid_search_terms):
                     filtered_materials[material] = quantity
         
         return filtered_materials
@@ -417,7 +419,7 @@ class S2RMFrontend(QWidget):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getSaveFileName(
-            self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
+            self, "Save JSON File",os.path.join(desktop_path, "materials_table.json"),
             "JSON files (*.json);;All files (*.*)"
         )
 
@@ -496,8 +498,7 @@ class S2RMFrontend(QWidget):
             if "collected" in table_dict:
                 self.collected_data = table_dict["collected"]
 
-            self.displayInputMaterials()
-            self.displayMaterials(self.total_materials)
+            self.filterAndDisplayMaterials(self.search_bar.text())
             self.file_paths = file_path
             self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(file_path)}")
         else:
@@ -697,6 +698,27 @@ class S2RMFrontend(QWidget):
             f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
 
+    def __extract_input_items_from_json(self, json_file_path: str):
+        """Extracts the input items from a JSON file and updates self.file_paths accordingly."""
+        try:
+            with open(json_file_path, "r") as f:
+                table_dict = json.load(f)
+                if "input_items" in table_dict and "input_quantities" in table_dict:
+                    self.input_items = {item: quantity for item, quantity in
+                                        zip(table_dict["input_items"], table_dict["input_quantities"])}
+                    
+                    # Ensure it's sorted
+                    self.input_items = dict(sorted(self.input_items.items(),
+                                                    key=lambda x: (-x[1], x[0])))
+                else:
+                    print("No input items found in JSON file.")
+                    return
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return
+        
+        self.file_paths = json_file_path
+
     def __get_total_mats_from_input(self) -> dict:
         total_materials = {}
         for input_item_idx, (material, quantity) in enumerate(self.input_items.items()):
@@ -824,7 +846,7 @@ def process_exclude_string(input_string):
         return -1
     
     total = 0
-    matches = re.finditer(r"(\d)(sb|s)?", input_string, re.IGNORECASE)
+    matches = re.finditer(r"(\d+)(sb|s)?", input_string, re.IGNORECASE)
 
     for match in matches:
         digit = int(match.group(1))
