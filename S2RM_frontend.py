@@ -56,8 +56,15 @@ class S2RMFrontend(QWidget):
         self.file_menu = QMenu("File", self)  
         exit_action = self.file_menu.addAction("Exit")
         exit_action.triggered.connect(self.close)
+        open_json_action = self.file_menu.addAction("Open JSON")
+        open_json_action.triggered.connect(self.openJson)
+        # Save implies the data can be reloadable
+        save_json_action = self.file_menu.addAction("Save JSON")
+        save_json_action.triggered.connect(self.saveJson)
+        # Export on the other hand doesn't mean it can be reloaded necessarily
         export_to_csv_action = self.file_menu.addAction("Export to CSV")
         export_to_csv_action.triggered.connect(self.exportCSV)
+        
         self.menu_bar.addMenu(self.file_menu)
         
         # Store view_menu
@@ -125,7 +132,7 @@ class S2RMFrontend(QWidget):
 
         # Item Search Bar
         search_layout = QHBoxLayout()
-        self.search_label = QLabel("Search:")
+        self.search_label = QLabel("Raw Material Search:")
         self.search_bar = QLineEdit()
         self.search_bar.textChanged.connect(self.filterAndDisplayMaterials)
         search_layout.addWidget(self.search_label)
@@ -471,13 +478,18 @@ class S2RMFrontend(QWidget):
                         for col in range(self.table.columnCount() - 1):
                             item = self.table.item(row, col)
                             if item:
-                                f.write(item.text())
-                            # if not item, check if it's in the collected column
+                                # Remove alt quantity amount with stacks and shulker boxes
+                                if col == RAW_QUANTITIES_COL_NUM:
+                                    quantity = item.text().split("(")[0].strip()
+                                    f.write(quantity)
+                                else:
+                                    f.write(item.text())
+                            # If not item, check if it's in the collected column
                             elif col == COLLECTIONS_COL_NUM:
                                 widget = self.table.cellWidget(row, COLLECTIONS_COL_NUM)
                                 if widget:
                                     checkbox = widget.layout().itemAt(0).widget()
-                                    f.write("Collected" if checkbox.isChecked() else "Not Collected")
+                                    f.write(str(checkbox.isChecked()))
                             f.write(",")
                         f.write("\n")
                 print(f"CSV saved successfully to: {file_path}")
