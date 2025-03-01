@@ -19,19 +19,32 @@ from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_
 
 
 PROGRAM_VERSION = "1.1.2"
-OUTPUT_JSON_VERSION = 4 # Manually track the version of the output json files for compatibility
+OUTPUT_JSON_VERSION = 5 # Manually track the version of the output json files for compatibility
+OUTPUT_JSON_DEFAULT = {
+    "version": OUTPUT_JSON_VERSION,
+    "litematica_mats_list_path": "",
+    "output_type": "",
+    "ice_type": "",
+    "input_items": [],
+    "input_quantities": [],
+    "exclude_input": [],
+    "raw_materials": [],
+    "raw_quantities": [],
+    "collected": {}
+}
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
+
 TABLE_HEADERS = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected", ""]
-FILE_LABEL_TEXT = "Select Litematica Material List File:"
+FILE_LABEL_TEXT = "Select material list file:"
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
-INPUT_QUANTITIES_COL_NUM = 1
-EXCLUDE_QUANTITIES_COL_NUM = 2
+INPUT_QUANTITIES_COL_NUM = INPUT_ITEMS_COL_NUM + 1
+EXCLUDE_QUANTITIES_COL_NUM = INPUT_QUANTITIES_COL_NUM + 1
 RAW_MATERIALS_COL_NUM = 3
-RAW_QUANTITIES_COL_NUM = 4
+RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = 5
 
 class S2RMFrontend(QWidget):
@@ -52,7 +65,7 @@ class S2RMFrontend(QWidget):
         layout = QVBoxLayout()
 
         # Menu Bar
-        self.menu_bar = QMenuBar()  # Store the menu bar as an instance variable
+        self.menu_bar = QMenuBar()
         
         # Store file_menu
         self.file_menu = QMenu("File", self)  
@@ -179,7 +192,6 @@ class S2RMFrontend(QWidget):
             self.file_path = file_path
             self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(file_path)}")
             materials_dict = process_material_list(self.file_path)
-            # Set column 0 of self.table to the keys of materials_dict, and column 1 to checkboxes enabled to true
             self.input_items = materials_dict
             self.displayInputMaterials()
 
@@ -194,17 +206,17 @@ class S2RMFrontend(QWidget):
         use_exclude_items = len(self.input_items) == len(self.exclude_items)
         
         for row, (material, inp_quant) in enumerate(input_items):
-            # Column 0: Material name (non-editable)
+            # Material name (non-editable)
             material_item = QTableWidgetItem(material)
             material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(row, INPUT_ITEMS_COL_NUM, material_item)
             
-            # Column 1: Input quantity (non-editable)
+            # Input quantity (non-editable)
             quantity_item = QTableWidgetItem(str(inp_quant))
             quantity_item.setFlags(quantity_item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(row, INPUT_QUANTITIES_COL_NUM, quantity_item)
             
-            # Column 2: exclude quantity (editable)
+            # Exclude quantity (editable)
             exc_quant = self.exclude_items[row] if use_exclude_items else 0
             self.__set_exclude_input_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exc_quant)
         
@@ -243,11 +255,11 @@ class S2RMFrontend(QWidget):
         raw_materials_table_path = resource_path("raw_materials_table.json")
         with open(raw_materials_table_path, "r") as f:
             materials_table = json.load(f)
-        # If the file path is a .txt file, use it directly
-        if self.file_path.endswith("txt"):
+        # If the file path ends in a .txt or .csv, extract the materials list directly
+        if re.search(r'\.(txt|csv)$', self.file_path):
             total_materials = self.__get_total_mats_from_txt(self.file_path, materials_table)
         # Otherwise, if the file path is a .json file, extract the litematica_mats_list_path
-        elif self.file_path.endswith("json"):
+        elif self.file_path.endswith(".json"):
             with open(self.file_path, "r") as f:
                 table_dict = json.load(f)
                 if "input_items" in table_dict and "input_quantities" in table_dict:
@@ -331,41 +343,42 @@ class S2RMFrontend(QWidget):
             row += 1
 
     def saveJson(self):
-        # Simplify things by making each column a key
-        table_dict = {}
+        """Save object data to a JSON-compatible dictionary."""
+        # Ensure input numbers are saved
         self.saveInputNumbers()
         
+        table_dict = {}
         table_dict["version"] = OUTPUT_JSON_VERSION
         
-        if hasattr(self, "file_path"):
-            table_dict["litematica_mats_list_path"] = self.file_path
-            
-        if hasattr(self, "output_type"):
-            table_dict["output_type"] = self.output_type
+        # Add attributes in specific order with appropriate defaults
+        self.__add_with_default(table_dict, "file_path", "litematica_mats_list_path", "")
+        self.__add_with_default(table_dict, "output_type", "output_type", "")
+        self.__add_with_default(table_dict, "ice_type", "ice_type", "")
         
-        if hasattr(self, "ice_type"):
-            table_dict["ice_type"] = self.ice_type
-
         if hasattr(self, "input_items"):
-            table_dict["input_items"] = list(self.input_items.keys()) 
+            table_dict["input_items"] = list(self.input_items.keys())
             table_dict["input_quantities"] = list(self.input_items.values())
-
-        if hasattr(self, "exclude_items"):
-            table_dict["exclude_input"] = self.exclude_items
-
+        else:
+            table_dict["input_items"], table_dict["input_quantities"] = [], []
+        
+        self.__add_with_default(table_dict, "exclude_items", "exclude_input", [])
+        
         if hasattr(self, "total_materials"):
             table_dict["raw_materials"] = list(self.total_materials.keys())
             table_dict["raw_quantities"] = list(self.total_materials.values())
+        else:
+            table_dict["raw_materials"], table_dict["raw_quantities"] = [], []
+        
+        self.__add_with_default(table_dict, "collected_data", "collected", {})
 
-        if hasattr(self, "collected_data"):
-            table_dict["collected"] = self.collected_data
-
+        # Save the JSON file to the desktop or elsewhere
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getSaveFileName(
             self, "Save JSON File",os.path.join(desktop_path, "raw_materials.json"),
             "JSON files (*.json);;All files (*.*)"
         )
+
         if file_path:
             try:
                 with open(file_path, "w") as f:
@@ -373,7 +386,7 @@ class S2RMFrontend(QWidget):
                 print(f"JSON saved successfully to: {file_path}")
             except Exception as e:
                 print(f"Error saving JSON: {e}")
-
+   
     def openJson(self):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")  # Default to Desktop
         file_dialog = QFileDialog()
@@ -421,14 +434,14 @@ class S2RMFrontend(QWidget):
             if "litematica_mats_list_path" in table_dict:
                 self.file_path = table_dict["litematica_mats_list_path"]
 
-            if "input_items" in table_dict:
+            if "input_items" in table_dict and "input_quantities" in table_dict:
                 self.input_items = {item: quantity for item, quantity in 
                                     zip(table_dict["input_items"], table_dict["input_quantities"])}
 
             if "exclude_input" in table_dict:
                 self.exclude_items = np.round(table_dict["exclude_input"]).tolist()
 
-            if "raw_materials" in table_dict:
+            if "raw_materials" in table_dict and "raw_quantities" in table_dict:
                 self.total_materials = {material: quantity for material, quantity in
                                         zip(table_dict["raw_materials"], table_dict["raw_quantities"])}
 
@@ -443,19 +456,44 @@ class S2RMFrontend(QWidget):
             print("No file selected")
 
     def backportJson(self, table_dict, version):
+        # Helper function to print backporting error message
+        def print_backporting_error():
+            print(f"Error backporting from version {version} to {OUTPUT_JSON_VERSION}.")
+            return False
+        
         # Backporting not supported below version 3
         if OUTPUT_JSON_VERSION <= 3:
-            return False
+            return print_backporting_error()
         elif OUTPUT_JSON_VERSION == 4:
-            if version == 3:
+            if version <= 2:
+                return print_backporting_error()
+            elif version == 3:
                 # Version 3 didn't have the 'output_type' and 'ice_type' fields
                 table_dict["output_type"] = self.output_type
                 table_dict["ice_type"] = self.ice_type
-
-                return True
+            else:
+                return print_backporting_error()
+            
+        elif OUTPUT_JSON_VERSION == 5:
+            if version <= 2:
+                return print_backporting_error()
+            elif version <= 4:
+                # Version 3 and 4 didn't guarantee that all fields would be populated
+                # We must loop through all the keys and if any are missing, we must add them
+                for key, defalut_value in OUTPUT_JSON_DEFAULT.items():
+                    if key not in table_dict:
+                        table_dict[key] = defalut_value
+                    else:
+                        # Remove and re-add the key to maintain order
+                        original_table_dict_val = table_dict[key]
+                        del table_dict[key]
+                        table_dict[key] = original_table_dict_val
+            else:
+                return print_backporting_error()
         else:
-            print(f"Backporting from version {version} to {OUTPUT_JSON_VERSION} is not supported.")
-            return False
+            return print_backporting_error()
+
+        return True
 
     def exportCSV(self):
         """Export the current table to a CSV file."""
@@ -697,6 +735,12 @@ class S2RMFrontend(QWidget):
         item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Make non-editable
         self.table.setItem(row, col, item)
 
+    def __add_with_default(self, table_dict, attr_name, key_name, default_value):
+        if hasattr(self, attr_name):
+            table_dict[key_name] = getattr(self, attr_name)
+        else:
+            table_dict[key_name] = default_value
+ 
     @staticmethod
     def __set_radio_button(set_to_state, bool_states: list, radio_buttons: list):
         """
