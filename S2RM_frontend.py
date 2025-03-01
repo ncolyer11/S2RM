@@ -23,6 +23,7 @@ OUTPUT_JSON_VERSION = 4 # Manually track the version of the output json files fo
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
+TABLE_HEADERS = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected", ""]
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
@@ -78,7 +79,7 @@ class S2RMFrontend(QWidget):
 
         # File Selection
         file_layout = QHBoxLayout()
-        self.file_label = QLabel("Select Material List File:")
+        self.file_label = QLabel("Select Litematica Material List File:")
         self.file_button = QPushButton("Browse")
         self.file_button.clicked.connect(self.selectFile)
         file_layout.addWidget(self.file_label)
@@ -141,9 +142,8 @@ class S2RMFrontend(QWidget):
     
         # Table Display
         self.table = QTableWidget()
-        headers = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected", ""]
-        self.table.setColumnCount(len(headers))
-        self.table.setHorizontalHeaderLabels(headers)
+        self.table.setColumnCount(len(TABLE_HEADERS))
+        self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
         layout.addWidget(self.table)
         self.table.setColumnWidth(INPUT_ITEMS_COL_NUM, 210)
         self.table.setColumnWidth(INPUT_QUANTITIES_COL_NUM, 200)
@@ -172,7 +172,8 @@ class S2RMFrontend(QWidget):
     def selectFile(self):
         litematica_dir = self.get_litematica_dir()
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir, "Text files (*.txt);;All files (*.*)")
+        file_path, _ = file_dialog.getOpenFileName(self, "Select Material List File", litematica_dir,
+                                                   "Text/CSV files (*.txt *.csv);;All files (*.*)")
         if file_path:
             self.file_path = file_path
             self.file_label.setText(f"Selected: {os.path.basename(file_path)}")

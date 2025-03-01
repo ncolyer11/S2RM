@@ -10,10 +10,40 @@ from unicodedata import category as unicode_category
 
 from constants import ITEM_TAGS, resource_path
 
-
-def process_material_list(input_file):
+def process_material_list(input_file: str) -> dict[str, int]:
+    """
+    Processes a Litematica material list file and returns a dictionary of materials and quantities.
+    
+    Parameters
+    ----------
+    input_file : str
+        The path to the Litematica material list file.
+    
+    Returns
+    -------
+    dict[str, int]
+        A dictionary of materials and quantities.
+    
+    Raises
+    ------
+    ValueError
+        If the file is not a .txt or .csv Litematica material list.
+    """
     with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
+
+    # Check if .txt or csv file
+    if input_file.endswith('.txt'):
+        return process_txt_material_list(lines)
+    elif input_file.endswith('.csv'):
+        return process_csv_material_list(lines)
+    else:
+        raise ValueError("File must be a .txt or .csv file.")
+
+def process_txt_material_list(lines: list[str]) -> dict[str, int]:
+    """Processes a .txt file and returns a dictionary of materials and quantities."""
+    # Verify that the file is a Litematica material list by checking various formatting signals
+    verify_txt_material_list(lines)
 
     # (tail -n+6 | head -n-3)
     lines = lines[5:-3]
@@ -31,6 +61,75 @@ def process_material_list(input_file):
             materials[cleaned_material] = int(quantity)
 
     return materials
+
+def process_csv_material_list(lines: list[str]) -> dict[str, int]:
+    """Processes a .csv file and returns a dictionary of materials and quantities."""
+    # Verify that the file is a Litematica material list by checking all the headers
+    verify_csv_material_list(lines)
+    materials = {}
+    for line in lines[1:]:
+        parts = line.strip().split('"')
+        material = parts[1].strip()
+        quantity = parts[2].split(',')[1].strip()
+
+        # Remove weird characters and convert to item tag name
+        cleaned_material = convert_name_to_tag(material)
+        materials[cleaned_material] = int(quantity)
+        
+    return materials
+
+def verify_txt_material_list(lines: list[str]) -> None:
+    """Verifies that the file is a .txt Litematica material list."""
+    if not lines[0][:2] == '+-':
+        raise ValueError(
+            f"File is not a .txt Litematica material list. First line does not start with '+-'. "
+            f"Found: {lines[0][:10]!r}"
+        )
+
+    if not re.match(r'\| (Material List for|Area Analysis for) ', lines[1]):
+        raise ValueError(
+            f"File is not a .txt Litematica material list. Second line does not start with "
+            f"'| Material List for schematic '. Found: {lines[1][:30]!r}"
+        )
+
+    if not lines[-2].startswith('| Item '):
+        raise ValueError(
+            f"File is not a .txt Litematica material list. Second to last line does not start with "
+            f"'| Item '. Found: {lines[-2][:20]!r}"
+        )
+
+    if 'Available' not in lines[-2]:
+        raise ValueError(
+            f"File is not a .txt Litematica material list. 'Available' not found in the second to "
+            f"last line. Found: {lines[-2]!r}"
+        )
+
+    if not lines[-1][:2] == '+-':
+        raise ValueError(
+            f"File is not a .txt Litematica material list. Last line does not start with '+-'. "
+            f"Found: {lines[-1][:10]!r}"
+        )
+
+def verify_csv_material_list(lines: list[str]) -> None:
+    """Verifies that the file is a .csv Litematica material list."""
+    csv_headers = lines[0].strip().split(',')
+    if csv_headers != ['"Item"', '"Total"', '"Missing"', '"Available"']:
+        raise ValueError(
+            "File is not a .csv Litematica material list. Headers do not match expected format. "
+            f"Found: {csv_headers}"
+        )
+
+    if not re.fullmatch(r'"[\w ]+"', lines[1].split(',')[0].strip()):
+        raise ValueError(
+            "File is not a .csv Litematica material list. First item is not \"alphabetic\". "
+            f"Found: {lines[1].split(',')[0]!r}"
+        )
+
+    if not all(part.strip().isdigit() for part in lines[1].split(',')[1:4]):
+        raise ValueError(
+            f"File is not a .csv Litematica material list. Quantities are not all numeric. "
+            f"Found: {lines[1].split(',')[1:4]}"
+        )
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
