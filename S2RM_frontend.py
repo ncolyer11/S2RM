@@ -18,12 +18,13 @@ from PySide6.QtCore import Qt
 from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
 
 
-PROGRAM_VERSION = "1.1.1"
+PROGRAM_VERSION = "1.1.2"
 OUTPUT_JSON_VERSION = 4 # Manually track the version of the output json files for compatibility
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 TABLE_HEADERS = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected", ""]
+FILE_LABEL_TEXT = "Select Litematica Material List File:"
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
@@ -79,7 +80,7 @@ class S2RMFrontend(QWidget):
 
         # File Selection
         file_layout = QHBoxLayout()
-        self.file_label = QLabel("Select Litematica Material List File:")
+        self.file_label = QLabel(FILE_LABEL_TEXT)
         self.file_button = QPushButton("Browse")
         self.file_button.clicked.connect(self.selectFile)
         file_layout.addWidget(self.file_label)
@@ -176,7 +177,7 @@ class S2RMFrontend(QWidget):
                                                    "Text/CSV files (*.txt *.csv);;All files (*.*)")
         if file_path:
             self.file_path = file_path
-            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
+            self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(file_path)}")
             materials_dict = process_material_list(self.file_path)
             # Set column 0 of self.table to the keys of materials_dict, and column 1 to checkboxes enabled to true
             self.input_items = materials_dict
@@ -437,7 +438,7 @@ class S2RMFrontend(QWidget):
             self.displayInputMaterials()
             self.displayMaterials(self.total_materials)
             self.file_path = file_path
-            self.file_label.setText(f"Selected: {os.path.basename(file_path)}")
+            self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(file_path)}")
         else:
             print("No file selected")
 
