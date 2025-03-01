@@ -5,8 +5,6 @@ import copy
 import json
 import math
 
-import numpy as np
-
 from S2RM_backend import process_material_list
 
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
@@ -484,7 +482,7 @@ class S2RMFrontend(QWidget):
                 self.exclude_text = table_dict["exclude_text"]
             
             if "exclude_values" in table_dict:
-                self.exclude_values = np.round(table_dict["exclude_values"]).tolist()
+                self.exclude_values = [round(value) for value in table_dict["exclude_values"]]
 
             if "raw_materials" in table_dict and "raw_quantities" in table_dict:
                 total_materials = {material: quantity for material, quantity in
