@@ -1,7 +1,7 @@
 # S2RM: Schematic to Raw Materials
 Calculates a raw material list from a Litematica material list.txt, extracting recipe data from Minecraft's `.jar` files. "Raw materials" are somewhat subjective.
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1e52266e-220c-4df5-88c4-c9ccae86d53f" width="600">
+  <img src="https://github.com/user-attachments/assets/5ef31c7d-2b10-46a6-a70f-a731b4fce0c6" width="960">
 </p>
 
 ## About
