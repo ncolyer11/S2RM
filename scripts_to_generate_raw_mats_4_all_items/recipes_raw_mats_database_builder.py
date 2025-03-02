@@ -151,12 +151,9 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
     
     with open('raw_materials_table.json', 'w') as f:
         json.dump(master_raw_mats_list, f, indent=4)
-    
 
 def get_ingredients(graph, target_item) -> list[dict]:
-    """
-    Lists all raw materials needed to craft a target item, handling circular dependencies.
-    """
+    """Lists all raw materials needed to craft a target item, handling circular dependencies."""
     # Convert 'uncraftable' (created outside a crafting table) to their raw base material
     target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)
     target_item = re.sub(r'(\w+)_concrete$', r'\1_concrete_powder', target_item)
