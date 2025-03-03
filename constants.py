@@ -85,6 +85,11 @@ ITEM_TAGS = {
     "ender_dragon_head": "dragon_head",
 }
 
+
+sixteen_stackables = [
+    "snow_ball", "honey_bottle", "ender_pearl", "bucket", 
+]
+
 # Helper
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
