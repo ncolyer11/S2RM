@@ -194,7 +194,7 @@ class S2RMFrontend(QWidget):
             self, 
             "Select Material List Files", 
             litematica_dir,
-            "Supported files (*.txt *.csv *.litematic);;Text/CSV files (*.txt *.csv);;Litematic files (*.litematic);;All files (*.*)"
+            "Supported files (*.litematic *.txt *.csv);;Text/CSV files (*.txt *.csv);;Litematic files (*.litematic);;All files (*.*)"
         )
         
         if file_paths:

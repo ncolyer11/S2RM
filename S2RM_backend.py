@@ -9,39 +9,9 @@ from litemapy import Schematic
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
-from constants import ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE
+from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE, BLOCK_TAGS, SIMPLE_ENTITIES
 from helpers import resource_path
 from itertools import product
-
-def process_litematic_file(input_file: str) -> dict[str, int]:
-    """
-    Processes a Litematica schematic file and returns a dictionary of materials and quantities.
-    """
-
-    schematic = Schematic.load(input_file)
-
-    materials = {}
-    regions = list(schematic.regions.values())
-    for region in regions:
-        for x, y, z in product(region.xrange(), region.yrange(), region.zrange()):
-            block = region[x, y, z]
-            block_name = block.id.replace("minecraft:", "")
-            if block_name == "air":
-                continue
-            item_name = convert_block_to_item(block_name)
-            materials[item_name] = materials.get(item_name, 0) + 1
-
-    for material, quantity in materials.items():
-        print(f"{material}: {quantity}")
-
-    return materials
-
-def convert_block_to_item(block_name: str) -> str:
-    # Convert remove wall_ from things that go on walls like torches and signs
-    block_name = re.sub(r'wall_', '', block_name)
-    block_name = re.sub(r'_wire', '', block_name)
-
-    return block_name
 
 def process_material_list(input_file: str) -> dict[str, int]:
     """
@@ -145,6 +115,107 @@ def verify_txt_material_list(lines: list[str]) -> None:
             f"File is not a .txt Litematica material list. Last line does not start with '+-'. "
             f"Found: {lines[-1][:10]!r}"
         )
+
+def process_litematic_file(input_file: str) -> dict[str, int]:
+    """
+    Processes a Litematica schematic file and returns a dictionary of materials and quantities.
+    """
+    schematic = Schematic.load(input_file)
+    
+    # print entities
+
+    materials = {}
+    regions = list(schematic.regions.values())
+    # Handle schematics with multiple regions
+    for region in regions:
+        for x, y, z in product(region.xrange(), region.yrange(), region.zrange()):
+            block = region[x, y, z]
+            block_name = block.id.replace("minecraft:", "")
+            if block_name in INVALID_BLOCKS:
+                continue
+            
+            # Some blocks may break down into 2 items, e.g. a full cauldron or a candle cake
+            item_names = convert_block_to_item(block_name)
+            for item_name in item_names:
+                materials[item_name] = materials.get(item_name, 0) + 1
+    
+        # Get materials required to craft/obtain entities
+        for entity in region.entities:
+            get_materials_from_entity(materials, entity)
+    
+        # Get items stored inside of inventories
+        for tile_entity in region.tile_entities:
+            get_materials_from_inventories(materials, tile_entity)
+
+    # Return sorted materials by key
+    return materials
+
+def convert_block_to_item(block_name: str) -> str:
+    block_name = re.sub(r'wall_hanging_', '', block_name)
+    block_name = re.sub(r'wall_', '', block_name)
+    block_name = re.sub(r'attached_', '', block_name)
+    block_name = re.sub(r'potted_', '', block_name)
+    
+    block_name = BLOCK_TAGS.get(block_name, block_name)
+
+    # Convert remove wall_ from things that go on walls like torches and signs
+    if "candle" in block_name and "cake" in block_name:
+        return ["candle", "cake"]
+    elif match := re.match(r'(lava|water|powder_snow)_cauldron', block_name):
+        return ["cauldron", f"{match.group(1)}_bucket"]
+    elif match := re.match(r'(weeping|twisting)_vines_plant', block_name):
+        return [f"{match.group(1)}_vines"]
+
+    return [block_name] if isinstance(block_name, str) else block_name
+
+def get_materials_from_entity(materials, entity):
+    # if boat or minecart do some shi
+    entity_name = entity.id.replace("minecraft:", "")
+    if entity_name in SIMPLE_ENTITIES:
+        materials[entity_name] = materials.get(entity_name, 0) + 1
+    elif "boat" in entity_name or "minecart" in entity_name:
+        materials[entity_name] = materials.get(entity_name, 0) + 1
+    elif entity_name == "falling_block":
+        block_name = entity.block_state.id.replace("minecraft:", "")
+        if block_name in INVALID_BLOCKS:
+            return
+        item_names = convert_block_to_item(block_name)
+        for item_name in item_names:
+            materials[item_name] = materials.get(item_name, 0) + 1
+    elif (spawn_egg_name := entity_has_spawn_egg(entity_name)):
+        materials[spawn_egg_name] = materials.get(spawn_egg_name, 0) + 1
+    elif "fish" in entity_name or entity_name in ["salmon", "cod", "axolotl", "tadpole"]:
+        bucket_name = f"{entity_name}_bucket"
+        materials[bucket_name] = materials.get(bucket_name, 0) + 1
+    elif entity_name == "iron_golem":
+        materials["iron_block"] = materials.get("iron_ingot", 0) + 4
+        materials["carved_pumpkin"] = materials.get("carved_pumpkin", 0) + 1
+    elif entity_name == "snow_golem":
+        materials["snow_block"] = materials.get("snow_block", 0) + 1
+        materials["carved_pumpkin"] = materials.get("carved_pumpkin", 0) + 1
+    elif entity_name == "wither":
+        materials["soul_sand"] = materials.get("soul_sand", 0) + 3
+        materials["wither_skeleton_skull"] = materials.get("wither_skeleton_skull", 0) + 3
+    elif entity_name == "ender_dragon":
+        materials["end_crystal"] = materials.get("end_crystal", 0) + 1
+    else:
+        print(f"Adding entity without filtering: {entity_name}")
+        materials[entity_name] = materials.get(entity_name, 0) + 1
+
+def get_materials_from_inventories(materials, tile_entity):
+    # if chest or barrel, iterate through all the items in its inventory and add to materials
+    tile_entity_data = tile_entity.data
+    if "Items" not in tile_entity_data:
+        return
+    
+    items = tile_entity_data["Items"]
+    for item in items:
+        item_name = item["id"].replace("minecraft:", "")
+        materials[item_name] = materials.get(item_name, 0) + item["Count"] 
+
+def entity_has_spawn_egg(entity_name: str) -> str:
+    # determine if an entity has a spawn egg, if so return it
+    return ""
 
 def verify_csv_material_list(lines: list[str]) -> None:
     """Verifies that the file is a .csv Litematica material list."""

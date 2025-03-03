@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 
 ICE_PER_ICE = 9
 DF_STACK_SIZE = 64
@@ -82,11 +84,65 @@ ITEM_TAGS = {
     "ender_dragon_head": "dragon_head",
 }
 
+# Skip these blocks when calculating materials
+INVALID_BLOCKS = [
+    "air",
+    "void_air",
+    "cave_air",
+    "fire",
+    "soul_fire",
+    "nether_portal",
+    "end_portal",
+    "piston_head", # yes you can have a piston head on its own, but it's rare and you can get the piston back anyways if you're skilled enough
+]
+
+# Convert a block name to an item name
 BLOCK_TAGS = {
-    "redstone_wall_torch": "redstone_torch",
-    "wall_torch": "torch",
+    "redstone_wire": "redstone",
+    "tripwire": "string",
+    "carrots": "carrot",
+    "potatoes": "potato",
+    "cocoa": "cocoa_beans",
+    "water": "water_bucket",
+    "lava": "lava_bucket",
+    "powder_snow": "powder_snow_bucket",
+    "bubble_column": "water_bucket",
+    "pumpkin_stem": "pumpkin_seeds",
+    "melon_stem": "melon_seeds",
+    "bamboo_sapling": "bamboo",
+    "beetroots": "beetroot",
+    "big_dripleaf_stem": "big_dripleaf",
+    "small_dripleaf_stem": "small_dripleaf",
+    "kelp_plant": "kelp",
+    "pitcher_crop": "pitcher_pod",
+    "sweet_berry_bush": "sweet_berries",
+    "torchflower_crop": "torchflower_seeds",
+    "tall_seagrass": "seagrass",
+    "azalea_bush": "azalea",
+    "flowering_azalea_bush": "flowering_azalea",
+    "cave_vines": "vine",
+    "cave_vines_plant": "vine",
+    "moving_piston": "block36"
 }
 
+# Entities that have the same name as their item form
+SIMPLE_ENTITIES = [
+    "item_frame",
+    "painting",
+    "armor_stand",
+]
+
+# To get this to build to .exe we need this code, but to avoid circular dependencies it needs to be here, kinda eh
+def constants_py_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # Load a dictionary containing all items that don't stack to 64, and their stack size (either 16 or 1)
-with open("data/116_stacks.json", "r") as f:
+with open(constants_py_resource_path("data/116_stacks.json"), "r") as f:
     LIMITED_STACK_ITEMS = json.load(f)
