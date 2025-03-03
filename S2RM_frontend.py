@@ -141,7 +141,7 @@ class S2RMFrontend(QWidget):
         # New Input Materials Search Bar
         self.input_search_label = QLabel("Input Material Search:")
         self.input_search_bar = QLineEdit()
-        self.input_search_bar.textChanged.connect(self.filterAndDisplayMaterials)
+        self.input_search_bar.textChanged.connect(self.filterAndDisplayInputMaterials)
         search_layout.addWidget(self.input_search_label)
         search_layout.addWidget(self.input_search_bar)
 
@@ -222,7 +222,7 @@ class S2RMFrontend(QWidget):
         inputs : dict[str, int, int, str]
             The input material, quantity, exclude value, and exclude text dictionary.
         """
-        input_items_frmtd = format_quantities(inputs)
+        format_quantities(inputs)
         row_count = len(inputs)
         self.table.setRowCount(max(self.table.rowCount(), row_count))
 
@@ -234,7 +234,7 @@ class S2RMFrontend(QWidget):
             self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
 
-        for row, (material, quantity) in enumerate(input_items_frmtd.items()):
+        for row, (material, quantity) in enumerate(inputs.items()):
             # Material name (non-editable)
             material_item = QTableWidgetItem(material)
             material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
@@ -403,22 +403,23 @@ class S2RMFrontend(QWidget):
     def filterAndDisplayInputMaterials(self, search_term):
         filtered_inputs, exclude_dict = self.filterInputMaterials(search_term)
         self.setInputMaterials(filtered_inputs, exclude_dict)
-        self.displayMaterials()
+        # self.displayMaterials()
 
     def filterInputMaterials(self, search_term: str) -> tuple[dict[str, int], dict[str, str]]:
         """Checks comma separated regex search terms against the input materials."""
         # Remove any blank search terms
+        current_exclude_dict = {material: exclude_text for material, exclude_text in zip(self.input_items, self.exclude_text)}
         if not (search_terms := [term.strip().strip("'") for term in search_term.split(",") if term.strip()]):
-            return self.input_items
+            return self.input_items, current_exclude_dict
         if not (valid_search_terms := verify_regexes(search_terms)):
-            return self.input_items
+            return self.input_items, current_exclude_dict
 
         filtered_inputs = {}
         exclude_dict = {}
         for (material, quantity), exclude_text in zip(self.input_items.items(), self.exclude_text):
             if any(re.search(search, material, re.IGNORECASE) for search in valid_search_terms):
-                filtered_inputs[material] = {quantity}
-                exclude_dict[material] = {exclude_text}
+                filtered_inputs[material] = quantity
+                exclude_dict[material] = exclude_text
 
         return filtered_inputs, exclude_dict
 
