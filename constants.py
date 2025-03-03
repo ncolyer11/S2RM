@@ -70,6 +70,7 @@ ITEM_TAGS = {
     "monster_spawner": "spawner",
     "jigsaw_block": "jigsaw",
     "scute": "turtle_scute", # XXX could also be armadillo scute??
+    "grass": "short_grass",
     
     # UK Translations
     "compressed_ice": "packed_ice",
@@ -123,7 +124,7 @@ BLOCK_TAGS = {
     "flowering_azalea_bush": "flowering_azalea",
     "cave_vines": "vine",
     "cave_vines_plant": "vine",
-    "moving_piston": "block36"
+    "moving_piston": "block36",
 }
 
 # Entities that have the same name as their item form

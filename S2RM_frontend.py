@@ -18,9 +18,9 @@ from S2RM_backend import process_material_list, condense_material, process_exclu
     process_litematic_file
 
 # XXX
-# the litematic make all ingredients one word
 # left search bar resets when you use the right one
-# some other string + int bugs at line 809 front end
+# ^^ FIX this by making a display table dict and a backend table dict so you're not storing formatted text as your actual values
+
 
 PROGRAM_VERSION = "1.3.0"
 
@@ -417,7 +417,7 @@ class S2RMFrontend(QWidget):
 
     def filterAndDisplayMaterials(self, search_term):
         materials = self.filterMaterials(search_term)
-        self.displayInputMaterials()
+        # self.displayInputMaterials()
         self.displayMaterials(materials)
 
     def filterAndDisplayInputMaterials(self, search_term):
@@ -440,6 +440,8 @@ class S2RMFrontend(QWidget):
             if any(re.search(search, material, re.IGNORECASE) for search in valid_search_terms):
                 filtered_inputs[material] = quantity
                 exclude_dict[material] = exclude_text
+            else:
+                print(f"Excluding {material}")
 
         return filtered_inputs, exclude_dict
 
@@ -811,6 +813,9 @@ class S2RMFrontend(QWidget):
                             rm_name = "blue_ice"
                             rm_quantity = rm_quantity / (ICE_PER_ICE ** 2)
                                                    
+                    print(f"quantity: {quantity}, exclude_quantity: {exclude_quantity}")
+                    if isinstance(quantity, str):
+                        quantity = int(quantity.split("(")[0].strip())
                     rm_needed = rm_quantity * (quantity - exclude_quantity)
                     total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
             else:

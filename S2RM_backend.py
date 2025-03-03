@@ -122,8 +122,6 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
     """
     schematic = Schematic.load(input_file)
     
-    # print entities
-
     materials = {}
     regions = list(schematic.regions.values())
     # Handle schematics with multiple regions
@@ -186,8 +184,6 @@ def get_materials_from_entity(materials, entity):
         item_names = convert_block_to_item(block_name)
         for item_name in item_names:
             materials[item_name] = materials.get(item_name, 0) + 1
-    elif (spawn_egg_name := entity_has_spawn_egg(entity_name)):
-        materials[spawn_egg_name] = materials.get(spawn_egg_name, 0) + 1
     elif "fish" in entity_name or entity_name in ["salmon", "cod", "axolotl", "tadpole"]:
         bucket_name = f"{entity_name}_bucket"
         materials[bucket_name] = materials.get(bucket_name, 0) + 1
@@ -216,10 +212,6 @@ def get_materials_from_inventories(materials, tile_entity):
     for item in items:
         item_name = item["id"].replace("minecraft:", "")
         materials[item_name] = materials.get(item_name, 0) + item["Count"] 
-
-def entity_has_spawn_egg(entity_name: str) -> str:
-    # determine if an entity has a spawn egg, if so return it
-    return ""
 
 def verify_csv_material_list(lines: list[str]) -> None:
     """Verifies that the file is a .csv Litematica material list."""
@@ -262,7 +254,7 @@ def convert_name_to_tag(name):
 
 def clean_string(s):
     """Removes control characters, symbols, and trailing text."""
-    return re.sub(r'[^a-zA-Z\'\s].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
+    return re.sub(r'[^[a-zA-Z_\s\'].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
 
 def get_litematica_dir():
     """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
