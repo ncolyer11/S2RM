@@ -17,6 +17,11 @@ from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
 from S2RM_backend import process_material_list, condense_material, process_exclude_string, \
     process_litematic_file
 
+# XXX
+# the litematic make all ingredients one word
+# left search bar resets when you use the right one
+# some other string + int bugs at line 809 front end
+
 PROGRAM_VERSION = "1.3.0"
 
 DARK_INPUT_CELL = "#111a14"
@@ -47,7 +52,7 @@ class S2RMFrontend(QWidget):
         self.dark_mode = True
         
         # Load the raw materials table
-        with open(resource_path("data/raw_materials_table.json"), "r") as f:
+        with open(resource_path("raw_materials_table.json"), "r") as f:
             self.materials_table = json.load(f)
 
         self.initUI()
@@ -306,6 +311,8 @@ class S2RMFrontend(QWidget):
             exclude_value = 0
             # Convert the formatted text to a number
             input_quantity = self.table.item(row, INPUT_QUANTITIES_COL_NUM).text()
+            if not input_quantity:
+                continue
             required_quantity = int(input_quantity.split("(")[0].strip())
             try:
                 exclude_value = clamp(float(exclude_cell_text), 0, required_quantity)
@@ -891,7 +898,7 @@ class DropArea(QPushButton):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app_icon = QIcon(resource_path("data/icon.ico"))
+    app_icon = QIcon(resource_path("icon.ico"))
     app.setWindowIcon(app_icon)
     app.setStyle('Fusion')
     window = S2RMFrontend()

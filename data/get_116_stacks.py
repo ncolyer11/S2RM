@@ -18,5 +18,5 @@ for line in limited_stacked_lines:
 # Sort the dictionary by key then quantity value
 sorted_limited_stack_items = dict(sorted(limited_stack_items.items(), key=lambda x: (x[0], x[1])))
 
-with open(resource_path("data/116_stacks.json"), "w") as f:
+with open(resource_path("limited_stacks.json"), "w") as f:
     json.dump(sorted_limited_stack_items, f, indent=4)

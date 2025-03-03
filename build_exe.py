@@ -1,17 +1,24 @@
 import os
 import sys
 import subprocess
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
 
+    return os.path.join(base_path, relative_path)
 # Define important paths
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_SCRIPT = "S2RM_frontend.py"
 DIST_DIR = os.path.join(PROJECT_DIR, "dist")
 
 # Files and directories that should be included in the .exe bundle
-DATA_FOLDER = os.path.join(PROJECT_DIR, "data")
-DATA_FILES = [os.path.join("data", filename) for filename in os.listdir(DATA_FOLDER)
-              if os.path.isfile(os.path.join(DATA_FOLDER, filename))]
-OTHER_FILES = ["constants.py", "S2RM_backend.py"]
+DATA_FILES = ['limited_stacks.json', 'icon.ico','raw_materials_table.json']
+OTHER_FILES = ["constants.py", "S2RM_backend.py", "helpers.py"]
+print(f"Using data files: {DATA_FILES}")
 
 # Detect OS for correct PyInstaller format
 if sys.platform == "win32":
@@ -30,8 +37,8 @@ for file in DATA_FILES + OTHER_FILES:
 pyinstaller_cmd = [
     "pyinstaller",  # Call pyinstaller directly
     "--onefile",  # Export as one file
-    "--icon", "data/icon.ico",  # Specify icon
-    "--add-data", f"data/icon.ico;icon",  # Ensure the icon is bundled
+    "--icon", "icon.ico",  # Specify icon
+    "--add-data", f"icon.ico;icon",  # Ensure the icon is bundled
     "--hidden-import", "PySide6",
     "--distpath", DIST_DIR,  # Specify output directory
     "--name", "S2RM",

@@ -150,7 +150,7 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
         # print(f"Getting raw mats for: {item}")
         master_raw_mats_list[item] = get_ingredients(recipe_graph, item)
     
-    with open('data/raw_materials_table.json', 'w') as f:
+    with open('raw_materials_table.json', 'w') as f:
         json.dump(master_raw_mats_list, f, indent=4)
 
 def get_ingredients(graph, target_item) -> list[dict]:
