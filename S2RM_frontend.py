@@ -5,17 +5,16 @@ import copy
 import json
 import math
 
-from S2RM_backend import process_material_list
-
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QPalette, QColor
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
-from PySide6.QtGui import QIcon, QPalette, QColor
-from PySide6.QtCore import Qt
 
-from constants import ICE_PER_ICE, SHULKER_BOX_STACK_SIZE, STACK_SIZE, resource_path
-# TODO: make helper function for formatting quantities and others used between frontend and backend
-from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message, format_quantities
+from constants import ICE_PER_ICE
+from helpers import format_quantities, clamp, resource_path, verify_regexes
+from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
+from S2RM_backend import process_material_list, condense_material, process_exclude_string
 
 PROGRAM_VERSION = "1.2.0"
 
@@ -47,7 +46,7 @@ class S2RMFrontend(QWidget):
         self.dark_mode = True
         
         # Load the raw materials table
-        with open(resource_path("raw_materials_table.json"), "r") as f:
+        with open(resource_path("data/raw_materials_table.json"), "r") as f:
             self.materials_table = json.load(f)
 
         self.initUI()
@@ -136,15 +135,25 @@ class S2RMFrontend(QWidget):
         button_layout.addWidget(self.clear_button)
         layout.addLayout(button_layout)
 
-        # Item Search Bar
+        # Search Bar Layout
         search_layout = QHBoxLayout()
+        
+        # New Input Materials Search Bar
+        self.input_search_label = QLabel("Input Material Search:")
+        self.input_search_bar = QLineEdit()
+        self.input_search_bar.textChanged.connect(self.filterAndDisplayMaterials)
+        search_layout.addWidget(self.input_search_label)
+        search_layout.addWidget(self.input_search_bar)
+
+        # Existing Raw Material Search Bar
         self.search_label = QLabel("Raw Material Search:")
         self.search_bar = QLineEdit()
         self.search_bar.textChanged.connect(self.filterAndDisplayMaterials)
         search_layout.addWidget(self.search_label)
         search_layout.addWidget(self.search_bar)
+        
         layout.addLayout(search_layout)
-    
+
         # Table Display
         self.table = QTableWidget()
         self.table.setColumnCount(len(TABLE_HEADERS))
@@ -203,6 +212,42 @@ class S2RMFrontend(QWidget):
 
         self.displayMaterials()
         self.displayInputMaterials()
+
+    def setInputMaterials(self, inputs: dict[str, int], exclude_dict: dict[str, str]):
+        """
+        Set the input materials in the table.
+        
+        Parameters
+        ----------
+        inputs : dict[str, int, int, str]
+            The input material, quantity, exclude value, and exclude text dictionary.
+        """
+        input_items_frmtd = format_quantities(inputs)
+        row_count = len(inputs)
+        self.table.setRowCount(max(self.table.rowCount(), row_count))
+
+        use_exclude_text = len(inputs) == len(exclude_dict)
+
+        # Delete data after new input items
+        for row in range(row_count, self.table.rowCount()):
+            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, "")
+            self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
+            self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
+
+        for row, (material, quantity) in enumerate(input_items_frmtd.items()):
+            # Material name (non-editable)
+            material_item = QTableWidgetItem(material)
+            material_item.setFlags(material_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, INPUT_ITEMS_COL_NUM, material_item)
+            
+            # Input quantity (non-editable)
+            quantity_item = QTableWidgetItem(str(quantity))
+            quantity_item.setFlags(quantity_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, INPUT_QUANTITIES_COL_NUM, quantity_item)
+            
+            # Exclude quantity (editable)
+            exclude_text = exclude_dict[material] if use_exclude_text else 0
+            self.__set_exclude_text_cell(row, EXCLUDE_QUANTITIES_COL_NUM, exclude_text)
 
     def displayInputMaterials(self):
         input_items_frmtd = copy.deepcopy(self.input_items)
@@ -355,23 +400,35 @@ class S2RMFrontend(QWidget):
         self.displayInputMaterials()
         self.displayMaterials(materials)
 
+    def filterAndDisplayInputMaterials(self, search_term):
+        filtered_inputs, exclude_dict = self.filterInputMaterials(search_term)
+        self.setInputMaterials(filtered_inputs, exclude_dict)
+        self.displayMaterials()
+
+    def filterInputMaterials(self, search_term: str) -> tuple[dict[str, int], dict[str, str]]:
+        """Checks comma separated regex search terms against the input materials."""
+        # Remove any blank search terms
+        if not (search_terms := [term.strip().strip("'") for term in search_term.split(",") if term.strip()]):
+            return self.input_items
+        if not (valid_search_terms := verify_regexes(search_terms)):
+            return self.input_items
+
+        filtered_inputs = {}
+        exclude_dict = {}
+        for (material, quantity), exclude_text in zip(self.input_items.items(), self.exclude_text):
+            if any(re.search(search, material, re.IGNORECASE) for search in valid_search_terms):
+                filtered_inputs[material] = {quantity}
+                exclude_dict[material] = {exclude_text}
+
+        return filtered_inputs, exclude_dict
+
     def filterMaterials(self, search_term):
         """Checks comma separated regex search terms against the raw materials."""
         # Remove any blank search terms
         if not (search_terms := [term.strip().strip("'") for term in search_term.split(",") if term.strip()]):
             return self.total_materials
-
-        # Verify that each search term is a valid regex
-        valid_search_terms = []
-        for term in search_terms:
-            try:
-                re.compile(term)
-                valid_search_terms.append(term)
-            except re.error:
-                pass
-                
-        if not valid_search_terms:
-            return self.total_materials
+        if not (valid_search_terms := verify_regexes(search_terms)):
+            return self.total_material
 
         filtered_materials = {}
         if hasattr(self, "total_materials"):
@@ -778,95 +835,9 @@ class S2RMFrontend(QWidget):
         else:
             raise ValueError(f"Invalid state: {set_to_state}")
 
-def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
-    if re.match(r'\w+_ingot$', material):
-        block_name = material.replace("_ingot", "_block")
-        add_resources(processed_materials, material, block_name, quantity)
-    elif re.match(r'(diamond|redstone|coal|lapis_lazuli|emerald)$', material):
-        block_name = f"{material}_block"
-        add_resources(processed_materials, material, block_name, quantity)
-    elif material == 'slime_ball':
-        block_name = 'slime_block'
-        add_resources(processed_materials, material, block_name, quantity)
-    elif material == 'wheat':
-        block_name = 'hay_block'
-        add_resources(processed_materials, material, block_name, quantity)
-    elif material == 'snowball':
-        block_name = 'snow_block'
-        add_resources(processed_materials, material, block_name, quantity, compact_num=4)
-    elif material == 'bone_meal':
-        block_name = 'bone_block'
-        add_resources(processed_materials, material, block_name, quantity)
-    elif material == "honey_bottle":
-        block_name = "honey_block"
-        add_resources(processed_materials, material, block_name, quantity, compact_num=4)
-    else:
-        processed_materials[material] = quantity
-
-def add_resources(processed_materials: dict, material: str, block_name: str, quantity: float,
-                  compact_num: int = 9) -> None:
-    blocks_needed = int(quantity // compact_num)
-    remaining_ingots = quantity - (blocks_needed * compact_num)
-
-    if blocks_needed > 0:
-        processed_materials[block_name] = processed_materials.get(block_name, 0) + blocks_needed
-    if remaining_ingots > 0:
-        processed_materials[material] = processed_materials.get(material, 0) + remaining_ingots
-    
-    if remaining_ingots > compact_num:
-        raise ValueError(f"Error: {material} has more than {compact_num} remaining ingots.")
-
-def process_exclude_string(input_string):
-    """
-    Processes the input string according to the given rules:
-
-    1.  Extracts digits from the string.
-    2.  Multiplies each digit by 64 if followed by 's', and by 64*27 if followed by 'sb'.
-    3.  Calculates the sum of the multiplied digits.
-    4.  Handles cases where the text following the digit is 's' or 'sb' (case-insensitive).
-
-    Args:
-        input_string: The input string to process.
-
-    Returns:
-        The sum of the multiplied digits.
-    """
-
-    if not input_string:
-        return -1
-    
-    # Check if input matches the allowed characters pattern, not fully exhaustive e.g.
-    # 'sb1' should be invalid but it isn't so don't go crazy with this
-    if not re.fullmatch(r'(\d|\s|s|sb)+', input_string, re.IGNORECASE):
-        return -1
-
-    # Check for invalid combinations (e.g., 'ss', 'sss', etc.)
-    if 'ss' in input_string or 'sss' in input_string:
-        return -1
-    
-    total = 0
-    matches = re.finditer(r"(\d+)(sb|s)?", input_string, re.IGNORECASE)
-
-    for match in matches:
-        digit = int(match.group(1))
-        suffix = match.group(2)
-
-        if suffix:
-            if suffix.lower() == 's':
-                total += digit * STACK_SIZE
-            elif suffix.lower() == 'sb':
-                total += digit * SHULKER_BOX_STACK_SIZE
-        else:
-            total += digit
-
-    return total
-
-def clamp(n, smallest, largest):
-    return max(smallest, min(n, largest))
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app_icon = QIcon(resource_path("icon/icon.ico"))
+    app_icon = QIcon(resource_path("data/icon.ico"))
     app.setWindowIcon(app_icon)
     app.setStyle('Fusion')
     window = S2RMFrontend()

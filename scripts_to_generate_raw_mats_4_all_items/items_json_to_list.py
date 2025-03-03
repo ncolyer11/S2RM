@@ -14,5 +14,5 @@ for file_name in os.listdir(folder_path):
         items_dict["items"].append(file_name.replace('.json', ''))
 
 # Write dictionary to json
-with open('items.json', 'w') as f:
+with open('data/items.json', 'w') as f:
     json.dump(items_dict, f, indent=4)

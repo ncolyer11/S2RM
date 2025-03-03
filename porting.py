@@ -1,4 +1,5 @@
-from constants import SHULKER_BOX_STACK_SIZE, STACK_SIZE
+import json
+from helpers import format_quantities
 
 NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
@@ -17,7 +18,6 @@ OUTPUT_JSON_DEFAULT = {
     "raw_quantities": [],
     "collected": {}
 }
-
 
 def get_error_message(ec: int, version: int) -> str:
     """Return the error message for the given error code."""
@@ -108,6 +108,8 @@ def forwardporttoV7(table_dict):
     """
     table_dict["exclude_values"] = table_dict.pop("exclude_input") \
     if "exclude_input" in table_dict else []
+    # XXX this needs to be formatted differently using xsb ys z, and also needs to pass in the input
+    # name so the function can work out the stack size
     table_dict["exclude_text"] = format_quantities(table_dict["exclude_values"])
 
 # Helper function to print forwardporting error message
@@ -118,46 +120,3 @@ def print_forwardporting_error(version, ec):
     else:
         print(f"There was an error ({ec}) whilst forwardporting from v{version} to v{OUTPUT_JSON_VERSION}.")
         return ec
-
-def format_quantities(total_materials: dict[str, int]|list[int]) -> list[str] | None:
-    """
-    If total_materials is a list of numbers, just output a formatted list of numbers. Otherwise,
-    format the total_materials dictionary.
-    """
-    if isinstance(total_materials, list):
-        return [get_shulkers_stacks_and_items(quantity) for quantity in total_materials]
-    elif isinstance(total_materials, dict):
-        for material, quantity in total_materials.items():
-            total_materials[material] = get_shulkers_stacks_and_items(quantity)
-    else:
-        raise TypeError("total_materials must be a list or dictionary.")
-
-def get_shulkers_stacks_and_items(quantity: int) -> str:
-    """
-    Return a formatted string of the quantity in the form of 'x (y SB + z stacks + a)'.
-    """
-    if quantity >= SHULKER_BOX_STACK_SIZE:
-        num_shulker_boxes = quantity // SHULKER_BOX_STACK_SIZE
-        output_string = f"{quantity} ({num_shulker_boxes} SB"
-        
-        remaining_stacks = (quantity % SHULKER_BOX_STACK_SIZE) // STACK_SIZE
-        if remaining_stacks:
-            output_string += f" + {remaining_stacks} stacks"
-
-        remaining_items = quantity % STACK_SIZE
-        if remaining_items:
-            output_string += f" + {remaining_items}"
-
-        return output_string + ")"
-
-    elif quantity >= STACK_SIZE:
-        num_stacks = quantity // STACK_SIZE
-        output_string = f"{quantity} ({num_stacks} stacks"
-
-        remaining_items = quantity % STACK_SIZE
-        if remaining_items:
-            output_string += f" + {remaining_items}"
-            
-        return output_string + ")"
-    else:
-        return str(quantity)    

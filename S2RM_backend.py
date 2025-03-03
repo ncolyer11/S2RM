@@ -8,7 +8,8 @@ import tkinter as tk
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
-from constants import ITEM_TAGS, resource_path
+from constants import ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE
+from helpers import resource_path
 
 def process_material_list(input_file: str) -> dict[str, int]:
     """
@@ -191,6 +192,90 @@ def select_file():
         )
 
     return file_path
+
+def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
+    if re.match(r'\w+_ingot$', material):
+        block_name = material.replace("_ingot", "_block")
+        add_resources(processed_materials, material, block_name, quantity)
+    elif re.match(r'(diamond|redstone|coal|lapis_lazuli|emerald)$', material):
+        block_name = f"{material}_block"
+        add_resources(processed_materials, material, block_name, quantity)
+    elif material == 'slime_ball':
+        block_name = 'slime_block'
+        add_resources(processed_materials, material, block_name, quantity)
+    elif material == 'wheat':
+        block_name = 'hay_block'
+        add_resources(processed_materials, material, block_name, quantity)
+    elif material == 'snowball':
+        block_name = 'snow_block'
+        add_resources(processed_materials, material, block_name, quantity, compact_num=4)
+    elif material == 'bone_meal':
+        block_name = 'bone_block'
+        add_resources(processed_materials, material, block_name, quantity)
+    elif material == "honey_bottle":
+        block_name = "honey_block"
+        add_resources(processed_materials, material, block_name, quantity, compact_num=4)
+    else:
+        processed_materials[material] = quantity
+
+def add_resources(processed_materials: dict, material: str, block_name: str, quantity: float,
+                  compact_num: int = 9) -> None:
+    blocks_needed = int(quantity // compact_num)
+    remaining_ingots = quantity - (blocks_needed * compact_num)
+
+    if blocks_needed > 0:
+        processed_materials[block_name] = processed_materials.get(block_name, 0) + blocks_needed
+    if remaining_ingots > 0:
+        processed_materials[material] = processed_materials.get(material, 0) + remaining_ingots
+    
+    if remaining_ingots > compact_num:
+        raise ValueError(f"Error: {material} has more than {compact_num} remaining ingots.")
+
+# XXX make work with var stack items
+def process_exclude_string(input_string):
+    """
+    Processes the input string according to the given rules:
+
+    1.  Extracts digits from the string.
+    2.  Multiplies each digit by 64 if followed by 's', and by 64*27 if followed by 'sb'.
+    3.  Calculates the sum of the multiplied digits.
+    4.  Handles cases where the text following the digit is 's' or 'sb' (case-insensitive).
+
+    Args:
+        input_string: The input string to process.
+
+    Returns:
+        The sum of the multiplied digits.
+    """
+
+    if not input_string:
+        return -1
+    
+    # Check if input matches the allowed characters pattern, not fully exhaustive e.g.
+    # 'sb1' should be invalid but it isn't so don't go crazy with this
+    if not re.fullmatch(r'(\d|\s|s|sb)+', input_string, re.IGNORECASE):
+        return -1
+
+    # Check for invalid combinations (e.g., 'ss', 'sss', etc.)
+    if 'ss' in input_string or 'sss' in input_string:
+        return -1
+    
+    total = 0
+    matches = re.finditer(r"(\d+)(sb|s)?", input_string, re.IGNORECASE)
+
+    for match in matches:
+        digit = int(match.group(1))
+        suffix = match.group(2)
+
+        if suffix:
+            if suffix.lower() == 's':
+                total += digit * DF_STACK_SIZE
+            elif suffix.lower() == 'sb':
+                total += digit * DF_SHULKER_BOX_STACK_SIZE
+        else:
+            total += digit
+
+    return total
 
 def main():
     file_path = select_file()

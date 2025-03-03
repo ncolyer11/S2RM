@@ -1,12 +1,9 @@
-# Numbers
-import os
-import sys
+import json
 
-
-STACK_SIZE = 64
-SHULKER_BOX_SIZE = 27
-SHULKER_BOX_STACK_SIZE = STACK_SIZE * SHULKER_BOX_SIZE
 ICE_PER_ICE = 9
+DF_STACK_SIZE = 64
+SHULKER_BOX_SIZE = 27
+DF_SHULKER_BOX_STACK_SIZE = DF_STACK_SIZE * SHULKER_BOX_SIZE
 
 NODE_COLOUR = '#102d5c'
 
@@ -85,18 +82,6 @@ ITEM_TAGS = {
     "ender_dragon_head": "dragon_head",
 }
 
-
-sixteen_stackables = [
-    "snow_ball", "honey_bottle", "ender_pearl", "bucket", 
-]
-
-# Helper
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+# Load a dictionary containing all items that don't stack to 64, and their stack size (either 16 or 1)
+with open("data/116_stacks.json", "r") as f:
+    LIMITED_STACK_ITEMS = json.load(f)
