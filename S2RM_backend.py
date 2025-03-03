@@ -200,7 +200,7 @@ def main():
         print("No file selected")
         return
     
-    raw_mats_table_path = resource_path("raw_materials_table.json")
+    raw_mats_table_path = resource_path("data/raw_materials_table.json")
     with open(raw_mats_table_path, "r") as f:
         materials_table = json.load(f)
     

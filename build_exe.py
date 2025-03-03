@@ -1,7 +1,6 @@
 import os
 import sys
 import subprocess
-import shutil
 
 # Define important paths
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -9,11 +8,10 @@ FRONTEND_SCRIPT = "S2RM_frontend.py"
 DIST_DIR = os.path.join(PROJECT_DIR, "dist")
 
 # Files and directories that should be included in the .exe bundle
-DATA_FILES = ["items.json", "raw_materials_table.json", "icon/icon.ico"]
-OTHER_FILES = [
-    "constants.py",
-    "S2RM_backend.py",
-]
+DATA_FOLDER = os.path.join(PROJECT_DIR, "data")
+DATA_FILES = [os.path.join("data", filename) for filename in os.listdir(DATA_FOLDER)
+              if os.path.isfile(os.path.join(DATA_FOLDER, filename))]
+OTHER_FILES = ["constants.py", "S2RM_backend.py"]
 
 # Detect OS for correct PyInstaller format
 if sys.platform == "win32":
@@ -32,8 +30,8 @@ for file in DATA_FILES + OTHER_FILES:
 pyinstaller_cmd = [
     "pyinstaller",  # Call pyinstaller directly
     "--onefile",  # Export as one file
-    "--icon", "icon/icon.ico",  # Specify icon
-    "--add-data", f"icon/icon.ico;icon",  # Ensure the icon is bundled
+    "--icon", "data/icon.ico",  # Specify icon
+    "--add-data", f"data/icon.ico;icon",  # Ensure the icon is bundled
     "--hidden-import", "PySide6",
     "--distpath", DIST_DIR,  # Specify output directory
     "--name", "S2RM",
