@@ -34,7 +34,6 @@ def format_quantities(total_materials: dict[str, int]|list[int],
             # check type of quantity
             if isinstance(quantity, str):
                 quantity = int(quantity.split("(")[0].strip())
-            print(material, quantity)
             total_materials[material] = get_shulkers_stacks_and_items(quantity, material, shorthand)
     else:
         raise TypeError("total_materials must be a list or dictionary.")

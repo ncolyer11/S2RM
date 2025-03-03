@@ -13,6 +13,7 @@ networkx = "^3.4.2"
 tqdm = "^4.67.1"
 matplotlib = "^3.10.1"
 pyside6 = "^6.8.2.1"
+litemapy = "^0.10.0b0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -4,7 +4,7 @@ import json
 with open("data/items.txt", "r") as f:
     lines = f.readlines()
 
-pattern = re.compile(r'\.stacksTo\((16|1)\)|ToolMaterial|ArmorMaterial')
+pattern = re.compile(r'\.stacksTo\((16|1)\)|ToolMaterial|ArmorMaterial|durability')
 limited_stacked_lines = [line for line in lines if pattern.search(line)]
 
 limited_stack_items = {}

@@ -5,8 +5,8 @@ import copy
 import json
 import math
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QPalette, QColor
+from PySide6.QtCore import Qt, QMimeData
+from PySide6.QtGui import QIcon, QPalette, QColor, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
@@ -14,9 +14,10 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
 from constants import ICE_PER_ICE
 from helpers import format_quantities, clamp, resource_path, verify_regexes
 from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
-from S2RM_backend import process_material_list, condense_material, process_exclude_string
+from S2RM_backend import process_material_list, condense_material, process_exclude_string, \
+    process_litematic_file
 
-PROGRAM_VERSION = "1.2.0"
+PROGRAM_VERSION = "1.3.0"
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
@@ -84,10 +85,10 @@ class S2RMFrontend(QWidget):
         # File Selection
         file_layout = QHBoxLayout()
         self.file_label = QLabel(FILE_LABEL_TEXT)
-        self.file_button = QPushButton("Browse")
-        self.file_button.clicked.connect(self.selectFiles)
         file_layout.addWidget(self.file_label)
-        file_layout.addWidget(self.file_button)
+        self.drop_area = DropArea(self)
+        self.drop_area.clicked.connect(self.selectFiles)
+        file_layout.addWidget(self.drop_area)
         layout.addLayout(file_layout)
 
         # Output Type Selection
@@ -189,27 +190,39 @@ class S2RMFrontend(QWidget):
     def selectFiles(self):
         litematica_dir = self.get_litematica_dir()
         file_dialog = QFileDialog()
-        file_paths, _ = file_dialog.getOpenFileNames(self, "Select Material List Files", litematica_dir,
-                                                    "Text/CSV files (*.txt *.csv);;All files (*.*)")
-        if file_paths:
-            self.file_paths = file_paths
-            file_names = ", ".join(os.path.basename(path) for path in file_paths)
-            self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
-
-            input_items = {}
-            for file_path in file_paths:
-                materials_dict = process_material_list(file_path)
-                for material, quantity in materials_dict.items():
-                    input_items[material] = input_items.get(material, 0) + quantity # Sum dicts
-        else:
-            return
-
-        self.input_items = dict(sorted(input_items.items(), key=lambda x: (-x[1], x[0])))
+        file_paths, _ = file_dialog.getOpenFileNames(
+            self, 
+            "Select Material List Files", 
+            litematica_dir,
+            "Supported files (*.txt *.csv *.litematic);;Text/CSV files (*.txt *.csv);;Litematic files (*.litematic);;All files (*.*)"
+        )
         
+        if file_paths:
+            self.processSelectedFiles(file_paths)
+
+    def processSelectedFiles(self, file_paths):
+        self.file_paths = file_paths
+        file_names = ", ".join(os.path.basename(path) for path in file_paths)
+        self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
+        
+        input_items = {}
+        for file_path in file_paths:
+            # Check if it's a litematic file or text/csv
+            if file_path.lower().endswith('.litematic'):
+                # Process litematic file
+                materials_dict = process_litematic_file(file_path)
+            else:
+                # Process text/csv file with your existing function
+                materials_dict = process_material_list(file_path)
+                
+            for material, quantity in materials_dict.items():
+                input_items[material] = input_items.get(material, 0) + quantity # Sum dicts
+        
+        self.input_items = dict(sorted(input_items.items(), key=lambda x: (-x[1], x[0])))
+    
         # Clear raw materials columns
         self.total_materials = {}
         self.collected_data = {}
-
         self.displayMaterials()
         self.displayInputMaterials()
 
@@ -663,7 +676,7 @@ class S2RMFrontend(QWidget):
         self.setPalette(palette)
 
         # Apply dark mode to specific widgets
-        self.file_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
+        self.drop_area.setStyleSheet("QPushButton { background-color: #353535; color: white; border: 1px solid #555; border-radius: 3px; }")
         self.process_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
         self.save_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
         self.open_json_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
@@ -708,7 +721,8 @@ class S2RMFrontend(QWidget):
         self.setPalette(QApplication.style().standardPalette())
 
         # Reset styles for specific widgets
-        self.file_button.setStyleSheet("")
+        self.drop_area.setStyleSheet("")
+        self.drop_area.setStyleSheet("QPushButton { background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; }")
         self.process_button.setStyleSheet("")
         self.save_button.setStyleSheet("")
         self.open_json_button.setStyleSheet("")
@@ -835,6 +849,45 @@ class S2RMFrontend(QWidget):
             radio_buttons[1].setChecked(True)
         else:
             raise ValueError(f"Invalid state: {set_to_state}")
+
+class DropArea(QPushButton):
+    def __init__(self, parent=None):
+        super().__init__("Drop files here or click", parent)
+        self.setAcceptDrops(True)
+        self.setFixedHeight(40)
+        self.parent = parent
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+            # Store original stylesheet to restore later
+            self._original_stylesheet = self.styleSheet()
+            # Add highlighted border when dragging over
+            if self.parent.dark_mode:
+                self.setStyleSheet("QPushButton { background-color: #454545; color: white; border: 2px solid #42a5f5; }")
+            else:
+                self.setStyleSheet("QPushButton { background-color: #e3f2fd; border: 2px solid #42a5f5; }")
+
+    def dragLeaveEvent(self, event):
+        # Restore original stylesheet
+        self.setStyleSheet(self._original_stylesheet)
+
+    def dropEvent(self, event: QDropEvent):
+        if event.mimeData().hasUrls():
+            file_paths = []
+            for url in event.mimeData().urls():
+                file_path = url.toLocalFile()
+                file_ext = file_path.lower().split('.')[-1]
+                if file_ext in ['txt', 'csv', 'litematic']:
+                    file_paths.append(file_path)
+            
+            if file_paths:
+                self.parent.processSelectedFiles(file_paths)
+            
+            event.acceptProposedAction()
+        
+        # Restore original stylesheet
+        self.setStyleSheet(self._original_stylesheet)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

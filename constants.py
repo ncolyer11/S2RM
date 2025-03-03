@@ -82,6 +82,11 @@ ITEM_TAGS = {
     "ender_dragon_head": "dragon_head",
 }
 
+BLOCK_TAGS = {
+    "redstone_wall_torch": "redstone_torch",
+    "wall_torch": "torch",
+}
+
 # Load a dictionary containing all items that don't stack to 64, and their stack size (either 16 or 1)
 with open("data/116_stacks.json", "r") as f:
     LIMITED_STACK_ITEMS = json.load(f)

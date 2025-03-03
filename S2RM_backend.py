@@ -5,11 +5,43 @@ import math
 
 import tkinter as tk
 
+from litemapy import Schematic
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
 from constants import ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE
 from helpers import resource_path
+from itertools import product
+
+def process_litematic_file(input_file: str) -> dict[str, int]:
+    """
+    Processes a Litematica schematic file and returns a dictionary of materials and quantities.
+    """
+
+    schematic = Schematic.load(input_file)
+
+    materials = {}
+    regions = list(schematic.regions.values())
+    for region in regions:
+        for x, y, z in product(region.xrange(), region.yrange(), region.zrange()):
+            block = region[x, y, z]
+            block_name = block.id.replace("minecraft:", "")
+            if block_name == "air":
+                continue
+            item_name = convert_block_to_item(block_name)
+            materials[item_name] = materials.get(item_name, 0) + 1
+
+    for material, quantity in materials.items():
+        print(f"{material}: {quantity}")
+
+    return materials
+
+def convert_block_to_item(block_name: str) -> str:
+    # Convert remove wall_ from things that go on walls like torches and signs
+    block_name = re.sub(r'wall_', '', block_name)
+    block_name = re.sub(r'_wire', '', block_name)
+
+    return block_name
 
 def process_material_list(input_file: str) -> dict[str, int]:
     """
