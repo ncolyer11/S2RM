@@ -80,6 +80,9 @@ def process_csv_material_list(lines: list[str]) -> dict[str, int]:
 
 def verify_txt_material_list(lines: list[str]) -> None:
     """Verifies that the file is a .txt Litematica material list."""
+    if not lines or not lines[0].strip():
+        raise ValueError("File is not a .txt Litematica material list. File is empty.")
+
     if not lines[0][:2] == '+-':
         raise ValueError(
             f"File is not a .txt Litematica material list. First line does not start with '+-'. "

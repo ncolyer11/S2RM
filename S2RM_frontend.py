@@ -797,6 +797,9 @@ def condense_material(processed_materials: dict, material: str, quantity: float)
     elif material == 'bone_meal':
         block_name = 'bone_block'
         add_resources(processed_materials, material, block_name, quantity)
+    elif material == "honey_bottle":
+        block_name = "honey_block"
+        add_resources(processed_materials, material, block_name, quantity, compact_num=4)
     else:
         processed_materials[material] = quantity
 
