@@ -2,7 +2,26 @@ import re
 import os
 import sys
 
+from dataclasses import dataclass
+
 from constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
+
+@dataclass
+class TableCols:
+    input_items: list
+    input_quantities: list
+    exclude: list
+    raw_materials: list
+    raw_quantities: list
+    collected_data: list
+
+    def reset(self):
+        self.input_items = []
+        self.input_quantities = []
+        self.exclude = []
+        self.raw_materials = []
+        self.raw_quantities = []
+        self.collected_data = []
 
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))

@@ -13,13 +13,14 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
 
 from constants import ICE_PER_ICE
-from helpers import format_quantities, clamp, resource_path, verify_regexes
+from helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
 from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string, MATERIALS_TABLE
 
 # creco has problems reading tables so split input cols from output cols
+# XXX ice switch broken again
 
 PROGRAM_VERSION = "1.3.1"
 
@@ -37,23 +38,6 @@ EXCLUDE_QUANTITIES_COL_NUM = INPUT_QUANTITIES_COL_NUM + 1
 RAW_MATERIALS_COL_NUM = 3
 RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = 5
-
-@dataclass
-class TableCols:
-    input_items: list
-    input_quantities: list
-    exclude: list
-    raw_materials: list
-    raw_quantities: list
-    collected_data: list
-
-    def reset(self):
-        self.input_items = []
-        self.input_quantities = []
-        self.exclude = []
-        self.raw_materials = []
-        self.raw_quantities = []
-        self.collected_data = []
 
 class S2RMFrontend(QWidget):
     def __init__(self):
@@ -302,7 +286,7 @@ class S2RMFrontend(QWidget):
 
         # Set new values for the input materials table
         for row, material in enumerate(self.tt.input_items):
-            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, material)
+            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, material.replace("$", "")) # Remove $ from encoded entities
             self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
             self.__set_exclude_text_cell(row, self.tt.exclude[row])
 
@@ -378,10 +362,13 @@ class S2RMFrontend(QWidget):
         if not self.file_paths:
             return
 
+        # Update formatting
+        self.updateTableText()
+
         # Get the dictionary of total raw materials needed
         self.__get_total_mats_from_input()
 
-        # Display the updated table
+        # Update values (and concomitantly formatting)
         self.updateTableText()
 
     def saveJson(self):
@@ -563,6 +550,15 @@ class S2RMFrontend(QWidget):
                                                    
                     raw_needed = raw_quantity * (input_quantity - exclude_quantity)
                     total_materials[raw_name] = total_materials.get(raw_name, 0) + raw_needed
+            # Check if the input material is an encoded unfiltered entity
+            elif input_material.startswith("$"):
+                input_entity = input_material[1:]
+
+                entity_quantity = self.tv.input_quantities[row]
+                exclude_quantity = self.tv.exclude[row]
+                
+                raw_needed = entity_quantity - exclude_quantity
+                total_materials[input_entity] = total_materials.get(input_entity, 0) + raw_needed
             else:
                 raise ValueError(f"Material {input_material} not found in materials table. Row: {row}.")
 
@@ -594,6 +590,7 @@ class S2RMFrontend(QWidget):
         
         The way this works is an input material such as packed or blue ice is input, as well as 
         """
+        print(f"starting values: {input_ice_type}, {ice_quantity}")
         if self.ice_type == "freeze":
             if input_ice_type == "packed_ice":
                 raw_ice_name = "packed_ice"
@@ -601,6 +598,8 @@ class S2RMFrontend(QWidget):
             elif input_ice_type == "blue_ice":
                 raw_ice_name = "blue_ice"
                 raw_ice_quantity = ice_quantity / (ICE_PER_ICE ** 2)
+                
+            print(f"returning values: {raw_ice_name}, {raw_ice_quantity}")
         
         return raw_ice_name, raw_ice_quantity
 

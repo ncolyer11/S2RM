@@ -1,5 +1,4 @@
-import json
-from helpers import format_quantities
+from helpers import format_quantities, TableCols
 
 NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
@@ -109,12 +108,32 @@ def forwardporttoV7(table_dict):
     """
     table_dict["exclude_values"] = table_dict.pop("exclude_input") \
     if "exclude_input" in table_dict else []
-    # XXX this needs to be formatted differently using xsb ys z, and also needs to pass in the input
-    # name so the function can work out the stack size
-    table_dict["exclude_text"] = format_quantities(table_dict["exclude_values"])
+    
+    table_dict["exclude_text"] = table_dict["exclude_values"]
+    
+    if not table_dict["exclude_values"]:
+        return
+    
+    excl_list = [table_dict["exclude_values"], table_dict["exclude_text"]]
+    format_quantities(table_dict["input_items"], excl_list, is_exclude_col=True)
 
 def forwardporttoV8(table_dict):
-    ...
+    """
+    In between v7 and v8 was a massive refactor that moved everything into self.tv, and self.tt,
+    meaning table values and table text, respectively.
+    """
+    tv = TableCols([], [], [], [], [], [])
+    tv.input_items = table_dict.pop("input_items")
+    tv.input_quantities = table_dict.pop("input_quantities")
+    tv.exclude = table_dict.pop("exclude_values")
+    tv.raw_materials = table_dict.pop("raw_materials")
+    tv.raw_quantities = table_dict.pop("raw_quantities")
+    tv.collected_data = table_dict.pop("collected")
+    
+    tt = tv.deepcopy()
+    tt.exclude = table_dict.pop("exclude_text")
+    table_dict["tv"] = tv
+    table_dict["tt"] = tt
 
 # Helper function to print forwardporting error message
 def print_forwardporting_error(version, ec):

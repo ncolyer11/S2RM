@@ -159,9 +159,6 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
         for tile_entity in region.tile_entities:
             get_materials_from_inventories(materials, tile_entity)
             
-        if "music_disc" in materials:
-            print(f"Music disc found post tile entity")
-
     # Ensure item names correspond to that in the materials table
     for material in list(materials.keys()):
         materials[convert_name_to_tag(material)] = materials.pop(material)
@@ -233,13 +230,15 @@ def extract_entity_materials(materials, entity_name, data):
             add_material(materials, item, count)
 
     # Ender Dragon special case ofc
-    elif entity_name == "ender_dragon" and "DragonPhase" in data:
-        add_material(materials, "end_crystal")
+    elif entity_name == "ender_dragon":
+        if "DragonPhase" in data:
+            add_material(materials, "end_crystal")
 
     # Leftover, but still not invalid, entities
     elif entity_name not in INVALID_ENTITIES:
         print(f"Adding entity without filtering: {entity_name}")
-        add_material(materials, entity_name)
+        # Encode the entity_name with a $ to mark it as valid despite not being in raw_materials_table.json
+        add_material(materials, f"${entity_name}")
 
     # Invalid entities, e.g. item (entity)
     else:
@@ -313,8 +312,9 @@ def verify_csv_material_list(lines: list[str]) -> None:
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
-    # Handle special cases where the item name is meant to have a number in it, e.g. for music discs
-    if re.match(r'(music_disc_\d+|disc_fragment_\d+|block36)$', name):
+    # Handle special cases where the item name is meant to have a number in it, e.g. for music discs,
+    # or if an item has been marked as an unfiltered, but still valid, entity not in raw_materials_table.json
+    if re.match(r'(music_disc_\d+|disc_fragment_\d+|block36|\$.*)$', name):
         return name
     
     # Remove control characters, symbols, and trailing text from the name
