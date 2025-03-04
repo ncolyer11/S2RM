@@ -55,7 +55,8 @@ def forwardportJson(table_dict, version: int) -> int:
         4: forwardporttoV4,
         5: forwardporttoV5,
         6: forwardporttoV6,
-        7: forwardporttoV7
+        7: forwardporttoV7,
+        8: forwardporttoV8
     }
     
     # forwardport successively to the target version
@@ -111,6 +112,9 @@ def forwardporttoV7(table_dict):
     # XXX this needs to be formatted differently using xsb ys z, and also needs to pass in the input
     # name so the function can work out the stack size
     table_dict["exclude_text"] = format_quantities(table_dict["exclude_values"])
+
+def forwardporttoV8(table_dict):
+    ...
 
 # Helper function to print forwardporting error message
 def print_forwardporting_error(version, ec):

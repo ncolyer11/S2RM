@@ -18,11 +18,6 @@ from dataclasses import dataclass, asdict
 from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string, MATERIALS_TABLE
 
-
-# XXX
-# left search bar resets when you use the right one
-# ^^ FIX this by making a display table dict and a backend table dict so you're not storing formatted text as your actual values
-
 PROGRAM_VERSION = "1.3.0"
 
 DARK_INPUT_CELL = "#111a14"
@@ -205,6 +200,11 @@ class S2RMFrontend(QWidget):
         # Enable sorting
         # self.table.setSortingEnabled(True) # XXX doesn't work numerically and doesn't shift out blank cells
 
+        # starts with exclude cells matching their input item counterparts via the same row index
+        # when a filter is applied, certain input item names are set to ""
+        # when updating the text in the table, rows with material == "" are skipped
+        # inputting a number in the exclude column when a filter is applied
+
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
         self.setGeometry(20, 20, 1150, 850)
@@ -342,36 +342,68 @@ class S2RMFrontend(QWidget):
 
     def getExcludeVals(self):
         """Resets current exclude vals, and reads in new input from user in the exclude column."""
-        self.tv.exclude = []
+        # Check if there's a search term in the input search bar
+        search_term = self.input_search_bar.text()
+
+        # If there is no search term then we know the length of the table == length of tv.input_items
+        # And we can reset it safely (this lets it get populated initially too)
+        if not search_term:
+            self.tv.exclude = []
+        # Regardless of filters, we need to reset the excluded displayed text
         self.tt.exclude = []
-        for row, material in enumerate(self.tv.input_items):
-            # Get the value from the third column (number input)
-            if (excl_cell := self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)) is None:
-                exclude_text = "0"
+        
+        exclude_cells = [self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM) for row in range(self.table.rowCount())]
+        # Update self.tv.exclude and self.tt.exclude
+        input_items_stripped = [item for item in self.tt.input_items if item]
+        for exclude_cell, input_material in zip(exclude_cells, input_items_stripped):
+            # self.tt.exclude dynamically changes so it doesn't mind if there's filters or not
+            if exclude_cell is None:
+                print(f"At {input_material} exclude cell is None")
+                excl_cell_text = "0"
+                self.tt.exclude.append(excl_cell_text)
             else:
-                exclude_text = excl_cell.text()
-                if not exclude_text:
-                    exclude_text = "0"
-
-            exclude_value = 0
+                print(f"At {input_material} exclude cell is not None")
+                excl_cell_text = exclude_cell.text()
+                if not excl_cell_text:
+                    excl_cell_text = "0"
+                self.tt.exclude.append(excl_cell_text)
             
-            required_quantity = self.tv.input_quantities[row]
-            # Try converting the exclude val to a float and then clamp it
-            try:
-                exclude_value = clamp(float(exclude_text), 0, required_quantity)
-            # Otherwise process the custom text input
-            except (ValueError, TypeError):
-                if exclude_text.strip().lower() in ["all", "a"]:
-                    exclude_value = required_quantity
-                # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
-                elif (exclude_value := process_exclude_string(exclude_text, material)) == -1:
-                    # If user enters something proper invalid reset to 0
-                    exclude_value = 0
-                
-                exclude_value = clamp(exclude_value, 0, required_quantity)
+            # self.tv.input_items on the other hand is static and doesn't change with filters
+            # hence a specific item could be at 2 different indices in self.input_vals_text
 
-            # Add excluded value and text to the list
-            self.tv.exclude.append(exclude_value)
+            # The index of where the item is stored on the backend, not in the table
+            item_idx = self.tt.input_items.index(input_material)
+            required_quantity = self.tv.input_quantities[item_idx]
+
+            if not search_term:
+                print(f"No search term, processing {input_material} at index {item_idx}")
+                exclude_value = self._get_exclude_value(excl_cell_text, input_material, required_quantity)
+                self.tv.exclude.append(exclude_value)
+            else:
+                print(f"Search term present, processing {input_material} at index {item_idx}")
+                exclude_value = self._get_exclude_value(excl_cell_text, input_material, required_quantity)
+                # get idx of the item in self.tv.exclude
+                # update with the new value entered at table row
+                self.tv.exclude[item_idx] = exclude_value
+
+    def _get_exclude_value(self, exclude_text, material, required_quantity) -> int:
+        exclude_value = 0
+        # Try converting the exclude val to a float and then clamp it
+        try:
+            exclude_value = clamp(float(exclude_text), 0, required_quantity)
+        # Otherwise process the custom text input
+        except (ValueError, TypeError):
+            if exclude_text.strip().lower() in ["all", "a"]:
+                exclude_value = required_quantity
+            # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
+            elif (exclude_value := process_exclude_string(exclude_text, material)) == -1:
+                # If user enters something proper invalid reset to 0
+                exclude_value = 0
+            
+            exclude_value = clamp(exclude_value, 0, required_quantity)
+        
+        return exclude_value
+
 
     def processMaterials(self):
         if not self.file_paths:
@@ -425,7 +457,7 @@ class S2RMFrontend(QWidget):
             except Exception as e:
                 print(f"Error saving JSON: {e}")
    
-    def openJson(self): # XXX update to format 8 that just stores self.tv
+    def openJson(self):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")  # Default to Desktop
         file_dialog = QFileDialog()
         json_file_path, _ = file_dialog.getOpenFileName(
