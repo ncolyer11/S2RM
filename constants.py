@@ -87,7 +87,7 @@ ITEM_TAGS = {
 }
 
 # Skip these blocks when calculating materials
-INVALID_BLOCKS = [
+INVALID_BLOCKS = {
     "air",
     "void_air",
     "cave_air",
@@ -96,13 +96,13 @@ INVALID_BLOCKS = [
     "nether_portal",
     "end_portal",
     "piston_head", # yes you can have a piston head on its own, but it's rare and you can get the piston back anyways if you're skilled enough
-]
+}
 
-BLOCKS_WITHOUT_ITEM = [
+BLOCKS_WITHOUT_ITEM = {
     "block36",
     "frosted_ice",
     "end_gateway",
-]
+}
 
 # Convert a block name to an item name
 BLOCK_TAGS = {
@@ -134,11 +134,29 @@ BLOCK_TAGS = {
 }
 
 # Entities that have the same name as their item form
-SIMPLE_ENTITIES = [
-    "item_frame",
+SIMPLE_ENTITIES = {
     "painting",
     "armor_stand",
-]
+}
+
+# Entities that don't make sense to include in the items list
+INVALID_ENTITIES = {
+    "item"
+}
+
+HEADGEAR_KWS = {
+    "helmet",
+    "head",
+    "skull",
+    "pumpkin",
+}
+
+# 'Craftable' golem-like entities
+GOLEM_RECIPES = {
+    "iron_golem": {"iron_block": 4, "carved_pumpkin": 1},
+    "snow_golem": {"snow_block": 1, "carved_pumpkin": 1},
+    "wither": {"soul_sand": 3, "wither_skeleton_skull": 3},
+}
 
 # To get this to build to .exe we need this code, but to avoid circular dependencies it needs to be here, kinda eh
 def constants_py_resource_path(relative_path):

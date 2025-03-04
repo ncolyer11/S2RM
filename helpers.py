@@ -7,6 +7,10 @@ from constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
+def add_material(materials, item, count=1):
+    """Helper function to add materials safely."""
+    materials[item] = materials.get(item, 0) + count
+
 def verify_regexes(search_str: str) -> list[str] | bool:
     """Check if the search terms are valid regexes and return a list of valid search terms."""
     if not (search_terms := [term.strip().strip("'") for term in search_str.split(",") if term.strip()]):
@@ -44,20 +48,15 @@ def format_quantities(materials: list[str], qs_vals_text: tuple[list[int], list[
         If the materials and quantities lists are not the same length.    
     """
     quantity_vals, quantity_text = qs_vals_text
-    # Quality text is populated later if we're formatting the exclude column
-    quality_text_len = len(quantity_vals) if is_exclude_col else len(quantity_text)
 
-    if not (len(materials) == len(quantity_vals) == quality_text_len):
+    if not (len(materials) == len(quantity_vals) == len(quantity_text)):
         raise TypeError("Materials and quantities lists must be the same length.\n"
-                        f"Got {len(materials)} materials, {len(quantity_vals)} quantities_int, and "
-                        f"{len(quantity_text)} quantities_str.")
+                        f"Got {len(materials)} materials, {len(quantity_vals)} quantities_int and "
+                        f"{len(quantity_text)} quantities_text.")
 
     for i, (material, quantity) in enumerate(zip(materials, quantity_vals)):
         formatted_quantity = get_shulkers_stacks_and_items(quantity, material, is_exclude_col)
-        if is_exclude_col:
-            quantity_text.append(formatted_quantity)
-        else:
-            quantity_text[i] = formatted_quantity
+        quantity_text[i] = formatted_quantity
 
 def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand: bool = False) -> str:
     """

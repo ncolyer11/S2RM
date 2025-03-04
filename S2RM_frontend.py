@@ -4,6 +4,7 @@ import sys
 import copy
 import json
 import math
+import time
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPalette, QColor, QDragEnterEvent, QDropEvent
@@ -18,7 +19,9 @@ from dataclasses import dataclass, asdict
 from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string, MATERIALS_TABLE
 
-PROGRAM_VERSION = "1.3.0"
+# creco has problems reading tables so split input cols from output cols
+
+PROGRAM_VERSION = "1.3.1"
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
@@ -225,12 +228,19 @@ class S2RMFrontend(QWidget):
         
         if file_paths:
             self.file_paths = file_paths
+            start_time = time.time_ns()
             self.processSelectedFiles()
+            print(f"Time to process files: {(time.time_ns() - start_time) / 1e6:.2f} ms")
 
-    def processSelectedFiles(self):
+    def processSelectedFiles(self, file_paths=None):
         # Reset input items and raw materials
         self.tv.reset()
         self.tt.reset()
+        
+        # Use the dragged in file paths if none are provided
+        if file_paths is not None:
+            self.file_paths = file_paths
+        
         file_names = ", ".join(os.path.basename(path) for path in self.file_paths)
         # Truncate the file names if they're too long
         if len(file_names) > TRUNCATE_LEN:
@@ -273,60 +283,44 @@ class S2RMFrontend(QWidget):
         # Ensure all text is up to date
         self.tt = copy.deepcopy(self.tv)
 
-        # Check for search terms in the input and raw materials search bars
+        # Break down large values into shulker boxes and stacks
+        format_quantities(self.tv.input_items, self.input_vals_text)
+        # format_quantities(self.tv.raw_materials, self.raw_vals_text)
+        
+        # Check all user inputted exclude values, and update the exclude column accordingly
+        if not keep_exc_col:
+            self.getExcludeVals()
+        self.format_exclude_column()
+
+        # Check for search terms in the raw materials search bar
         self.filterMaterials()
 
         # Set the new table length to the maximum of the input items and raw materials
         self.table.setRowCount(max(len(self.tt.input_items), len(self.tt.raw_materials)))
-        
-        # Check all user inputted exclude values, and update the exclude column accordingly
-        self.getExcludeVals(keep_exc_col)
-
-        # Break down large values into shulker boxes and stacks
-        self.format_columns()
 
         # Set new values for the input materials table
-        isr = 0 # input set row
         for row, material in enumerate(self.tt.input_items):
-            if not material:
-                continue
-            self.__set_materials_cell(isr, INPUT_ITEMS_COL_NUM, material)
-            self.__set_materials_cell(isr, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
-            self.__set_exclude_text_cell(isr, self.tt.exclude[row])
-            isr += 1
+            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, material)
+            self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
+            self.__set_exclude_text_cell(row, self.tt.exclude[row])
 
         # Set new values for the raw materials table
-        rsr = 0 # raw set row
         for row, material in enumerate(self.tt.raw_materials):
-            if not material:
-                continue
-            self.__set_materials_cell(rsr, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
-            self.__set_materials_cell(rsr, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
-            self.__add_checkbox(rsr, material)
-            rsr += 1
+            self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
+            self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
+            self.__add_checkbox(row, material)
 
         # Delete data after new input items
-        for row in range(isr, self.table.rowCount()):
+        for row in range(len(self.tt.input_items), self.table.rowCount()):
             self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, "")
             self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
         
         # Delete data after new raw materials
-        for row in range(rsr, self.table.rowCount()):
+        for row in range(len(self.tt.raw_materials), self.table.rowCount()):
             self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, "")
             self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, COLLECTIONS_COL_NUM, None)
-
-    def format_columns(self):
-        """Format the columns of the to break down quantities into shulker boxes and stacks."""
-        format_quantities(self.tt.input_items, self.input_vals_text)
-        format_quantities(self.tt.input_items, self.exclude_vals_text, is_exclude_col=True)
-        format_quantities(self.tt.raw_materials, self.raw_vals_text)
-        
-        # Change formatted values to just be 'All' if an entire input quantity is satisfied
-        for row, input_quantity in enumerate(self.tv.input_quantities):
-            if self.tv.exclude[row] == input_quantity:
-                self.tt.exclude[row] = "All"
 
     def filterMaterials(self):
         """Checks comma separated regex search terms against the raw materials."""
@@ -336,11 +330,8 @@ class S2RMFrontend(QWidget):
         raw_cols = [self.tt.raw_quantities, self.tt.collected_data]
         self.__filter_column(raw_search_terms, self.tt.raw_materials, raw_cols)
 
-    def getExcludeVals(self, keep_exc_col=False):
+    def getExcludeVals(self):
         """Resets current exclude vals, and reads in new input from user in the exclude column."""
-        self.tt.exclude = []
-        if keep_exc_col:
-            return # 
         self.tv.exclude = []
         for row, material in enumerate(self.tv.input_items):
             # Get the value from the third column (number input)
@@ -371,22 +362,19 @@ class S2RMFrontend(QWidget):
             # Add excluded value and text to the list
             self.tv.exclude.append(exclude_value)   
 
+    def format_exclude_column(self):
+        """Format  the exclude input item column into shulker boxes and stacks."""
+        self.tt.exclude = self.tv.exclude.copy()
+        format_quantities(self.tv.input_items, self.exclude_vals_text, is_exclude_col=True)
+        
+        # Change formatted values to just be 'All' if an entire input quantity is satisfied
+        for row, input_quantity in enumerate(self.tv.input_quantities):
+            if self.tv.exclude[row] == input_quantity:
+                self.tt.exclude[row] = "All"
+
     def processMaterials(self):
         if not self.file_paths:
             return
-
-        json_file_path = None
-        # Handle string or list with single string
-        if isinstance(self.file_paths, str) and self.file_paths.endswith(".json"):
-            json_file_path = self.file_paths
-        elif isinstance(self.file_paths, list) and len(self.file_paths) == 1 and \
-             isinstance(self.file_paths[0], str) and self.file_paths[0].endswith(".json"):
-            json_file_path = self.file_paths[0]
-
-        # If self.file_paths is a single .json file, extract the new self.input_items
-        if json_file_path is not None:
-            self.file_paths = [json_file_path]
-            self.__extract_input_items_from_json()
 
         # Get the dictionary of total raw materials needed
         self.__get_total_mats_from_input()
@@ -519,6 +507,103 @@ class S2RMFrontend(QWidget):
 
 ######### Helper and Private Methods #########
 
+    def __filter_column(self, search_terms: list[str], materials: list[str],
+                        related_lists: list[list]):
+        """
+        Filter a single column of the table given a list of search terms and a material-quantity list.
+        """
+        # If search terms are invalid or empty, return
+        if not search_terms:
+            return
+        
+        # Pop elements from the end to avoid index errors
+        for i in range(len(materials) - 1, -1, -1):
+            # If not a single search term matches the material, remove it
+            if not any(re.search(search, materials[i], re.IGNORECASE) for search in search_terms):
+                materials.pop(i)
+                # Remove elements from related lists too, e.g. input_quantities and exclude
+                for related_list in related_lists:
+                    related_list.pop(i)
+
+    def __add_checkbox(self, row, material):
+        """Add a checkbox to the table at the given row."""
+        # Add checkbox
+        checkbox = QCheckBox()
+        checkbox.setChecked(self.tv.collected_data[row])
+        checkbox.stateChanged.connect(lambda state, row=row: self.updateCollected(row, state))
+        
+        # Create a widget to center the checkbox
+        checkbox_widget = QWidget()
+        checkbox_layout = QHBoxLayout(checkbox_widget)
+        checkbox_layout.addWidget(checkbox)
+        checkbox_layout.setAlignment(Qt.AlignCenter)
+        checkbox_layout.setContentsMargins(0, 0, 0, 0) # Remove margins
+
+        self.table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
+
+    def __get_total_mats_from_input(self) -> None:
+        # Clear the raw materials table
+        self.tv.raw_materials = []
+        self.tv.raw_quantities = []
+        self.tv.collected_data = []
+        
+        total_materials = {}
+        for row, input_material in enumerate(self.tv.input_items):
+            if input_material in MATERIALS_TABLE:
+                input_quantity = self.tv.input_quantities[row]
+                exclude_quantity = self.tv.exclude[row]
+                for raw_material in MATERIALS_TABLE[input_material]:
+                    raw_name, raw_quantity = raw_material["item"], raw_material["quantity"]
+
+                    # Keep or 'freeze' the original ice type if specified
+                    if re.match(r"(packed|blue)_ice$", raw_name):
+                        raw_name, raw_quantity = self.__handle_ice_type(input_material, raw_quantity)
+                                                   
+                    raw_needed = raw_quantity * (input_quantity - exclude_quantity)
+                    total_materials[raw_name] = total_materials.get(raw_name, 0) + raw_needed
+            else:
+                raise ValueError(f"Material {input_material} not found in materials table. Row: {row}.")
+
+        # Round final quantities up
+        for material, quantity in total_materials.items():
+            total_materials[material] = math.ceil(quantity)
+
+        # Post-process to handle blocks and remaining ingots
+        if self.output_type == "blocks":
+            processed_materials = {}
+            
+            # Compact ingots/resource items into block form
+            for material, quantity in total_materials.items():
+                condense_material(processed_materials, material, quantity)
+
+            total_materials = processed_materials
+            
+        # Sort by quantity (descending) then by material name (ascending)
+        total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
+
+        for material, quantity in total_materials.items():
+            self.tv.raw_materials.append(material)
+            self.tv.raw_quantities.append(quantity)
+            self.tv.collected_data.append(False)
+
+    def __handle_ice_type(self, input_ice_type, ice_quantity):
+        """
+        Returns ice as either its original type or as decompressed normal ice.
+        
+        The way this works is an input material such as packed or blue ice is input, as well as 
+        """
+        if self.ice_type == "freeze":
+            if input_ice_type == "packed_ice":
+                raw_ice_name = "packed_ice"
+                raw_ice_quantity = ice_quantity / ICE_PER_ICE
+            elif input_ice_type == "blue_ice":
+                raw_ice_name = "blue_ice"
+                raw_ice_quantity = ice_quantity / (ICE_PER_ICE ** 2)
+        
+        return raw_ice_name, raw_ice_quantity
+
+    ################ GUI/Style Methods ################
+    
     def updateOutputType(self):
         self.output_type = "ingots" if self.ingots_radio.isChecked() else "blocks"
             
@@ -643,116 +728,6 @@ class S2RMFrontend(QWidget):
             f'<a style="color: {link_color};" '
             f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
-        
-    def __filter_column(self, search_terms: list[str], materials: list[str],
-                        related_lists: list[list]):
-        """
-        Filter a single column of the table given a list of search terms and a material-quantity list.
-        """
-        # If search terms are invalid or empty, return
-        if not search_terms:
-            return
-        
-        for i, material in enumerate(materials):
-            # If not a single search term matches the material, remove it
-            if not any(re.search(search, material, re.IGNORECASE) for search in search_terms):
-                materials[i] = ""
-                # Remove elements from related lists too, e.g. input_quantities and exclude
-                for related_list in related_lists:
-                    related_list[i] = ""
-
-    def __add_checkbox(self, row, material):
-        """Add a checkbox to the table at the given row."""
-        # Add checkbox
-        checkbox = QCheckBox()
-        checkbox.setChecked(self.tv.collected_data[row])
-        checkbox.stateChanged.connect(lambda state, row=row: self.updateCollected(row, state))
-        
-        # Create a widget to center the checkbox
-        checkbox_widget = QWidget()
-        checkbox_layout = QHBoxLayout(checkbox_widget)
-        checkbox_layout.addWidget(checkbox)
-        checkbox_layout.setAlignment(Qt.AlignCenter)
-        checkbox_layout.setContentsMargins(0, 0, 0, 0) # Remove margins
-
-        self.table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
-
-    def __extract_input_items_from_json(self):
-        """Extracts the input items from a JSON file and updates self.file_paths accordingly."""
-        try:
-            json_file_path = self.file_paths[0]
-            with open(json_file_path, "r") as f:
-                table_values = json.load(f)["table_values"]
-                self.tv.input_items = table_values["input_items"]
-                self.tv.input_quantities = table_values["input_quantities"]
-                self.tv.exclude = table_values["exclude"]
-        except Exception as e:
-            # Clear the selected file if there's an error opening it
-            self.file_paths = []
-            self.file_label.setText(FILE_LABEL_TEXT)
-            print(f"An error occurred: {e}")
-        
-    def __get_total_mats_from_input(self) -> None:
-        # Clear the raw materials table
-        self.tv.raw_materials = []
-        self.tv.raw_quantities = []
-        self.tv.collected_data = []
-        
-        total_materials = {}
-        for row, input_material in enumerate(self.tv.input_items):
-            if input_material in MATERIALS_TABLE:
-                input_quantity = self.tv.input_quantities[row]
-                exclude_quantity = self.tv.exclude[row]
-                for raw_material in MATERIALS_TABLE[input_material]:
-                    raw_name, raw_quantity = raw_material["item"], raw_material["quantity"]
-
-                    # Keep or 'freeze' the original ice type if specified
-                    raw_name, raw_quantity = self.__handle_ice_type(input_material, raw_quantity)
-                                                   
-                    raw_needed = raw_quantity * (input_quantity - exclude_quantity)
-                    total_materials[raw_name] = total_materials.get(raw_name, 0) + raw_needed
-            else:
-                raise ValueError(f"Material {input_material} not found in materials table. Row: {row}.")
-
-        # Round final quantities up
-        for material, quantity in total_materials.items():
-            total_materials[material] = math.ceil(quantity)
-
-        # Post-process to handle blocks and remaining ingots
-        if self.output_type == "blocks":
-            processed_materials = {}
-            
-            # Compact ingots/resource items into block form
-            for material, quantity in total_materials.items():
-                condense_material(processed_materials, material, quantity)
-
-            total_materials = processed_materials
-            
-        # Sort by quantity (descending) then by material name (ascending)
-        total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
-
-        for material, quantity in total_materials.items():
-            self.tv.raw_materials.append(material)
-            self.tv.raw_quantities.append(quantity)
-            self.tv.collected_data.append(False)
-
-    def __handle_ice_type(self, ice_type, ice_quantity):
-        """
-        Returns ice as either its original type or as decompressed normal ice.
-        ice_type and ice_quantity aren't necessarily ice materials.
-        """
-        if self.ice_type == "freeze":
-            if ice_type == "packed_ice":
-                ice_quantity = ice_quantity / ICE_PER_ICE
-            elif ice_type == "blue_ice":
-                ice_quantity = ice_quantity / (ICE_PER_ICE ** 2)
-        else:
-            if ice_type == "packed_ice":
-                ice_type = "ice"
-            elif ice_type == "blue_ice":
-                ice_type = "ice"
-        
-        return ice_type, ice_quantity
 
     def __set_exclude_text_cell(self, row, quantity: int | str):
         """

@@ -2,12 +2,12 @@ import re
 import os
 import json
 
-from litemapy import Schematic
+from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
-from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE, \
-    BLOCK_TAGS, SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
-from helpers import resource_path
+from constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
+    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
+from helpers import resource_path, add_material
 from itertools import product
 
 # Load the raw materials table
@@ -151,10 +151,13 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
             for item_name in item_names:
                 materials[item_name] = materials.get(item_name, 0) + 1
     
+        print(f"All entities in region:")
+        for entity in region.entities:
+            print(entity.id)
         # Get materials required to craft/obtain entities
         for entity in region.entities:
             get_materials_from_entity(materials, entity)
-    
+
         # Get items stored inside of inventories
         for tile_entity in region.tile_entities:
             get_materials_from_inventories(materials, tile_entity)
@@ -163,11 +166,9 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
     for material in list(materials.keys()):
         materials[convert_name_to_tag(material)] = materials.pop(material)
 
-    # Return sorted materials by key
     return materials
 
 def convert_block_to_item(block_name: str) -> str:
-    block_name = re.sub(r'wall_hanging_', '', block_name)
     block_name = re.sub(r'wall_', '', block_name)
     block_name = re.sub(r'attached_', '', block_name)
     block_name = re.sub(r'potted_', '', block_name)
@@ -184,48 +185,107 @@ def convert_block_to_item(block_name: str) -> str:
 
     return [block_name] if isinstance(block_name, str) else block_name
 
-def get_materials_from_entity(materials, entity):
-    # if boat or minecart do some shi
+def get_materials_from_entity(materials: dict[str, int], entity: Entity):
+    """Extracts materials required for an entity in a structured way."""
+    data = entity.data
     entity_name = entity.id.replace("minecraft:", "")
-    if entity_name in SIMPLE_ENTITIES:
-        materials[entity_name] = materials.get(entity_name, 0) + 1
-    elif "boat" in entity_name or "minecart" in entity_name:
-        materials[entity_name] = materials.get(entity_name, 0) + 1
-    elif entity_name == "falling_block":
-        block_name = entity.block_state.id.replace("minecraft:", "")
-        if block_name in INVALID_BLOCKS:
-            return
-        item_names = convert_block_to_item(block_name)
-        for item_name in item_names:
-            materials[item_name] = materials.get(item_name, 0) + 1
-    elif "fish" in entity_name or entity_name in ["salmon", "cod", "axolotl", "tadpole"]:
-        bucket_name = f"{entity_name}_bucket"
-        materials[bucket_name] = materials.get(bucket_name, 0) + 1
-    elif entity_name == "iron_golem":
-        materials["iron_block"] = materials.get("iron_ingot", 0) + 4
-        materials["carved_pumpkin"] = materials.get("carved_pumpkin", 0) + 1
-    elif entity_name == "snow_golem":
-        materials["snow_block"] = materials.get("snow_block", 0) + 1
-        materials["carved_pumpkin"] = materials.get("carved_pumpkin", 0) + 1
-    elif entity_name == "wither":
-        materials["soul_sand"] = materials.get("soul_sand", 0) + 3
-        materials["wither_skeleton_skull"] = materials.get("wither_skeleton_skull", 0) + 3
-    elif entity_name == "ender_dragon":
-        materials["end_crystal"] = materials.get("end_crystal", 0) + 1
-    else:
-        print(f"Adding entity without filtering: {entity_name}")
-        materials[entity_name] = materials.get(entity_name, 0) + 1
+    print_formatted_entity_data(data)
 
-def get_materials_from_inventories(materials, tile_entity):
-    # if chest or barrel, iterate through all the items in its inventory and add to materials
-    tile_entity_data = tile_entity.data
-    if "Items" not in tile_entity_data:
+    extract_entity_materials(materials, entity_name, data)
+    handle_additional_entity_materials(materials, data)
+
+def extract_entity_materials(materials, entity_name, data):
+    # Direct simple entities
+    if entity_name in SIMPLE_ENTITIES:
+        add_material(materials, entity_name)
+
+    # Item frames
+    elif "item_frame" in entity_name:
+        add_material(materials, entity_name)
+        if "Item" in data:
+            add_material(materials, data['Item']['id'].replace("minecraft:", ""))
+
+    # Boats and minecarts (check for extra items inside)
+    elif "boat" in entity_name or "minecart" in entity_name:
+        # Convert generic boat name to specific boat name including the wood type
+        if "Type" in data:
+            entity_name = f"{data['Type']}_boat"
+        add_material(materials, entity_name)
+        for item in data.get("Items", []):
+            add_material(materials, item["id"].replace("minecraft:", ""), item["count"])
+
+    # Falling blocks
+    elif entity_name == "falling_block":
+        block_name = data['BlockState']['Name'].replace("minecraft:", "")
+        if block_name not in INVALID_BLOCKS:
+            for item_name in convert_block_to_item(block_name):
+                add_material(materials, item_name)
+
+    # Bucket-able entities
+    elif entity_name in {"salmon", "cod", "axolotl", "tadpole"} or "fish" in entity_name:
+        add_material(materials, f"{entity_name}_bucket")
+
+    # "Craftable" golem-like entities
+    elif entity_name in GOLEM_RECIPES:
+        for item, count in GOLEM_RECIPES[entity_name].items():
+            add_material(materials, item, count)
+
+    # Ender Dragon special case ofc
+    elif entity_name == "ender_dragon" and "DragonPhase" in data:
+        add_material(materials, "end_crystal")
+
+    # Leftover, but still not invalid, entities
+    elif entity_name not in INVALID_ENTITIES:
+        print(f"Adding entity without filtering: {entity_name}")
+        add_material(materials, entity_name)
+
+    # Invalid entities, e.g. item (entity)
+    else:
+        print(f"Skipping invalid entity: {entity_name}")
+
+def handle_additional_entity_materials(materials, data):
+    # Leash check
+    if "leash" in data:
+        add_material(materials, "lead")
+        
+    # Don't want to check all tools and armour of mobs as it's kind arbitrary whether or not the
+    # item is naturally part of the mob, or needed, but a helmet is the most likely to be required
+    # to protect mobs from the sun e.g.. And it also doesn't spawn as often with the mob vs tools
+    if "ArmorItems" in data:
+        for item in data.get("ArmorItems", []):
+            item_name = item.get("id", "").replace("minecraft:", "")
+            if any(keyword in item_name for keyword in HEADGEAR_KWS):
+                add_material(materials, item_name)
+
+def print_formatted_entity_data(entity_data):
+    print()
+    entity_name = entity_data.get("id", "").replace("minecraft:", "")
+    print(f"Entity: {entity_name}")
+    for key, value in entity_data.items():
+        if key != 'Items':
+            print(f"\t{key}: {value}")
+        else:
+            print(f"\t{key}:")
+            for item in value:
+                print(f"\t\t{item}")
+    print()
+
+def get_materials_from_inventories(materials: dict[str, int], tile_entity: TileEntity):
+    """Extracts materials from inventories by checking their NBT."""
+    data = tile_entity.data
+    if "Items" in data:
+        items = data["Items"]
+    elif "Item" in data:
+        items = [data["Item"]]
+    else:
         return
-    
-    items = tile_entity_data["Items"]
+
     for item in items:
         item_name = item["id"].replace("minecraft:", "")
-        materials[item_name] = materials.get(item_name, 0) + item["Count"] 
+        if "count" in item:
+            add_material(materials, item_name, item["count"])
+        else:
+            add_material(materials, item_name, item["Count"])
 
 def verify_csv_material_list(lines: list[str]) -> None:
     """Verifies that the file is a .csv Litematica material list."""
@@ -250,6 +310,7 @@ def verify_csv_material_list(lines: list[str]) -> None:
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
+    # Handle special case where the item name is meant to have a number in it
     if name == "block36":
         return name
     name = clean_string(name).lower()
