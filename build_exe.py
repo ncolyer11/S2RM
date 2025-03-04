@@ -1,15 +1,6 @@
 import os
 import sys
 import subprocess
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 # Define important paths
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_SCRIPT = "S2RM_frontend.py"

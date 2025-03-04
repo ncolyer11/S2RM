@@ -261,7 +261,7 @@ class S2RMFrontend(QWidget):
 
         self.updateTableText()
 
-    def updateTableText(self, search_term=None):
+    def updateTableText(self, search_term=None, keep_exc_col=False):
         """
         Set the text or widgets from self.tt to the table atfer formatting.
         
@@ -280,7 +280,7 @@ class S2RMFrontend(QWidget):
         self.table.setRowCount(max(len(self.tt.input_items), len(self.tt.raw_materials)))
         
         # Check all user inputted exclude values, and update the exclude column accordingly
-        self.getExcludeVals()
+        self.getExcludeVals(keep_exc_col)
 
         # Break down large values into shulker boxes and stacks
         self.format_columns()
@@ -336,10 +336,12 @@ class S2RMFrontend(QWidget):
         raw_cols = [self.tt.raw_quantities, self.tt.collected_data]
         self.__filter_column(raw_search_terms, self.tt.raw_materials, raw_cols)
 
-    def getExcludeVals(self):
+    def getExcludeVals(self, keep_exc_col=False):
         """Resets current exclude vals, and reads in new input from user in the exclude column."""
-        self.tv.exclude = []
         self.tt.exclude = []
+        if keep_exc_col:
+            return # 
+        self.tv.exclude = []
         for row, material in enumerate(self.tv.input_items):
             # Get the value from the third column (number input)
             if (excl_cell := self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)) is None:
@@ -460,7 +462,8 @@ class S2RMFrontend(QWidget):
 
             if "table_values" in table_dict:
                 self.tv = TableCols(**table_dict["table_values"])
-                self.updateTableText()
+
+                self.updateTableText(keep_exc_col=True)
 
             self.file_paths = [json_file_path]
             self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(json_file_path)}")
@@ -703,7 +706,7 @@ class S2RMFrontend(QWidget):
                     raw_name, raw_quantity = raw_material["item"], raw_material["quantity"]
 
                     # Keep or 'freeze' the original ice type if specified
-                    self.__handle_ice_type(raw_name, raw_quantity)
+                    raw_name, raw_quantity = self.__handle_ice_type(input_material, raw_quantity)
                                                    
                     raw_needed = raw_quantity * (input_quantity - exclude_quantity)
                     total_materials[raw_name] = total_materials.get(raw_name, 0) + raw_needed
@@ -739,11 +742,14 @@ class S2RMFrontend(QWidget):
         """
         if self.ice_type == "freeze":
             if ice_type == "packed_ice":
-                ice_type = "packed_ice"
                 ice_quantity = ice_quantity / ICE_PER_ICE
             elif ice_type == "blue_ice":
-                ice_type = "blue_ice"
                 ice_quantity = ice_quantity / (ICE_PER_ICE ** 2)
+        else:
+            if ice_type == "packed_ice":
+                ice_type = "ice"
+            elif ice_type == "blue_ice":
+                ice_type = "ice"
         
         return ice_type, ice_quantity
 
