@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
 from constants import ICE_PER_ICE
 from helpers import format_quantities, clamp, resource_path, verify_regexes
 from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
+from dataclasses import dataclass, field
 from S2RM_backend import process_material_list, condense_material, process_exclude_string, \
     process_litematic_file
 
@@ -38,6 +39,16 @@ RAW_MATERIALS_COL_NUM = 3
 RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = 5
 
+@dataclass
+class TableCols:
+    input_items: list
+    input_quantities: list
+    exclude_text: list
+    exclude_values: list
+    raw_materials: list
+    raw_quantities: list
+    collected_data: list
+
 class S2RMFrontend(QWidget):
     def __init__(self):
         super().__init__()
@@ -49,6 +60,10 @@ class S2RMFrontend(QWidget):
         self.exclude_text = []
         self.exclude_values = []
         self.collected_data = {}
+        # Explicitly store table text and table values
+        self.tt = TableCols([], [], [], [], [], [], [])
+        self.tv = TableCols([], [], [], [], [], [], [])
+        
         self.dark_mode = True
         
         # Load the raw materials table
