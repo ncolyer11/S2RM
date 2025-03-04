@@ -244,7 +244,9 @@ class S2RMFrontend(QWidget):
         file_names = ", ".join(os.path.basename(path) for path in self.file_paths)
         # Truncate the file names if they're too long
         if len(file_names) > TRUNCATE_LEN:
-            file_names = file_names[:TRUNCATE_LEN] + "..."
+            truncated_file_names = file_names[:TRUNCATE_LEN]
+            paths_that_fit = truncated_file_names.count(",") + 1
+            file_names = file_names[:TRUNCATE_LEN] + f"... (+{len(self.file_paths) - paths_that_fit} more)"
         self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
         
         # Sum all the material lists together into a combined dictionary
@@ -285,7 +287,7 @@ class S2RMFrontend(QWidget):
 
         # Break down large values into shulker boxes and stacks
         format_quantities(self.tv.input_items, self.input_vals_text)
-        # format_quantities(self.tv.raw_materials, self.raw_vals_text)
+        format_quantities(self.tv.raw_materials, self.raw_vals_text)
         
         # Check all user inputted exclude values, and update the exclude column accordingly
         if not keep_exc_col:

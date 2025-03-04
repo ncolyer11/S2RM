@@ -151,16 +151,16 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
             for item_name in item_names:
                 materials[item_name] = materials.get(item_name, 0) + 1
     
-        print(f"All entities in region:")
-        for entity in region.entities:
-            print(entity.id)
         # Get materials required to craft/obtain entities
         for entity in region.entities:
             get_materials_from_entity(materials, entity)
-
+        
         # Get items stored inside of inventories
         for tile_entity in region.tile_entities:
             get_materials_from_inventories(materials, tile_entity)
+            
+        if "music_disc" in materials:
+            print(f"Music disc found post tile entity")
 
     # Ensure item names correspond to that in the materials table
     for material in list(materials.keys()):
@@ -189,7 +189,6 @@ def get_materials_from_entity(materials: dict[str, int], entity: Entity):
     """Extracts materials required for an entity in a structured way."""
     data = entity.data
     entity_name = entity.id.replace("minecraft:", "")
-    print_formatted_entity_data(data)
 
     extract_entity_materials(materials, entity_name, data)
     handle_additional_entity_materials(materials, data)
@@ -212,7 +211,10 @@ def extract_entity_materials(materials, entity_name, data):
             entity_name = f"{data['Type']}_boat"
         add_material(materials, entity_name)
         for item in data.get("Items", []):
-            add_material(materials, item["id"].replace("minecraft:", ""), item["count"])
+            if "count" in item:
+                add_material(materials, item["id"].replace("minecraft:", ""), item["count"])
+            else:
+                add_material(materials, item["id"].replace("minecraft:", ""), item["Count"])
 
     # Falling blocks
     elif entity_name == "falling_block":
@@ -282,6 +284,7 @@ def get_materials_from_inventories(materials: dict[str, int], tile_entity: TileE
 
     for item in items:
         item_name = item["id"].replace("minecraft:", "")
+
         if "count" in item:
             add_material(materials, item_name, item["count"])
         else:
@@ -310,9 +313,11 @@ def verify_csv_material_list(lines: list[str]) -> None:
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
-    # Handle special case where the item name is meant to have a number in it
-    if name == "block36":
+    # Handle special cases where the item name is meant to have a number in it, e.g. for music discs
+    if re.match(r'(music_disc_\d+|disc_fragment_\d+|block36)$', name):
         return name
+    
+    # Remove control characters, symbols, and trailing text from the name
     name = clean_string(name).lower()
     
     # Replace spaces with underscores and remove trailing underscores
