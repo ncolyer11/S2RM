@@ -9,7 +9,8 @@ from litemapy import Schematic
 from tkinter import filedialog
 from unicodedata import category as unicode_category
 
-from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE, BLOCK_TAGS, SIMPLE_ENTITIES
+from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE, \
+    BLOCK_TAGS, SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
 from helpers import resource_path
 from itertools import product
 
@@ -330,47 +331,52 @@ def add_resources(processed_materials: dict, material: str, block_name: str, qua
     if remaining_ingots > compact_num:
         raise ValueError(f"Error: {material} has more than {compact_num} remaining ingots.")
 
-# XXX make work with var stack items
-def process_exclude_string(input_string):
+def process_exclude_string(input_str: str, material: str) -> int:
     """
     Processes the input string according to the given rules:
 
     1.  Extracts digits from the string.
-    2.  Multiplies each digit by 64 if followed by 's', and by 64*27 if followed by 'sb'.
+    2.  Multiplies each digit by 1/16/64 if followed by 's', and by 64*27 if followed by 'sb'.
     3.  Calculates the sum of the multiplied digits.
     4.  Handles cases where the text following the digit is 's' or 'sb' (case-insensitive).
 
-    Args:
-        input_string: The input string to process.
+    Parameters:
+    ----------
+    input_str : str
+        The input string to process.
+    material : str
+        The name of the material, required to get the stack size.
 
     Returns:
-        The sum of the multiplied digits.
+        The sum of the multiplied digits, or -1 if the input is invalid.
     """
-
-    if not input_string:
+    # Check if input is empty
+    if not input_str:
         return -1
     
     # Check if input matches the allowed characters pattern, not fully exhaustive e.g.
     # 'sb1' should be invalid but it isn't so don't go crazy with this
-    if not re.fullmatch(r'(\d|\s|s|sb)+', input_string, re.IGNORECASE):
+    if not re.fullmatch(r'(\d|\s|s|sb)+', input_str, re.IGNORECASE):
         return -1
 
     # Check for invalid combinations (e.g., 'ss', 'sss', etc.)
-    if 'ss' in input_string or 'sss' in input_string:
+    if 'ss' in input_str or 'sss' in input_str:
         return -1
     
-    total = 0
-    matches = re.finditer(r"(\d+)(sb|s)?", input_string, re.IGNORECASE)
+    matches = re.finditer(r"(\d+)(sb|s)?", input_str, re.IGNORECASE)
 
+    stack_size = LIMITED_STACK_ITEMS.get(material, DF_STACK_SIZE)
+    shulker_stack_size = stack_size * SHULKER_BOX_SIZE
+    total = 0
     for match in matches:
         digit = int(match.group(1))
         suffix = match.group(2)
 
         if suffix:
             if suffix.lower() == 's':
-                total += digit * DF_STACK_SIZE
+                total += digit * stack_size
             elif suffix.lower() == 'sb':
-                total += digit * DF_SHULKER_BOX_STACK_SIZE
+                total += digit * shulker_stack_size
         else:
             total += digit
 

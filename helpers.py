@@ -7,8 +7,10 @@ from constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
-def verify_regexes(search_terms: list[str]) -> str:
+def verify_regexes(search_str: str) -> list[str] | bool:
     """Check if the search terms are valid regexes and return a list of valid search terms."""
+    if not (search_terms := [term.strip().strip("'") for term in search_str.split(",") if term.strip()]):
+        return False
     valid_search_terms = []
     for term in search_terms:
         try:
@@ -16,27 +18,36 @@ def verify_regexes(search_terms: list[str]) -> str:
             valid_search_terms.append(term)
         except re.error:
             pass
+    
+    if not valid_search_terms:
+        return False
 
     return valid_search_terms
 
-def format_quantities(total_materials: dict[str, int]|list[int],
-                      shorthand: bool = False) -> list[str] | None:
+def format_quantities(materials: list[str], quantities: list[int], shorthand: bool = False) -> None:
     """
     If total_materials is a list of numbers, just output a formatted list of numbers. Otherwise,
     format the total_materials dictionary.
+
+    Parameters
+    ----------
+    materials : list[str]
+        The list of materials.
+    quantities : list[int]
+        The list of quantities.
+    shorthand : bool, optional
+        Whether to use shorthand names for item stacks and shulker boxes. Defaults to False.
+
+    Raises
+    ------
+    TypeError
+        If the materials and quantities lists are not the same length.    
     """
-    # XXX neeed to fix this so it only accepts dicts as it needs material data for stack size
-    if isinstance(total_materials, list):
-        return [get_shulkers_stacks_and_items(quantity, shorthand=shorthand)
-                for quantity in total_materials]
-    elif isinstance(total_materials, dict):
-        for material, quantity in total_materials.items():
-            # check type of quantity
-            if isinstance(quantity, str):
-                quantity = int(quantity.split("(")[0].strip())
-            total_materials[material] = get_shulkers_stacks_and_items(quantity, material, shorthand)
-    else:
-        raise TypeError("total_materials must be a list or dictionary.")
+    if len(materials) != len(quantities):
+        raise TypeError("Materials and quantities lists must be the same length.")
+
+    for i, material, quantity in enumerate(zip(materials, quantities)):
+        quantities[i] = get_shulkers_stacks_and_items(quantity, material, shorthand)
 
 def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand: bool = False) -> str:
     """

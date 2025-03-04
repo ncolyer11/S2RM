@@ -5,7 +5,7 @@ NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
 CJ_ERR = 2    # Corrupt JSON Error
 
-OUTPUT_JSON_VERSION = 7 # Track the version of the output json files for forwardporting capability
+OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 OUTPUT_JSON_DEFAULT = {
     "version": OUTPUT_JSON_VERSION,
     "material_list_paths": [],
