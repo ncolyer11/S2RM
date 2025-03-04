@@ -25,6 +25,7 @@ LIGHT_INPUT_CELL = "#b6e0c4"
 
 TABLE_HEADERS = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected"]
 FILE_LABEL_TEXT = "Select material list file(s):"
+TRUNCATE_LEN = 70
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
@@ -166,14 +167,7 @@ class S2RMFrontend(QWidget):
         # Search Bar Layout
         search_layout = QHBoxLayout()
         
-        # New Input Materials Search Bar
-        self.input_search_label = QLabel("Input Material Search:")
-        self.input_search_bar = QLineEdit()
-        self.input_search_bar.textChanged.connect(self.updateTableText)
-        search_layout.addWidget(self.input_search_label)
-        search_layout.addWidget(self.input_search_bar)
-
-        # Existing Raw Material Search Bar
+        # Raw Material Search Bar
         self.search_label = QLabel("Raw Material Search:")
         self.raw_search_bar = QLineEdit()
         self.raw_search_bar.textChanged.connect(self.updateTableText)
@@ -238,12 +232,18 @@ class S2RMFrontend(QWidget):
         self.tv.reset()
         self.tt.reset()
         file_names = ", ".join(os.path.basename(path) for path in self.file_paths)
+        # Truncate the file names if they're too long
+        if len(file_names) > TRUNCATE_LEN:
+            file_names = file_names[:TRUNCATE_LEN] + "..."
         self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
         
         # Sum all the material lists together into a combined dictionary
         total_input_items = {}
         for file_path in self.file_paths:
             materials_dict = input_file_to_mats_dict(file_path)
+            if materials_dict is None:
+                print(f"Error reading file: {file_path}. See Above.")
+                continue
                 
             for material, quantity in materials_dict.items():
                 total_input_items[material] = total_input_items.get(material, 0) + quantity
@@ -331,79 +331,43 @@ class S2RMFrontend(QWidget):
     def filterMaterials(self):
         """Checks comma separated regex search terms against the raw materials."""
         # Remove any blank or invalid search terms
-        input_search_terms = verify_regexes(self.input_search_bar.text())
         raw_search_terms = verify_regexes(self.raw_search_bar.text())
 
-        input_cols = [self.tt.input_quantities, self.tt.exclude]
-        self.__filter_column(input_search_terms, self.tt.input_items, input_cols)
-        
         raw_cols = [self.tt.raw_quantities, self.tt.collected_data]
         self.__filter_column(raw_search_terms, self.tt.raw_materials, raw_cols)
 
     def getExcludeVals(self):
         """Resets current exclude vals, and reads in new input from user in the exclude column."""
-        # Check if there's a search term in the input search bar
-        search_term = self.input_search_bar.text()
-
-        # If there is no search term then we know the length of the table == length of tv.input_items
-        # And we can reset it safely (this lets it get populated initially too)
-        if not search_term:
-            self.tv.exclude = []
-        # Regardless of filters, we need to reset the excluded displayed text
+        self.tv.exclude = []
         self.tt.exclude = []
-        
-        exclude_cells = [self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM) for row in range(self.table.rowCount())]
-        # Update self.tv.exclude and self.tt.exclude
-        input_items_stripped = [item for item in self.tt.input_items if item]
-        for exclude_cell, input_material in zip(exclude_cells, input_items_stripped):
-            # self.tt.exclude dynamically changes so it doesn't mind if there's filters or not
-            if exclude_cell is None:
-                print(f"At {input_material} exclude cell is None")
-                excl_cell_text = "0"
-                self.tt.exclude.append(excl_cell_text)
+        for row, material in enumerate(self.tv.input_items):
+            # Get the value from the third column (number input)
+            if (excl_cell := self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)) is None:
+                exclude_text = "0"
             else:
-                print(f"At {input_material} exclude cell is not None")
-                excl_cell_text = exclude_cell.text()
-                if not excl_cell_text:
-                    excl_cell_text = "0"
-                self.tt.exclude.append(excl_cell_text)
+                exclude_text = excl_cell.text()
+                if not exclude_text:
+                    exclude_text = "0"
+
+            exclude_value = 0
             
-            # self.tv.input_items on the other hand is static and doesn't change with filters
-            # hence a specific item could be at 2 different indices in self.input_vals_text
+            required_quantity = self.tv.input_quantities[row]
+            # Try converting the exclude val to a float and then clamp it
+            try:
+                exclude_value = clamp(float(exclude_text), 0, required_quantity)
+            # Otherwise process the custom text input
+            except (ValueError, TypeError):
+                if exclude_text.strip().lower() in ["all", "a"]:
+                    exclude_value = required_quantity
+                # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
+                elif (exclude_value := process_exclude_string(exclude_text, material)) == -1:
+                    # If user enters something proper invalid reset to 0
+                    exclude_value = 0
+                
+                exclude_value = clamp(exclude_value, 0, required_quantity)
 
-            # The index of where the item is stored on the backend, not in the table
-            item_idx = self.tt.input_items.index(input_material)
-            required_quantity = self.tv.input_quantities[item_idx]
-
-            if not search_term:
-                print(f"No search term, processing {input_material} at index {item_idx}")
-                exclude_value = self._get_exclude_value(excl_cell_text, input_material, required_quantity)
-                self.tv.exclude.append(exclude_value)
-            else:
-                print(f"Search term present, processing {input_material} at index {item_idx}")
-                exclude_value = self._get_exclude_value(excl_cell_text, input_material, required_quantity)
-                # get idx of the item in self.tv.exclude
-                # update with the new value entered at table row
-                self.tv.exclude[item_idx] = exclude_value
-
-    def _get_exclude_value(self, exclude_text, material, required_quantity) -> int:
-        exclude_value = 0
-        # Try converting the exclude val to a float and then clamp it
-        try:
-            exclude_value = clamp(float(exclude_text), 0, required_quantity)
-        # Otherwise process the custom text input
-        except (ValueError, TypeError):
-            if exclude_text.strip().lower() in ["all", "a"]:
-                exclude_value = required_quantity
-            # Check for other valid input formats listing stacks and shulker boxes (e.g., '1s 2sb')
-            elif (exclude_value := process_exclude_string(exclude_text, material)) == -1:
-                # If user enters something proper invalid reset to 0
-                exclude_value = 0
-            
-            exclude_value = clamp(exclude_value, 0, required_quantity)
-        
-        return exclude_value
-
+            # Add excluded value and text to the list
+            self.tv.exclude.append(exclude_value)   
 
     def processMaterials(self):
         if not self.file_paths:

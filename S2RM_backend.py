@@ -33,11 +33,13 @@ def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
     ValueError
         If the file is not a .txt or .csv Litematica material list.
     """
-    with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
-        lines = f.readlines()
+    is_schem = input_file.endswith('.litematic')
+    if not is_schem and os.path.exists(input_file):
+        with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
 
     # Check if .txt or csv file
-    if input_file.endswith('.litematic'):
+    if is_schem:
         return process_litematic_file(input_file)
     elif input_file.endswith('.txt'):
         return process_txt_material_list(lines)
@@ -49,7 +51,11 @@ def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
 def process_txt_material_list(lines: list[str]) -> dict[str, int]:
     """Processes a .txt file and returns a dictionary of materials and quantities."""
     # Verify that the file is a Litematica material list by checking various formatting signals
-    verify_txt_material_list(lines)
+    try:
+        verify_txt_material_list(lines)
+    except ValueError as e:
+        print(e)
+        return None
 
     # (tail -n+6 | head -n-3)
     lines = lines[5:-3]
@@ -71,7 +77,12 @@ def process_txt_material_list(lines: list[str]) -> dict[str, int]:
 def process_csv_material_list(lines: list[str]) -> dict[str, int]:
     """Processes a .csv file and returns a dictionary of materials and quantities."""
     # Verify that the file is a Litematica material list by checking all the headers
-    verify_csv_material_list(lines)
+    try:
+        verify_csv_material_list(lines)
+    except ValueError as e:
+        print(e)
+        return None
+
     materials = {}
     for line in lines[1:]:
         parts = line.strip().split('"')
