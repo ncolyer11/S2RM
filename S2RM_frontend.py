@@ -545,7 +545,7 @@ class S2RMFrontend(QWidget):
                     raw_name, raw_quantity = raw_material["item"], raw_material["quantity"]
 
                     # Keep or 'freeze' the original ice type if specified
-                    if re.match(r"(packed|blue)_ice$", raw_name):
+                    if re.match(r"(packed|blue)_ice$", input_material):
                         raw_name, raw_quantity = self.__handle_ice_type(input_material, raw_quantity)
                                                    
                     raw_needed = raw_quantity * (input_quantity - exclude_quantity)
@@ -589,8 +589,8 @@ class S2RMFrontend(QWidget):
         Returns ice as either its original type or as decompressed normal ice.
         
         The way this works is an input material such as packed or blue ice is input, as well as 
+        ice_quantity, which is the amount of ice needed for input_ice_type.
         """
-        print(f"starting values: {input_ice_type}, {ice_quantity}")
         if self.ice_type == "freeze":
             if input_ice_type == "packed_ice":
                 raw_ice_name = "packed_ice"
@@ -598,9 +598,9 @@ class S2RMFrontend(QWidget):
             elif input_ice_type == "blue_ice":
                 raw_ice_name = "blue_ice"
                 raw_ice_quantity = ice_quantity / (ICE_PER_ICE ** 2)
+        else:
+            return "ice", ice_quantity
                 
-            print(f"returning values: {raw_ice_name}, {raw_ice_quantity}")
-        
         return raw_ice_name, raw_ice_quantity
 
     ################ GUI/Style Methods ################
