@@ -283,32 +283,36 @@ class S2RMFrontend(QWidget):
         self.getExcludeVals()
 
         # Break down large values into shulker boxes and stacks
-        print(f"len of exclude s-i: {len(self.tt.exclude)}-{len(self.tv.exclude)}")
-        print(f"len of input: {len(self.tt.input_items)}")
         self.format_columns()
 
-        print(f"len of exclude s-i: {len(self.tt.exclude)}-{len(self.tv.exclude)}")
-        print(f"len of input: {len(self.tt.input_items)}")
         # Set new values for the input materials table
-        for row in range(len(self.tt.input_items)):
-            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, self.tt.input_items[row])
-            self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
-            self.__set_exclude_text_cell(row, self.tt.exclude[row])
+        isr = 0 # input set row
+        for row, material in enumerate(self.tt.input_items):
+            if not material:
+                continue
+            self.__set_materials_cell(isr, INPUT_ITEMS_COL_NUM, material)
+            self.__set_materials_cell(isr, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
+            self.__set_exclude_text_cell(isr, self.tt.exclude[row])
+            isr += 1
 
         # Set new values for the raw materials table
+        rsr = 0 # raw set row
         for row, material in enumerate(self.tt.raw_materials):
-            self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
-            self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
-            self.__add_checkbox(row, material)
+            if not material:
+                continue
+            self.__set_materials_cell(rsr, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
+            self.__set_materials_cell(rsr, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
+            self.__add_checkbox(rsr, material)
+            rsr += 1
 
         # Delete data after new input items
-        for row in range(len(self.tt.input_items), self.table.rowCount()):
+        for row in range(isr, self.table.rowCount()):
             self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, "")
             self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
         
         # Delete data after new raw materials
-        for row in range(len(self.tt.raw_materials), self.table.rowCount()):
+        for row in range(rsr, self.table.rowCount()):
             self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, "")
             self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, "")
             self.table.setCellWidget(row, COLLECTIONS_COL_NUM, None)
@@ -653,10 +657,10 @@ class S2RMFrontend(QWidget):
         for i, material in enumerate(materials):
             # If not a single search term matches the material, remove it
             if not any(re.search(search, material, re.IGNORECASE) for search in search_terms):
-                materials.pop(i)
+                materials[i] = ""
                 # Remove elements from related lists too, e.g. input_quantities and exclude
                 for related_list in related_lists:
-                    related_list.pop(i)
+                    related_list[i] = ""
 
     def __add_checkbox(self, row, material):
         """Add a checkbox to the table at the given row."""

@@ -77,6 +77,10 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
     str
         The formatted string representing the quantity in terms of shulker boxes, stacks, and individual items.
     """
+    # Shulkers can't be stacked and also can't be put in other shulker boxes
+    if "shulker_box" in item_name:
+        return str(quantity)
+
     # Determine the stack size for this item
     stack_size = LIMITED_STACK_ITEMS.get(item_name, DF_STACK_SIZE)
     # Calculate how many items fit in a shulker box
