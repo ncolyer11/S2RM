@@ -680,7 +680,8 @@ class S2RMFrontend(QWidget):
     def __extract_input_items_from_json(self):
         """Extracts the input items from a JSON file and updates self.file_paths accordingly."""
         try:
-            with open(self.file_paths, "r") as f:
+            json_file_path = self.file_paths[0]
+            with open(json_file_path, "r") as f:
                 table_values = json.load(f)["table_values"]
                 self.tv.input_items = table_values["input_items"]
                 self.tv.input_quantities = table_values["input_quantities"]
