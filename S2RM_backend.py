@@ -1,12 +1,8 @@
 import re
 import os
 import json
-import math
-
-import tkinter as tk
 
 from litemapy import Schematic
-from tkinter import filedialog
 from unicodedata import category as unicode_category
 
 from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_STACK_SIZE, \
@@ -14,14 +10,18 @@ from constants import INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, DF_SHULKER_BOX_S
 from helpers import resource_path
 from itertools import product
 
-def process_material_list(input_file: str) -> dict[str, int]:
+# Load the raw materials table
+with open(resource_path("raw_materials_table.json"), "r") as f:
+    MATERIALS_TABLE = json.load(f)
+
+def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
     """
     Processes a Litematica material list file and returns a dictionary of materials and quantities.
     
     Parameters
     ----------
     input_file : str
-        The path to the Litematica material list file.
+        The path to the Litematica material list file, either .litematic, .txt, or .csv.
     
     Returns
     -------
@@ -37,7 +37,9 @@ def process_material_list(input_file: str) -> dict[str, int]:
         lines = f.readlines()
 
     # Check if .txt or csv file
-    if input_file.endswith('.txt'):
+    if input_file.endswith('.litematic'):
+        return process_litematic_file(input_file)
+    elif input_file.endswith('.txt'):
         return process_txt_material_list(lines)
     elif input_file.endswith('.csv'):
         return process_csv_material_list(lines)
@@ -262,36 +264,12 @@ def get_litematica_dir():
     s_drive_path = r"S:\mc\.minecraft\config\litematica"
     if os.path.exists(s_drive_path):
         return s_drive_path
-
     appdata_path = os.getenv('APPDATA')
     if appdata_path:
         appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "config", "litematica")
         if os.path.exists(appdata_litematica_path):
             return appdata_litematica_path
-
-    return None
-
-def select_file():
-    root = tk.Tk()
-    root.withdraw()
-
-    litematica_dir = get_litematica_dir()
-
-    # Open choose file window in the Litematica directory
-    if litematica_dir:
-        file_path = filedialog.askopenfilename(
-            initialdir=litematica_dir,
-            title="Select material list file",
-            filetypes=(("Text files", "*.txt"), ("All files", "*.*")),
-        )
-    else:
-        file_path = filedialog.askopenfilename(
-            initialdir=".",
-            title="Select material list file",
-            filetypes=(("Text files", "*.txt"), ("All files", "*.*")),
-        )
-
-    return file_path
+    return "" # Return an empty string if directory not found
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:
     if re.match(r'\w+_ingot$', material):
@@ -381,39 +359,3 @@ def process_exclude_string(input_str: str, material: str) -> int:
             total += digit
 
     return total
-
-def main():
-    file_path = select_file()
-    if file_path:
-        materials_dict = process_material_list(file_path)
-    else:
-        print("No file selected")
-        return
-    
-    raw_mats_table_path = resource_path("raw_materials_table.json")
-    with open(raw_mats_table_path, "r") as f:
-        materials_table = json.load(f)
-    
-    total_materials = {}
-    for material, quantity in materials_dict.items():
-        if material in materials_table:
-            for raw_material in materials_table[material]:
-                rm_name, rm_quantity = raw_material["item"], raw_material["quantity"]
-                rm_needed = rm_quantity * quantity
-                total_materials[rm_name] = total_materials.get(rm_name, 0) + rm_needed
-        else:
-            raise ValueError(f"Material {material} not found in materials table.")
-
-    # Ceil each quantity to the nearest int
-    for material, quantity in total_materials.items():
-        total_materials[material] = math.ceil(quantity)
-        
-    # Sort by highest quantity, then if equal quantity, sort by name
-    total_materials = dict(sorted(total_materials.items(), key=lambda x: (-x[1], x[0])))
-
-    # Write to file
-    with open("raw_materials.json", "w") as f:
-        json.dump(total_materials, f, indent=4)
-
-if __name__ == "__main__":
-    main()

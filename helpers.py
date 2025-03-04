@@ -24,30 +24,40 @@ def verify_regexes(search_str: str) -> list[str] | bool:
 
     return valid_search_terms
 
-def format_quantities(materials: list[str], quantities: list[int], shorthand: bool = False) -> None:
+def format_quantities(materials: list[str], qs_vals_text: tuple[list[int], list[str]],
+                      is_exclude_col: bool = False) -> None:
     """
-    If total_materials is a list of numbers, just output a formatted list of numbers. Otherwise,
-    format the total_materials dictionary.
+    Format the quantities of items in terms of shulker boxes, stacks, and individual items.
 
     Parameters
     ----------
     materials : list[str]
         The list of materials.
-    quantities : list[int]
-        The list of quantities.
-    shorthand : bool, optional
-        Whether to use shorthand names for item stacks and shulker boxes. Defaults to False.
+    qs_vals_text : tuple[list[int], list[str]]
+        A tuple containing the quantities as integers and as formatted strings.
+    is_exclude_col : bool, optional
+        Whether to use shorthand names for item stacks and shulker boxes in exclude column. Defaults to False.
 
     Raises
     ------
     TypeError
         If the materials and quantities lists are not the same length.    
     """
-    if len(materials) != len(quantities):
-        raise TypeError("Materials and quantities lists must be the same length.")
+    quantity_vals, quantity_text = qs_vals_text
+    # Quality text is populated later if we're formatting the exclude column
+    quality_text_len = len(quantity_vals) if is_exclude_col else len(quantity_text)
 
-    for i, material, quantity in enumerate(zip(materials, quantities)):
-        quantities[i] = get_shulkers_stacks_and_items(quantity, material, shorthand)
+    if not (len(materials) == len(quantity_vals) == quality_text_len):
+        raise TypeError("Materials and quantities lists must be the same length.\n"
+                        f"Got {len(materials)} materials, {len(quantity_vals)} quantities_int, and "
+                        f"{len(quantity_text)} quantities_str.")
+
+    for i, (material, quantity) in enumerate(zip(materials, quantity_vals)):
+        formatted_quantity = get_shulkers_stacks_and_items(quantity, material, is_exclude_col)
+        if is_exclude_col:
+            quantity_text.append(formatted_quantity)
+        else:
+            quantity_text[i] = formatted_quantity
 
 def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand: bool = False) -> str:
     """
@@ -82,22 +92,22 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
         remaining_items = remaining_after_shulkers % stack_size
     # For non-stacking items (stack_size == 1)
     else:
-        num_stacks = 0  # No concept of "stacks" for unstackable items
+        num_stacks = 0 # No concept of "stacks" for unstackable items
         remaining_items = remaining_after_shulkers
     
     # Generate the output string
     if shorthand:
         parts = []
         if num_shulker_boxes > 0:
-            parts.append(f"{num_shulker_boxes}sb")
+            parts.append(f"{int(num_shulker_boxes)}sb")
         
         if stack_size > 1 and num_stacks > 0:
-            parts.append(f"{num_stacks}s")
+            parts.append(f"{int(num_stacks)}s")
             
         if remaining_items > 0:
-            parts.append(f"{remaining_items}")
+            parts.append(f"{int(remaining_items)}")
         
-        return " ".join(parts)
+        return " ".join(parts) or "0"
     else:
         # Start with the total quantity
         result = f"{quantity}"
@@ -108,15 +118,15 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
         if has_breakdown:
             parts = []
             if num_shulker_boxes > 0:
-                parts.append(f"{num_shulker_boxes} SB")
+                parts.append(f"{int(num_shulker_boxes)} SB")
             
             if stack_size > 1 and num_stacks > 0:
-                parts.append(f"{num_stacks} stack")
+                parts.append(f"{int(num_stacks)} stack")
                 if num_stacks > 1:
                     parts[-1] += "s"
                 
             if remaining_items > 0:
-                parts.append(f"{remaining_items}")
+                parts.append(f"{int(remaining_items)}")
                 
             if parts:
                 result += f" ({' + '.join(parts)})"
