@@ -491,6 +491,18 @@
             "quantity": 1.0
         }
     ],
+    "bee_nest": [
+        {
+            "item": "bee_nest",
+            "quantity": 1.0
+        }
+    ],
+    "bee_spawn_egg": [
+        {
+            "item": "bee_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
     "beef": [
         {
             "item": "beef",
@@ -527,18 +539,6 @@
         {
             "item": "oak_log",
             "quantity": 0.1875
-        }
-    ],
-    "bee_nest": [
-        {
-            "item": "bee_nest",
-            "quantity": 1.0
-        }
-    ],
-    "bee_spawn_egg": [
-        {
-            "item": "bee_spawn_egg",
-            "quantity": 1.0
         }
     ],
     "bell": [
@@ -673,30 +673,6 @@
         {
             "item": "birch_log",
             "quantity": 1.3333333333333333
-        }
-    ],
-    "blackstone": [
-        {
-            "item": "blackstone",
-            "quantity": 1.0
-        }
-    ],
-    "blackstone_slab": [
-        {
-            "item": "blackstone",
-            "quantity": 0.5
-        }
-    ],
-    "blackstone_stairs": [
-        {
-            "item": "blackstone",
-            "quantity": 1.5
-        }
-    ],
-    "blackstone_wall": [
-        {
-            "item": "blackstone",
-            "quantity": 1.0
         }
     ],
     "black_banner": [
@@ -863,6 +839,30 @@
             "quantity": 1.0
         }
     ],
+    "blackstone": [
+        {
+            "item": "blackstone",
+            "quantity": 1.0
+        }
+    ],
+    "blackstone_slab": [
+        {
+            "item": "blackstone",
+            "quantity": 0.5
+        }
+    ],
+    "blackstone_stairs": [
+        {
+            "item": "blackstone",
+            "quantity": 1.5
+        }
+    ],
+    "blackstone_wall": [
+        {
+            "item": "blackstone",
+            "quantity": 1.0
+        }
+    ],
     "blade_pottery_sherd": [
         {
             "item": "blade_pottery_sherd",
@@ -898,6 +898,12 @@
     "blaze_spawn_egg": [
         {
             "item": "blaze_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
+    "block36": [
+        {
+            "item": "block36",
             "quantity": 1.0
         }
     ],
@@ -1221,12 +1227,6 @@
             "quantity": 1.0
         }
     ],
-    "bricks": [
-        {
-            "item": "clay_ball",
-            "quantity": 4.0
-        }
-    ],
     "brick_slab": [
         {
             "item": "clay_ball",
@@ -1240,6 +1240,12 @@
         }
     ],
     "brick_wall": [
+        {
+            "item": "clay_ball",
+            "quantity": 4.0
+        }
+    ],
+    "bricks": [
         {
             "item": "clay_ball",
             "quantity": 4.0
@@ -1621,6 +1627,12 @@
             "quantity": 1.2222222222222223
         }
     ],
+    "chain_command_block": [
+        {
+            "item": "chain_command_block",
+            "quantity": 1.0
+        }
+    ],
     "chainmail_boots": [
         {
             "item": "chainmail_boots",
@@ -1642,12 +1654,6 @@
     "chainmail_leggings": [
         {
             "item": "chainmail_leggings",
-            "quantity": 1.0
-        }
-    ],
-    "chain_command_block": [
-        {
-            "item": "chain_command_block",
             "quantity": 1.0
         }
     ],
@@ -2941,12 +2947,6 @@
             "quantity": 1.0
         }
     ],
-    "deepslate_bricks": [
-        {
-            "item": "cobbled_deepslate",
-            "quantity": 1.0
-        }
-    ],
     "deepslate_brick_slab": [
         {
             "item": "cobbled_deepslate",
@@ -2960,6 +2960,12 @@
         }
     ],
     "deepslate_brick_wall": [
+        {
+            "item": "cobbled_deepslate",
+            "quantity": 1.0
+        }
+    ],
+    "deepslate_bricks": [
         {
             "item": "cobbled_deepslate",
             "quantity": 1.0
@@ -3013,12 +3019,6 @@
             "quantity": 1.0
         }
     ],
-    "deepslate_tiles": [
-        {
-            "item": "cobbled_deepslate",
-            "quantity": 1.0
-        }
-    ],
     "deepslate_tile_slab": [
         {
             "item": "cobbled_deepslate",
@@ -3032,6 +3032,12 @@
         }
     ],
     "deepslate_tile_wall": [
+        {
+            "item": "cobbled_deepslate",
+            "quantity": 1.0
+        }
+    ],
+    "deepslate_tiles": [
         {
             "item": "cobbled_deepslate",
             "quantity": 1.0
@@ -3367,15 +3373,73 @@
             "quantity": 1.0
         }
     ],
-    "enderman_spawn_egg": [
+    "end_crystal": [
         {
-            "item": "enderman_spawn_egg",
+            "item": "sand",
+            "quantity": 7.0
+        },
+        {
+            "item": "ender_pearl",
+            "quantity": 1.0
+        },
+        {
+            "item": "ghast_tear",
+            "quantity": 1.0
+        },
+        {
+            "item": "blaze_rod",
+            "quantity": 0.5
+        }
+    ],
+    "end_gateway": [
+        {
+            "item": "end_gateway",
             "quantity": 1.0
         }
     ],
-    "endermite_spawn_egg": [
+    "end_portal_frame": [
         {
-            "item": "endermite_spawn_egg",
+            "item": "end_portal_frame",
+            "quantity": 1.0
+        }
+    ],
+    "end_rod": [
+        {
+            "item": "blaze_rod",
+            "quantity": 0.25
+        },
+        {
+            "item": "chorus_fruit",
+            "quantity": 0.25
+        }
+    ],
+    "end_stone": [
+        {
+            "item": "end_stone",
+            "quantity": 1.0
+        }
+    ],
+    "end_stone_brick_slab": [
+        {
+            "item": "end_stone",
+            "quantity": 0.5
+        }
+    ],
+    "end_stone_brick_stairs": [
+        {
+            "item": "end_stone",
+            "quantity": 1.5
+        }
+    ],
+    "end_stone_brick_wall": [
+        {
+            "item": "end_stone",
+            "quantity": 1.0
+        }
+    ],
+    "end_stone_bricks": [
+        {
+            "item": "end_stone",
             "quantity": 1.0
         }
     ],
@@ -3415,67 +3479,15 @@
             "quantity": 1.0
         }
     ],
-    "end_crystal": [
+    "enderman_spawn_egg": [
         {
-            "item": "sand",
-            "quantity": 7.0
-        },
-        {
-            "item": "ender_pearl",
-            "quantity": 1.0
-        },
-        {
-            "item": "ghast_tear",
-            "quantity": 1.0
-        },
-        {
-            "item": "blaze_rod",
-            "quantity": 0.5
-        }
-    ],
-    "end_portal_frame": [
-        {
-            "item": "end_portal_frame",
+            "item": "enderman_spawn_egg",
             "quantity": 1.0
         }
     ],
-    "end_rod": [
+    "endermite_spawn_egg": [
         {
-            "item": "blaze_rod",
-            "quantity": 0.25
-        },
-        {
-            "item": "chorus_fruit",
-            "quantity": 0.25
-        }
-    ],
-    "end_stone": [
-        {
-            "item": "end_stone",
-            "quantity": 1.0
-        }
-    ],
-    "end_stone_bricks": [
-        {
-            "item": "end_stone",
-            "quantity": 1.0
-        }
-    ],
-    "end_stone_brick_slab": [
-        {
-            "item": "end_stone",
-            "quantity": 0.5
-        }
-    ],
-    "end_stone_brick_stairs": [
-        {
-            "item": "end_stone",
-            "quantity": 1.5
-        }
-    ],
-    "end_stone_brick_wall": [
-        {
-            "item": "end_stone",
+            "item": "endermite_spawn_egg",
             "quantity": 1.0
         }
     ],
@@ -3613,24 +3625,6 @@
             "quantity": 1.0
         }
     ],
-    "firefly_bush": [
-        {
-            "item": "firefly_bush",
-            "quantity": 1.0
-        }
-    ],
-    "firework_rocket": [
-        {
-            "item": "firework_rocket",
-            "quantity": 1.0
-        }
-    ],
-    "firework_star": [
-        {
-            "item": "firework_star",
-            "quantity": 1.0
-        }
-    ],
     "fire_charge": [
         {
             "item": "coal",
@@ -3660,6 +3654,24 @@
     "fire_coral_fan": [
         {
             "item": "fire_coral_fan",
+            "quantity": 1.0
+        }
+    ],
+    "firefly_bush": [
+        {
+            "item": "firefly_bush",
+            "quantity": 1.0
+        }
+    ],
+    "firework_rocket": [
+        {
+            "item": "firework_rocket",
+            "quantity": 1.0
+        }
+    ],
+    "firework_star": [
+        {
+            "item": "firework_star",
             "quantity": 1.0
         }
     ],
@@ -3699,15 +3711,21 @@
             "quantity": 1.0
         }
     ],
-    "flowering_azalea": [
+    "flow_armor_trim_smithing_template": [
         {
-            "item": "flowering_azalea",
+            "item": "flow_armor_trim_smithing_template",
             "quantity": 1.0
         }
     ],
-    "flowering_azalea_leaves": [
+    "flow_banner_pattern": [
         {
-            "item": "flowering_azalea_leaves",
+            "item": "flow_banner_pattern",
+            "quantity": 1.0
+        }
+    ],
+    "flow_pottery_sherd": [
+        {
+            "item": "flow_pottery_sherd",
             "quantity": 1.0
         }
     ],
@@ -3727,21 +3745,15 @@
             "quantity": 3.0
         }
     ],
-    "flow_armor_trim_smithing_template": [
+    "flowering_azalea": [
         {
-            "item": "flow_armor_trim_smithing_template",
+            "item": "flowering_azalea",
             "quantity": 1.0
         }
     ],
-    "flow_banner_pattern": [
+    "flowering_azalea_leaves": [
         {
-            "item": "flow_banner_pattern",
-            "quantity": 1.0
-        }
-    ],
-    "flow_pottery_sherd": [
-        {
-            "item": "flow_pottery_sherd",
+            "item": "flowering_azalea_leaves",
             "quantity": 1.0
         }
     ],
@@ -3757,15 +3769,21 @@
             "quantity": 1.0
         }
     ],
+    "frog_spawn_egg": [
+        {
+            "item": "frog_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
     "frogspawn": [
         {
             "item": "frogspawn",
             "quantity": 1.0
         }
     ],
-    "frog_spawn_egg": [
+    "frosted_ice": [
         {
-            "item": "frog_spawn_egg",
+            "item": "frosted_ice",
             "quantity": 1.0
         }
     ],
@@ -3837,18 +3855,6 @@
             "quantity": 1.0
         }
     ],
-    "glowstone": [
-        {
-            "item": "glowstone_dust",
-            "quantity": 4.0
-        }
-    ],
-    "glowstone_dust": [
-        {
-            "item": "glowstone_dust",
-            "quantity": 1.0
-        }
-    ],
     "glow_berries": [
         {
             "item": "glow_berries",
@@ -3887,6 +3893,18 @@
             "quantity": 1.0
         }
     ],
+    "glowstone": [
+        {
+            "item": "glowstone_dust",
+            "quantity": 4.0
+        }
+    ],
+    "glowstone_dust": [
+        {
+            "item": "glowstone_dust",
+            "quantity": 1.0
+        }
+    ],
     "goat_horn": [
         {
             "item": "goat_horn",
@@ -3896,6 +3914,30 @@
     "goat_spawn_egg": [
         {
             "item": "goat_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
+    "gold_block": [
+        {
+            "item": "gold_ingot",
+            "quantity": 9.0
+        }
+    ],
+    "gold_ingot": [
+        {
+            "item": "gold_ingot",
+            "quantity": 1.0
+        }
+    ],
+    "gold_nugget": [
+        {
+            "item": "gold_ingot",
+            "quantity": 0.1111111111111111
+        }
+    ],
+    "gold_ore": [
+        {
+            "item": "gold_ore",
             "quantity": 1.0
         }
     ],
@@ -3997,30 +4039,6 @@
         {
             "item": "oak_log",
             "quantity": 0.125
-        }
-    ],
-    "gold_block": [
-        {
-            "item": "gold_ingot",
-            "quantity": 9.0
-        }
-    ],
-    "gold_ingot": [
-        {
-            "item": "gold_ingot",
-            "quantity": 1.0
-        }
-    ],
-    "gold_nugget": [
-        {
-            "item": "gold_ingot",
-            "quantity": 0.1111111111111111
-        }
-    ],
-    "gold_ore": [
-        {
-            "item": "gold_ore",
-            "quantity": 1.0
         }
     ],
     "granite": [
@@ -4449,12 +4467,6 @@
             "quantity": 9.0
         }
     ],
-    "heartbreak_pottery_sherd": [
-        {
-            "item": "heartbreak_pottery_sherd",
-            "quantity": 1.0
-        }
-    ],
     "heart_of_the_sea": [
         {
             "item": "heart_of_the_sea",
@@ -4464,6 +4476,12 @@
     "heart_pottery_sherd": [
         {
             "item": "heart_pottery_sherd",
+            "quantity": 1.0
+        }
+    ],
+    "heartbreak_pottery_sherd": [
+        {
+            "item": "heartbreak_pottery_sherd",
             "quantity": 1.0
         }
     ],
@@ -4485,18 +4503,6 @@
             "quantity": 1.0
         }
     ],
-    "honeycomb": [
-        {
-            "item": "honeycomb",
-            "quantity": 1.0
-        }
-    ],
-    "honeycomb_block": [
-        {
-            "item": "honeycomb",
-            "quantity": 4.0
-        }
-    ],
     "honey_block": [
         {
             "item": "honey_bottle",
@@ -4507,6 +4513,18 @@
         {
             "item": "honey_bottle",
             "quantity": 1.0
+        }
+    ],
+    "honeycomb": [
+        {
+            "item": "honeycomb",
+            "quantity": 1.0
+        }
+    ],
+    "honeycomb_block": [
+        {
+            "item": "honeycomb",
+            "quantity": 4.0
         }
     ],
     "hopper": [
@@ -5065,12 +5083,6 @@
             "quantity": 1.0
         }
     ],
-    "lightning_rod": [
-        {
-            "item": "copper_ingot",
-            "quantity": 3.0
-        }
-    ],
     "light_blue_banner": [
         {
             "item": "light_blue_dye",
@@ -5403,6 +5415,12 @@
         {
             "item": "gold_ingot",
             "quantity": 2.0
+        }
+    ],
+    "lightning_rod": [
+        {
+            "item": "copper_ingot",
+            "quantity": 3.0
         }
     ],
     "lilac": [
@@ -6019,6 +6037,18 @@
             "quantity": 1.0
         }
     ],
+    "moss_block": [
+        {
+            "item": "moss_block",
+            "quantity": 1.0
+        }
+    ],
+    "moss_carpet": [
+        {
+            "item": "moss_block",
+            "quantity": 0.6666666666666666
+        }
+    ],
     "mossy_cobblestone": [
         {
             "item": "cobblestone",
@@ -6059,16 +6089,6 @@
             "quantity": 1.0
         }
     ],
-    "mossy_stone_bricks": [
-        {
-            "item": "stone",
-            "quantity": 1.0
-        },
-        {
-            "item": "vine",
-            "quantity": 1.0
-        }
-    ],
     "mossy_stone_brick_slab": [
         {
             "item": "stone",
@@ -6099,16 +6119,14 @@
             "quantity": 1.0
         }
     ],
-    "moss_block": [
+    "mossy_stone_bricks": [
         {
-            "item": "moss_block",
+            "item": "stone",
             "quantity": 1.0
-        }
-    ],
-    "moss_carpet": [
+        },
         {
-            "item": "moss_block",
-            "quantity": 0.6666666666666666
+            "item": "vine",
+            "quantity": 1.0
         }
     ],
     "mourner_pottery_sherd": [
@@ -6120,26 +6138,6 @@
     "mud": [
         {
             "item": "mud",
-            "quantity": 1.0
-        }
-    ],
-    "muddy_mangrove_roots": [
-        {
-            "item": "mangrove_roots",
-            "quantity": 1.0
-        },
-        {
-            "item": "mud",
-            "quantity": 1.0
-        }
-    ],
-    "mud_bricks": [
-        {
-            "item": "mud",
-            "quantity": 1.0
-        },
-        {
-            "item": "wheat",
             "quantity": 1.0
         }
     ],
@@ -6170,6 +6168,26 @@
         },
         {
             "item": "wheat",
+            "quantity": 1.0
+        }
+    ],
+    "mud_bricks": [
+        {
+            "item": "mud",
+            "quantity": 1.0
+        },
+        {
+            "item": "wheat",
+            "quantity": 1.0
+        }
+    ],
+    "muddy_mangrove_roots": [
+        {
+            "item": "mangrove_roots",
+            "quantity": 1.0
+        },
+        {
+            "item": "mud",
             "quantity": 1.0
         }
     ],
@@ -6337,6 +6355,78 @@
             "quantity": 1.0
         }
     ],
+    "nether_brick": [
+        {
+            "item": "netherrack",
+            "quantity": 1.0
+        }
+    ],
+    "nether_brick_fence": [
+        {
+            "item": "netherrack",
+            "quantity": 3.0
+        }
+    ],
+    "nether_brick_slab": [
+        {
+            "item": "netherrack",
+            "quantity": 2.0
+        }
+    ],
+    "nether_brick_stairs": [
+        {
+            "item": "netherrack",
+            "quantity": 6.0
+        }
+    ],
+    "nether_brick_wall": [
+        {
+            "item": "netherrack",
+            "quantity": 4.0
+        }
+    ],
+    "nether_bricks": [
+        {
+            "item": "netherrack",
+            "quantity": 4.0
+        }
+    ],
+    "nether_gold_ore": [
+        {
+            "item": "nether_gold_ore",
+            "quantity": 1.0
+        }
+    ],
+    "nether_quartz_ore": [
+        {
+            "item": "nether_quartz_ore",
+            "quantity": 1.0
+        }
+    ],
+    "nether_sprouts": [
+        {
+            "item": "nether_sprouts",
+            "quantity": 1.0
+        }
+    ],
+    "nether_star": [
+        {
+            "item": "nether_star",
+            "quantity": 1.0
+        }
+    ],
+    "nether_wart": [
+        {
+            "item": "nether_wart",
+            "quantity": 1.0
+        }
+    ],
+    "nether_wart_block": [
+        {
+            "item": "nether_wart",
+            "quantity": 9.0
+        }
+    ],
     "netherite_axe": [
         {
             "item": "netherite_axe",
@@ -6427,78 +6517,6 @@
         {
             "item": "netherrack",
             "quantity": 1.0
-        }
-    ],
-    "nether_brick": [
-        {
-            "item": "netherrack",
-            "quantity": 1.0
-        }
-    ],
-    "nether_bricks": [
-        {
-            "item": "netherrack",
-            "quantity": 4.0
-        }
-    ],
-    "nether_brick_fence": [
-        {
-            "item": "netherrack",
-            "quantity": 3.0
-        }
-    ],
-    "nether_brick_slab": [
-        {
-            "item": "netherrack",
-            "quantity": 2.0
-        }
-    ],
-    "nether_brick_stairs": [
-        {
-            "item": "netherrack",
-            "quantity": 6.0
-        }
-    ],
-    "nether_brick_wall": [
-        {
-            "item": "netherrack",
-            "quantity": 4.0
-        }
-    ],
-    "nether_gold_ore": [
-        {
-            "item": "nether_gold_ore",
-            "quantity": 1.0
-        }
-    ],
-    "nether_quartz_ore": [
-        {
-            "item": "nether_quartz_ore",
-            "quantity": 1.0
-        }
-    ],
-    "nether_sprouts": [
-        {
-            "item": "nether_sprouts",
-            "quantity": 1.0
-        }
-    ],
-    "nether_star": [
-        {
-            "item": "nether_star",
-            "quantity": 1.0
-        }
-    ],
-    "nether_wart": [
-        {
-            "item": "nether_wart",
-            "quantity": 1.0
-        }
-    ],
-    "nether_wart_block": [
-        {
-            "item": "nether_wart",
-            "quantity": 9.0
         }
     ],
     "note_block": [
@@ -7119,6 +7137,12 @@
             "quantity": 1.0
         }
     ],
+    "pig_spawn_egg": [
+        {
+            "item": "pig_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
     "piglin_banner_pattern": [
         {
             "item": "piglin_banner_pattern",
@@ -7140,12 +7164,6 @@
     "piglin_spawn_egg": [
         {
             "item": "piglin_spawn_egg",
-            "quantity": 1.0
-        }
-    ],
-    "pig_spawn_egg": [
-        {
-            "item": "pig_spawn_egg",
             "quantity": 1.0
         }
     ],
@@ -7439,12 +7457,6 @@
             "quantity": 1.0
         }
     ],
-    "polished_blackstone_bricks": [
-        {
-            "item": "blackstone",
-            "quantity": 1.0
-        }
-    ],
     "polished_blackstone_brick_slab": [
         {
             "item": "blackstone",
@@ -7458,6 +7470,12 @@
         }
     ],
     "polished_blackstone_brick_wall": [
+        {
+            "item": "blackstone",
+            "quantity": 1.0
+        }
+    ],
+    "polished_blackstone_bricks": [
         {
             "item": "blackstone",
             "quantity": 1.0
@@ -7657,12 +7675,6 @@
             "quantity": 4.0
         }
     ],
-    "prismarine_bricks": [
-        {
-            "item": "prismarine_shard",
-            "quantity": 9.0
-        }
-    ],
     "prismarine_brick_slab": [
         {
             "item": "prismarine_shard",
@@ -7673,6 +7685,12 @@
         {
             "item": "prismarine_shard",
             "quantity": 13.5
+        }
+    ],
+    "prismarine_bricks": [
+        {
+            "item": "prismarine_shard",
+            "quantity": 9.0
         }
     ],
     "prismarine_crystals": [
@@ -8097,44 +8115,6 @@
             "quantity": 1.0
         }
     ],
-    "redstone": [
-        {
-            "item": "redstone",
-            "quantity": 1.0
-        }
-    ],
-    "redstone_block": [
-        {
-            "item": "redstone",
-            "quantity": 9.0
-        }
-    ],
-    "redstone_lamp": [
-        {
-            "item": "glowstone_dust",
-            "quantity": 4.0
-        },
-        {
-            "item": "redstone",
-            "quantity": 4.0
-        }
-    ],
-    "redstone_ore": [
-        {
-            "item": "redstone_ore",
-            "quantity": 1.0
-        }
-    ],
-    "redstone_torch": [
-        {
-            "item": "redstone",
-            "quantity": 1.0
-        },
-        {
-            "item": "oak_log",
-            "quantity": 0.125
-        }
-    ],
     "red_banner": [
         {
             "item": "red_dye",
@@ -8257,16 +8237,6 @@
             "quantity": 1.0
         }
     ],
-    "red_nether_bricks": [
-        {
-            "item": "nether_wart",
-            "quantity": 2.0
-        },
-        {
-            "item": "netherrack",
-            "quantity": 2.0
-        }
-    ],
     "red_nether_brick_slab": [
         {
             "item": "nether_wart",
@@ -8288,6 +8258,16 @@
         }
     ],
     "red_nether_brick_wall": [
+        {
+            "item": "nether_wart",
+            "quantity": 2.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 2.0
+        }
+    ],
+    "red_nether_bricks": [
         {
             "item": "nether_wart",
             "quantity": 2.0
@@ -8387,6 +8367,44 @@
             "quantity": 1.0
         }
     ],
+    "redstone": [
+        {
+            "item": "redstone",
+            "quantity": 1.0
+        }
+    ],
+    "redstone_block": [
+        {
+            "item": "redstone",
+            "quantity": 9.0
+        }
+    ],
+    "redstone_lamp": [
+        {
+            "item": "glowstone_dust",
+            "quantity": 4.0
+        },
+        {
+            "item": "redstone",
+            "quantity": 4.0
+        }
+    ],
+    "redstone_ore": [
+        {
+            "item": "redstone_ore",
+            "quantity": 1.0
+        }
+    ],
+    "redstone_torch": [
+        {
+            "item": "redstone",
+            "quantity": 1.0
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.125
+        }
+    ],
     "reinforced_deepslate": [
         {
             "item": "reinforced_deepslate",
@@ -8425,12 +8443,6 @@
             "quantity": 1.0
         }
     ],
-    "resin_bricks": [
-        {
-            "item": "resin_clump",
-            "quantity": 4.0
-        }
-    ],
     "resin_brick_slab": [
         {
             "item": "resin_clump",
@@ -8444,6 +8456,12 @@
         }
     ],
     "resin_brick_wall": [
+        {
+            "item": "resin_clump",
+            "quantity": 4.0
+        }
+    ],
+    "resin_bricks": [
         {
             "item": "resin_clump",
             "quantity": 4.0
@@ -8589,12 +8607,6 @@
             "quantity": 1.0
         }
     ],
-    "seagrass": [
-        {
-            "item": "seagrass",
-            "quantity": 1.0
-        }
-    ],
     "sea_lantern": [
         {
             "item": "prismarine_crystals",
@@ -8608,6 +8620,12 @@
     "sea_pickle": [
         {
             "item": "sea_pickle",
+            "quantity": 1.0
+        }
+    ],
+    "seagrass": [
+        {
+            "item": "seagrass",
             "quantity": 1.0
         }
     ],
@@ -8895,12 +8913,6 @@
             "quantity": 2.0
         }
     ],
-    "snowball": [
-        {
-            "item": "snowball",
-            "quantity": 1.0
-        }
-    ],
     "snow_block": [
         {
             "item": "snowball",
@@ -8910,6 +8922,12 @@
     "snow_golem_spawn_egg": [
         {
             "item": "snow_golem_spawn_egg",
+            "quantity": 1.0
+        }
+    ],
+    "snowball": [
+        {
+            "item": "snowball",
             "quantity": 1.0
         }
     ],
@@ -9199,16 +9217,6 @@
             "quantity": 1.0
         }
     ],
-    "stonecutter": [
-        {
-            "item": "stone",
-            "quantity": 3.0
-        },
-        {
-            "item": "iron_ingot",
-            "quantity": 1.0
-        }
-    ],
     "stone_axe": [
         {
             "item": "cobblestone",
@@ -9217,12 +9225,6 @@
         {
             "item": "oak_log",
             "quantity": 0.25
-        }
-    ],
-    "stone_bricks": [
-        {
-            "item": "stone",
-            "quantity": 1.0
         }
     ],
     "stone_brick_slab": [
@@ -9238,6 +9240,12 @@
         }
     ],
     "stone_brick_wall": [
+        {
+            "item": "stone",
+            "quantity": 1.0
+        }
+    ],
+    "stone_bricks": [
         {
             "item": "stone",
             "quantity": 1.0
@@ -9305,6 +9313,16 @@
         {
             "item": "oak_log",
             "quantity": 0.125
+        }
+    ],
+    "stonecutter": [
+        {
+            "item": "stone",
+            "quantity": 3.0
+        },
+        {
+            "item": "iron_ingot",
+            "quantity": 1.0
         }
     ],
     "stray_spawn_egg": [
@@ -9741,12 +9759,6 @@
             "quantity": 1.0
         }
     ],
-    "tuff_bricks": [
-        {
-            "item": "tuff",
-            "quantity": 1.0
-        }
-    ],
     "tuff_brick_slab": [
         {
             "item": "tuff",
@@ -9760,6 +9772,12 @@
         }
     ],
     "tuff_brick_wall": [
+        {
+            "item": "tuff",
+            "quantity": 1.0
+        }
+    ],
+    "tuff_bricks": [
         {
             "item": "tuff",
             "quantity": 1.0
@@ -9861,15 +9879,15 @@
             "quantity": 1.0
         }
     ],
-    "warden_spawn_egg": [
-        {
-            "item": "warden_spawn_egg",
-            "quantity": 1.0
-        }
-    ],
     "ward_armor_trim_smithing_template": [
         {
             "item": "ward_armor_trim_smithing_template",
+            "quantity": 1.0
+        }
+    ],
+    "warden_spawn_egg": [
+        {
+            "item": "warden_spawn_egg",
             "quantity": 1.0
         }
     ],
@@ -10649,15 +10667,15 @@
             "quantity": 1.0
         }
     ],
-    "wildflowers": [
-        {
-            "item": "wildflowers",
-            "quantity": 1.0
-        }
-    ],
     "wild_armor_trim_smithing_template": [
         {
             "item": "wild_armor_trim_smithing_template",
+            "quantity": 1.0
+        }
+    ],
+    "wildflowers": [
+        {
+            "item": "wildflowers",
             "quantity": 1.0
         }
     ],

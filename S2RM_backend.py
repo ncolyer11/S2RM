@@ -250,6 +250,8 @@ def verify_csv_material_list(lines: list[str]) -> None:
 
 def convert_name_to_tag(name):
     """Converts a name to a tag name."""
+    if name == "block36":
+        return name
     name = clean_string(name).lower()
     
     # Replace spaces with underscores and remove trailing underscores
@@ -263,7 +265,7 @@ def convert_name_to_tag(name):
 
     # block_of_<name> -> <name>_block
     name = re.sub(r'block_of_(\w+)', r'\1_block', name)
-    
+
     return ITEM_TAGS.get(name, name)
 
 def clean_string(s):

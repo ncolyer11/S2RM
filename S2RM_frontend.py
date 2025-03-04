@@ -708,7 +708,7 @@ class S2RMFrontend(QWidget):
                     raw_needed = raw_quantity * (input_quantity - exclude_quantity)
                     total_materials[raw_name] = total_materials.get(raw_name, 0) + raw_needed
             else:
-                raise ValueError(f"Material {input_material} not found in materials table.")
+                raise ValueError(f"Material {input_material} not found in materials table. Row: {row}.")
 
         # Round final quantities up
         for material, quantity in total_materials.items():

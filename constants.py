@@ -98,6 +98,12 @@ INVALID_BLOCKS = [
     "piston_head", # yes you can have a piston head on its own, but it's rare and you can get the piston back anyways if you're skilled enough
 ]
 
+BLOCKS_WITHOUT_ITEM = [
+    "block36",
+    "frosted_ice",
+    "end_gateway",
+]
+
 # Convert a block name to an item name
 BLOCK_TAGS = {
     "redstone_wire": "redstone",

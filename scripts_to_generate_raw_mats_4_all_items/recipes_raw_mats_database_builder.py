@@ -7,9 +7,12 @@ import networkx as nx
 from tqdm import tqdm
 from collections import defaultdict
 
+
+from helpers import resource_path
 from scripts_to_generate_raw_mats_4_all_items.graph_recipes import build_crafting_graph, \
     display_graph_sample, list_crafting_recipes
-from constants import IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, TAGGED_MATERIALS_BASE, resource_path
+from constants import BLOCKS_WITHOUT_ITEM, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, \
+    TAGGED_MATERIALS_BASE
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
@@ -113,7 +116,7 @@ def get_smelting_ingredients(recipe) -> dict[str, int]:
 ###############
 ### HELPERS ###
 ###############
-def get_recipe_data_from_json(folder_path: str = './recipe') -> dict:
+def get_recipe_data_from_json(folder_path: str = './scripts_to_generate_raw_mats_4_all_items/recipe') -> dict:
     recipe_json_raw_data = {}
     folder_path = resource_path(folder_path)
     # Loop through every recipe.json file
@@ -145,11 +148,17 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
     with open(items_path, 'r') as file:
         master_items_list = json.load(file)['items']
     
+    for item in BLOCKS_WITHOUT_ITEM:
+        master_items_list.append(item)
+
+    # Sort master items list alphabetically
+    master_items_list.sort()
+
     master_raw_mats_list = {}
     for item in master_items_list:
         # print(f"Getting raw mats for: {item}")
         master_raw_mats_list[item] = get_ingredients(recipe_graph, item)
-    
+
     with open('raw_materials_table.json', 'w') as f:
         json.dump(master_raw_mats_list, f, indent=4)
 
