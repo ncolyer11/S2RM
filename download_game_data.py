@@ -122,14 +122,7 @@ def download_minecraft_jar(version_id, version_url):
         return None
 
 def cleanup_jar_file(version_id):
-    """
-    Remove the downloaded Minecraft JAR file after extraction
-    
-    Parameters
-    ----------
-    version_id : str
-        The Minecraft version identifier
-    """
+    """Remove the downloaded JAR file after extracting the recipes."""
     jar_path = f'minecraft_downloads/{version_id}.jar'
     
     try:
