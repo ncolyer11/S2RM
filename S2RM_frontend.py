@@ -19,25 +19,38 @@ from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
 from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
 
-# creco has problems reading tables so split input cols from output cols
-# XXX ice switch broken again
-
-PROGRAM_VERSION = "1.3.1"
+PROGRAM_VERSION = "1.3.2"
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
-TABLE_HEADERS = ["Input", "Quantity", "Exclude", "Raw Material", "Quantity", "Collected"]
+TABLE_HEADERS = {
+    "inputs": {
+        "Input Material": 230,
+        "Quantity": 210,
+        "Exclude": 85
+    },
+    "outputs": {
+        "Raw Material": 230,
+        "Quantity": 210,
+        "Collected": 85
+    },
+}
+
 FILE_LABEL_TEXT = "Select material list file(s):"
 TRUNCATE_LEN = 70
+WINDOW_X = 20
+WINDOW_Y = 20
+WINDOW_WIDTH = 1250
+WINDOW_HEIGHT = 850
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
 INPUT_QUANTITIES_COL_NUM = INPUT_ITEMS_COL_NUM + 1
 EXCLUDE_QUANTITIES_COL_NUM = INPUT_QUANTITIES_COL_NUM + 1
-RAW_MATERIALS_COL_NUM = 3
+RAW_MATERIALS_COL_NUM = 0
 RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
-COLLECTIONS_COL_NUM = 5
+COLLECTIONS_COL_NUM = RAW_QUANTITIES_COL_NUM + 1
 
 class S2RMFrontend(QWidget):
     def __init__(self):
@@ -163,32 +176,45 @@ class S2RMFrontend(QWidget):
         
         layout.addLayout(search_layout)
 
-        # Table Display
-        self.table = QTableWidget()
-        self.table.setColumnCount(len(TABLE_HEADERS))
-        self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
-        layout.addWidget(self.table)
-        self.table.setColumnWidth(INPUT_ITEMS_COL_NUM, 250)
-        self.table.setColumnWidth(INPUT_QUANTITIES_COL_NUM, 210)
-        self.table.setColumnWidth(EXCLUDE_QUANTITIES_COL_NUM, 85)
-        self.table.setColumnWidth(RAW_MATERIALS_COL_NUM, 250)
-        self.table.setColumnWidth(RAW_QUANTITIES_COL_NUM, 210)
-        self.table.setColumnWidth(COLLECTIONS_COL_NUM, 85)
+        table_layout = QHBoxLayout()
+
+
+        # Input Table
+        self.input_table = QTableWidget()
+        self.input_table.setColumnCount(len(TABLE_HEADERS["inputs"]))
+        self.input_table.setHorizontalHeaderLabels(TABLE_HEADERS["inputs"])
+        table_layout.addWidget(self.input_table)
+        for col, width in enumerate(TABLE_HEADERS["inputs"].values()):
+            self.input_table.setColumnWidth(col, width)
         
-        header = self.table.horizontalHeader()
-        header.setStretchLastSection(True)
+        input_header = self.input_table.horizontalHeader()
+        input_header.setStretchLastSection(True)
+
+        # Raw Materials Table
+        self.raw_table = QTableWidget()
+        self.raw_table.setColumnCount(len(TABLE_HEADERS["outputs"]))
+        self.raw_table.setHorizontalHeaderLabels(TABLE_HEADERS["outputs"])
+        table_layout.addWidget(self.raw_table)
+        for col, width in enumerate(TABLE_HEADERS["outputs"].values()):
+            self.raw_table.setColumnWidth(col, width)
+        
+        raw_header = self.raw_table.horizontalHeader()
+        raw_header.setStretchLastSection(True)
+        
+        layout.addLayout(table_layout)
 
         # Enable sorting
         # self.table.setSortingEnabled(True) # XXX doesn't work numerically and doesn't shift out blank cells
 
-        # starts with exclude cells matching their input item counterparts via the same row index
-        # when a filter is applied, certain input item names are set to ""
-        # when updating the text in the table, rows with material == "" are skipped
-        # inputting a number in the exclude column when a filter is applied
+        # Current problem with adding sorting to input items:
+        #  - starts with exclude cells matching their input item counterparts via the same row index
+        #  - when a filter is applied, certain input item names are set to ""
+        #  - when updating the text in the table, rows with material == "" are skipped
+        #  - inputting a number in the exclude column when a filter is applied
 
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
-        self.setGeometry(20, 20, 1150, 850)
+        self.setGeometry(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT)
         
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
@@ -282,31 +308,32 @@ class S2RMFrontend(QWidget):
         self.filterMaterials()
 
         # Set the new table length to the maximum of the input items and raw materials
-        self.table.setRowCount(max(len(self.tt.input_items), len(self.tt.raw_materials)))
+        self.input_table.setRowCount(len(self.tt.input_items))
+        self.raw_table.setRowCount(len(self.tt.raw_materials))
 
         # Set new values for the input materials table
         for row, material in enumerate(self.tt.input_items):
-            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, material.replace("$", "")) # Remove $ from encoded entities
-            self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
+            self.__set_input_materials_cell(row, INPUT_ITEMS_COL_NUM, material.replace("$", "")) # Remove $ from encoded entities
+            self.__set_input_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
             self.__set_exclude_text_cell(row, self.tt.exclude[row])
 
         # Set new values for the raw materials table
         for row, material in enumerate(self.tt.raw_materials):
-            self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
-            self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
+            self.__set_raw_materials_cell(row, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
+            self.__set_raw_materials_cell(row, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
             self.__add_checkbox(row, material)
 
         # Delete data after new input items
-        for row in range(len(self.tt.input_items), self.table.rowCount()):
-            self.__set_materials_cell(row, INPUT_ITEMS_COL_NUM, "")
-            self.__set_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
-            self.table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
+        for row in range(len(self.tt.input_items), self.input_table.rowCount()):
+            self.__set_input_materials_cell(row, INPUT_ITEMS_COL_NUM, "")
+            self.__set_input_materials_cell(row, INPUT_QUANTITIES_COL_NUM, "")
+            self.input_table.setCellWidget(row, EXCLUDE_QUANTITIES_COL_NUM, None)
         
         # Delete data after new raw materials
-        for row in range(len(self.tt.raw_materials), self.table.rowCount()):
-            self.__set_materials_cell(row, RAW_MATERIALS_COL_NUM, "")
-            self.__set_materials_cell(row, RAW_QUANTITIES_COL_NUM, "")
-            self.table.setCellWidget(row, COLLECTIONS_COL_NUM, None)
+        for row in range(len(self.tt.raw_materials), self.raw_table.rowCount()):
+            self.__set_raw_materials_cell(row, RAW_MATERIALS_COL_NUM, "")
+            self.__set_raw_materials_cell(row, RAW_QUANTITIES_COL_NUM, "")
+            self.raw_table.setCellWidget(row, COLLECTIONS_COL_NUM, None)
 
     def filterMaterials(self):
         """Checks comma separated regex search terms against the raw materials."""
@@ -321,7 +348,7 @@ class S2RMFrontend(QWidget):
         self.tv.exclude = []
         for row, material in enumerate(self.tv.input_items):
             # Get the value from the third column (number input)
-            if (excl_cell := self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)) is None:
+            if (excl_cell := self.input_table.item(row, EXCLUDE_QUANTITIES_COL_NUM)) is None:
                 exclude_text = "0"
             else:
                 exclude_text = excl_cell.text()
@@ -382,7 +409,8 @@ class S2RMFrontend(QWidget):
         self.__add_with_default(table_dict, "ice_type", "ice_type", "ice")
         
         # Add only the unformatted backend table data (raw values)
-        table_dict["table_values"] = asdict(self.tv)
+        table_dict["tv"] = asdict(self.tv)
+        table_dict["tt"] = asdict(self.tt)
 
         # Save the JSON file to the desktop or elsewhere
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
@@ -423,8 +451,9 @@ class S2RMFrontend(QWidget):
 
             print(f"JSON opened successfully from: {json_file_path}")
 
-            # Reset the table
-            self.table.setRowCount(0)
+            # Reset the tables
+            self.input_table.setRowCount(0)
+            self.raw_table.setRowCount(0)
             self.tv.reset()
             self.tt.reset()
             
@@ -437,10 +466,18 @@ class S2RMFrontend(QWidget):
                 self.__set_radio_button(self.ice_type, ["ice", "freeze"],
                                         [self.packed_ice_radio, self.ice_radio])
 
+            # Load the table values from legacy version 8
             if "table_values" in table_dict:
                 self.tv = TableCols(**table_dict["table_values"])
 
                 self.updateTableText(keep_exc_col=True)
+
+            # Updated version 8 as of v1.3.2
+            if "tv" in table_dict:
+                self.tv = TableCols(**table_dict["tv"])
+            
+            if "tt" in table_dict:
+                self.tt = TableCols(**table_dict["tt"])
 
             self.file_paths = [json_file_path]
             self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(json_file_path)}")
@@ -480,8 +517,9 @@ class S2RMFrontend(QWidget):
                 print(f"Error saving CSV: {e}")
 
     def clearMaterials(self):
-        # Clear/reset the table
-        self.table.setRowCount(0)
+        # Clear/reset the tables
+        self.input_table.setRowCount(0)
+        self.raw_table.setRowCount(0)
         self.tv.reset()
         self.tt.reset()
         self.updateTableText()
@@ -528,7 +566,7 @@ class S2RMFrontend(QWidget):
         checkbox_layout.setAlignment(Qt.AlignCenter)
         checkbox_layout.setContentsMargins(0, 0, 0, 0) # Remove margins
 
-        self.table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
+        self.raw_table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
 
     def __get_total_mats_from_input(self) -> None:
         # Clear the raw materials table
@@ -646,7 +684,12 @@ class S2RMFrontend(QWidget):
         self.open_json_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
         self.clear_button.setStyleSheet("QPushButton { background-color: #353535; color: white; }")
         self.raw_search_bar.setStyleSheet("QLineEdit { background-color: #191919; color: white; }")
-        self.table.setStyleSheet("""
+        self.input_table.setStyleSheet("""
+            QTableWidget { background-color: #191919; color: white; gridline-color: #353535;}
+            QHeaderView::section { background-color: #353535; color: white; }
+            QTableCornerButton::section { background-color: #353535; }
+        """)
+        self.raw_table.setStyleSheet("""
             QTableWidget { background-color: #191919; color: white; gridline-color: #353535;}
             QHeaderView::section { background-color: #353535; color: white; }
             QTableCornerButton::section { background-color: #353535; }
@@ -692,7 +735,8 @@ class S2RMFrontend(QWidget):
         self.open_json_button.setStyleSheet("")
         self.clear_button.setStyleSheet("")
         self.raw_search_bar.setStyleSheet("")
-        self.table.setStyleSheet("")
+        self.input_table.setStyleSheet("")
+        self.raw_table.setStyleSheet("")
 
         # Reset menu styles
         self.menu_bar.setStyleSheet("")
@@ -705,9 +749,9 @@ class S2RMFrontend(QWidget):
         self.updateCreditsLabel()
     
     def setEditableCellStyles(self, hex_color):
-        """Sets background color for editable cells."""
-        for row in range(self.table.rowCount()):
-            number_item = self.table.item(row, EXCLUDE_QUANTITIES_COL_NUM)
+        """Sets background color for editable cells: currently only 'exclude' in the input table."""
+        for row in range(self.input_table.rowCount()):
+            number_item = self.input_table.item(row, EXCLUDE_QUANTITIES_COL_NUM)
             if number_item and number_item.flags() & Qt.ItemIsEditable:
                 number_item.setBackground(QColor(hex_color))
 
@@ -745,12 +789,17 @@ class S2RMFrontend(QWidget):
         number_item = QTableWidgetItem(str(quantity))  # Default value or you can leave it empty
         number_item.setFlags(number_item.flags() | Qt.ItemIsEditable)  # Make the cell editable
         number_item.setBackground(QColor(cell_colour))
-        self.table.setItem(row, EXCLUDE_QUANTITIES_COL_NUM, number_item)      
+        self.input_table.setItem(row, EXCLUDE_QUANTITIES_COL_NUM, number_item)      
 
-    def __set_materials_cell(self, row, col, val):
-        item = QTableWidgetItem(val)
-        item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Make non-editable
-        self.table.setItem(row, col, item)
+    def __set_input_materials_cell(self, row, col, text):
+        item = QTableWidgetItem(str(text))
+        item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Make the cell non-editable
+        self.input_table.setItem(row, col, item)
+
+    def __set_raw_materials_cell(self, row, col, text):
+        item = QTableWidgetItem(str(text))
+        item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+        self.raw_table.setItem(row, col, item)
 
     def __add_with_default(self, table_dict, attr_name, key_name, default_value):
         if hasattr(self, attr_name):

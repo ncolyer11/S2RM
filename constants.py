@@ -110,6 +110,7 @@ BLOCKS_WITHOUT_ITEM = {
     "block36",
     "frosted_ice",
     "end_gateway",
+    "light",
 }
 
 # Convert a block name to an item name

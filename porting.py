@@ -98,19 +98,15 @@ def forwardporttoV5(table_dict):
     
 def forwardporttoV6(table_dict):
     """Versions below 6 used a single input materials path called 'litematica_mats_list_path'."""
-    table_dict["material_list_paths"] = [table_dict.pop("litematica_mats_list_path")] \
-    if "litematica_mats_list_path" in table_dict else []
+    table_dict["material_list_paths"] = [table_dict.pop("litematica_mats_list_path", [])]
 
 def forwardporttoV7(table_dict):
     """
     Versions below 7 don't have the exclude_values field instead of exclude_input (now formatted).
     Also, an exclude_text field has been added to track the SB and stacks format.
     """
-    table_dict["exclude_values"] = table_dict.pop("exclude_input") \
-    if "exclude_input" in table_dict else []
-    
+    table_dict["exclude_values"] = table_dict.pop("exclude_input", []) 
     table_dict["exclude_text"] = table_dict["exclude_values"]
-    
     if not table_dict["exclude_values"]:
         return
     
@@ -123,12 +119,12 @@ def forwardporttoV8(table_dict):
     meaning table values and table text, respectively.
     """
     tv = TableCols([], [], [], [], [], [])
-    tv.input_items = table_dict.pop("input_items")
-    tv.input_quantities = table_dict.pop("input_quantities")
-    tv.exclude = table_dict.pop("exclude_values")
-    tv.raw_materials = table_dict.pop("raw_materials")
-    tv.raw_quantities = table_dict.pop("raw_quantities")
-    tv.collected_data = table_dict.pop("collected")
+    tv.input_items = table_dict.pop("input_items", [])
+    tv.input_quantities = table_dict.pop("input_quantities", [])
+    tv.exclude = table_dict.pop("exclude_values", [])
+    tv.raw_materials = table_dict.pop("raw_materials", [])
+    tv.raw_quantities = table_dict.pop("raw_quantities", [])
+    tv.collected_data = table_dict.pop("collected", [])
     
     tt = tv.deepcopy()
     tt.exclude = table_dict.pop("exclude_text")
