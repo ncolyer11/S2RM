@@ -29,6 +29,11 @@ This tool automates the process of converting Litematica material lists into the
 2.  Process the list.
 3.  (Optional) Track collected materials, choose output/ice types, search, or save/load.
 
+If Windows defender keeps quartinting the program like so:
+![image](https://github.com/user-attachments/assets/6c1fbc6e-d67d-4017-9b70-4df2a8eab6dc)
+
+Just follow this guide here to whitelist it: https://youtu.be/IjVWzqrBrFs?si=9bjolG5JntHAzSTD
+
 ## Download
 
 [Latest Release](https://github.com/ncolyer11/S2RM/releases)
