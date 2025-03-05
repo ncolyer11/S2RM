@@ -155,7 +155,40 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
                 
         return result
 
-# Helper
+def print_formatted_entity_data(entity_data):
+    """Print out the data of an entity.data object from the litemapy library in a formatted way."""
+    print()
+    entity_name = entity_data.get("id", "").replace("minecraft:", "")
+    print(f"Entity: {entity_name}")
+    for key, value in entity_data.items():
+        if key != 'Items':
+            print(f"\t{key}: {value}")
+        else:
+            print(f"\t{key}:")
+            for item in value:
+                print(f"\t\t{item}")
+    print()
+
+def int_to_roman(n: int) -> str:
+    """Convert an integer to a Roman numeral, between 1 and 3999."""
+    if not 1 <= n <= 3999:
+        raise ValueError("Roman Numerals Range is and must be between 1 and 3999, inclusive.")
+    
+    roman_numerals = [
+        (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+        (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+        (10, "X"), (9, "IX"), (5, "V"), (4, "IV"),
+        (1, "I")
+    ]
+    
+    result = ""
+    for value, numeral in roman_numerals:
+        while n >= value:
+            result += numeral
+            n -= value
+        
+    return result
+
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
     try:

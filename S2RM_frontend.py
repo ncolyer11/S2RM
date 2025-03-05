@@ -6,18 +6,18 @@ import json
 import math
 import time
 
+from dataclasses import asdict
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPalette, QColor, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
 
-from constants import ICE_PER_ICE
+from constants import ICE_PER_ICE, MATERIALS_TABLE
 from helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
 from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
-from dataclasses import asdict
 from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
-    process_exclude_string, MATERIALS_TABLE
+    process_exclude_string
 
 # creco has problems reading tables so split input cols from output cols
 # XXX ice switch broken again
@@ -168,10 +168,10 @@ class S2RMFrontend(QWidget):
         self.table.setColumnCount(len(TABLE_HEADERS))
         self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
         layout.addWidget(self.table)
-        self.table.setColumnWidth(INPUT_ITEMS_COL_NUM, 225)
+        self.table.setColumnWidth(INPUT_ITEMS_COL_NUM, 250)
         self.table.setColumnWidth(INPUT_QUANTITIES_COL_NUM, 210)
         self.table.setColumnWidth(EXCLUDE_QUANTITIES_COL_NUM, 85)
-        self.table.setColumnWidth(RAW_MATERIALS_COL_NUM, 178)
+        self.table.setColumnWidth(RAW_MATERIALS_COL_NUM, 250)
         self.table.setColumnWidth(RAW_QUANTITIES_COL_NUM, 210)
         self.table.setColumnWidth(COLLECTIONS_COL_NUM, 85)
         

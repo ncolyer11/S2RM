@@ -6,13 +6,10 @@ from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
 from constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
-    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
-from helpers import resource_path, add_material
+    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE, MATERIALS_TABLE
+from helpers import add_material, int_to_roman, print_formatted_entity_data
 from itertools import product
 
-# Load the raw materials table
-with open(resource_path("raw_materials_table.json"), "r") as f:
-    MATERIALS_TABLE = json.load(f)
 
 def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
     """
@@ -153,7 +150,7 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
     
         # Get materials required to craft/obtain entities
         for entity in region.entities:
-            print_formatted_entity_data(entity.data)
+            # print_formatted_entity_data(entity.data)
             get_materials_from_entity(materials, entity)
         
         # Get items stored inside of inventories
@@ -191,7 +188,7 @@ def get_materials_from_entity(materials: dict[str, int], entity: Entity):
     extract_entity_materials(materials, entity_name, data)
     handle_additional_entity_materials(materials, data)
 
-def extract_entity_materials(materials, entity_name, data):
+def extract_entity_materials(materials: dict[str, int], entity_name, data):
     # Direct simple entities
     if entity_name in SIMPLE_ENTITIES:
         add_material(materials, entity_name)
@@ -245,93 +242,61 @@ def extract_entity_materials(materials, entity_name, data):
     else:
         print(f"Skipping invalid entity: {entity_name}")
 
-def handle_additional_entity_materials(materials, data):
+def handle_additional_entity_materials(materials: dict[str, int], data):
     # Leash check
     if "leash" in data:
         add_material(materials, "lead")
         
-    # Don't want to check all tools and armour of mobs as it's kind arbitrary whether or not the
-    # item is naturally part of the mob, or needed, but a helmet is the most likely to be required
-    # to protect mobs from the sun e.g.. And it also doesn't spawn as often with the mob vs tools
-    
-    # May check boots in the future if they have frost walker 2 on them, as well as checking if a
-    # sword has looting or sharpness 5 on it (for mob farms and villager conversion, e.g.)
-    
-    # Zombie eg data
-    """
-        id: minecraft:zombie
-        UUID: [ 1603329617  -657111915 -1850001601 -1124205682]
-        Motion: List[Double]([Double(0.0), Double(-0.0784000015258789), Double(0.0)])
-        Health: Float(12.0)
-        LeftHanded: Byte(0)
-        Air: Short(300)
-        OnGround: Byte(1)
-        Rotation: List[Float]([Float(177.05099487304688), Float(0.0)])
-        HandItems: List[Compound]([Compound({'components': Compound({'minecraft:enchantments': Compound({'levels': Compound({'minecraft:looting': Int(3), 'minecraft:sharpness': Int(5)})})}), 'count': Int(1), 'id': String('minecraft:netherite_sword')}), Compound({})])
-        ArmorDropChances: List[Float]([Float(2.0), Float(0.08500000089406967), Float(0.08500000089406967), Float(0.08500000089406967)])
-        Pos: List[Double]([Double(-0.4739698566251036), Double(0.0), Double(-2.1855780615233265)])
-        CanBreakDoors: Byte(0)
-        Fire: Short(-1)
-        ArmorItems: List[Compound]([Compound({'components': Compound({'minecraft:enchantments': Compound({'levels': Compound({'minecraft:frost_walker': Int(2)})})}), 'count': Int(1), 'id': String('minecraft:chainmail_boots')}), Compound({}), Compound({}), Compound({})])
-        CanPickUpLoot: Byte(1)
-        attributes: List[Compound]([Compound({'id': String('minecraft:generic.attack_damage'), 'base': Double(3.0)}), Compound({'id': String('minecraft:generic.armor'), 'base': Double(2.0)}), Compound({'id': String('minecraft:generic.movement_speed'), 'base': Double(0.23000000417232513)}), Compound({'id': String('minecraft:generic.armor_toughness'), 'base': Double(0.0)})])
-        HurtTime: Short(0)
-        DrownedConversionTime: Int(-1)
-    """
+    # Check useful, and hence intentionally part of the schematic, enchants on gear
     if "ArmorItems" in data:
         for item in data.get("ArmorItems", []):
             item_name = item.get("id", "").replace("minecraft:", "")
+            
+            # And any headgear regardless of enchantments
             if any(keyword in item_name for keyword in HEADGEAR_KWS):
                 add_material(materials, item_name)
             
+            # Then check for specific, useful enchantments on certain types of gear
             added = False
-            if "boots" in item_name and "frost_walker" in item.get("tag", {}).get("Enchantments", {}):
-                check_and_add_enchanted_item(materials, item, "boots", "frost_walker", added)
-                add_material(materials, item_name)
+            # Frosted ice generation using armour stands e.g.
+            added = process_enchanted_item(materials, item, "boots", {"frost_walker": 2}, added)
+            # Giving an entity less drag in water e.g.
+            added = process_enchanted_item(materials, item, "boots", {"depth_strider": 3}, added)
     
+    # Also check for useful enchantments on certain types of weapons/tools
     if "HandItems" in data:
         for item in data.get("HandItems", []):
             item_name = item.get("id", "").replace("minecraft:", "")
             
             added = False
-            added = check_and_add_enchanted_item(materials, item, "sword", "looting", added)
-            added = check_and_add_enchanted_item(materials, item, "sword", "sharpness", added)
-            if "sword" in item_name and "looting" in item.get("tag", {}).get("Enchantments", {}):
-                looting_level = item["tag"]["Enchantments"]["looting"]
-                add_material(materials, f"$looting_{looting_level}_book")
-                if not sword_added:
-                    add_material(materials, item_name)
-                sword_added = True
-            if "sword" in item_name and "sharpness" in item.get("tag", {}).get("Enchantments", {}):
-                sharpness_level = item["tag"]["Enchantments"]["sharpness"]
-                add_material(materials, f"$sharpness_{sharpness_level}_book")
-                if not sword_added:
-                    add_material(materials, item_name)
-                sword_added = True
-            
+            # TNT Looting e.g.
+            added = process_enchanted_item(materials, item, "sword", {"looting": 3}, added)
+            # Efficient villager conversion
+            added = process_enchanted_item(materials, item, "sword", {"sharpness": 5}, added)
+            added = process_enchanted_item(materials, item, "axe", {"sharpness": 5}, added)
 
-def check_and_add_enchanted_item(materials, item, tool, enchantment, item_added):
+def process_enchanted_item(materials: dict[str, int], item, gear, enchantment: dict[str, int], item_added):
+    # Cooked access to list of enchantments field
+    enchantments = item.get("components", {}).get("minecraft:enchantments", {})
+    enchantments = {k.replace('minecraft:', ''): int(v) for k, v in enchantments.get("levels", {}).items()}
+    
     item_name = item.get("id", "").replace("minecraft:", "")
-    if tool in item_name and enchantment in item.get("tag", {}).get("Enchantments", {}):
-        add_material(materials, f"${enchantment}_{...}_book")
-        if not item_added:
-            add_material(materials, item_name)
-            return True
+    
+    # Check if the gear is the correct type and the enchantment (including its level) is present
+    if gear in item_name:
+        # Check if the enchantment is present and at the correct level
+        for enchant_name, enchant_level in enchantment.items():
+            if enchant_name in enchantments and enchantments[enchant_name] >= enchant_level:
+                # Add the enchanted book to materials
+                level_in_roman = int_to_roman(enchantments[enchant_name])
+                add_material(materials, f"${enchant_name}_{level_in_roman}_book")
+                
+                # If the base gear hasn't been added yet, add it
+                if not item_added:
+                    add_material(materials, item_name)
+                    return True
         
     return False
-
-def print_formatted_entity_data(entity_data):
-    print()
-    entity_name = entity_data.get("id", "").replace("minecraft:", "")
-    print(f"Entity: {entity_name}")
-    for key, value in entity_data.items():
-        if key != 'Items':
-            print(f"\t{key}: {value}")
-        else:
-            print(f"\t{key}:")
-            for item in value:
-                print(f"\t\t{item}")
-    print()
 
 def get_materials_from_inventories(materials: dict[str, int], tile_entity: TileEntity):
     """Extracts materials from inventories by checking their NBT."""

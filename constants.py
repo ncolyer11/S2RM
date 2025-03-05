@@ -178,6 +178,10 @@ def constants_py_resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+# Load the raw materials table containing the number of raw materials required to craft one of each item
+with open(constants_py_resource_path("raw_materials_table.json"), "r") as f:
+    MATERIALS_TABLE = json.load(f)
+
 # Load a dictionary containing all items that don't stack to 64, and their stack size (either 16 or 1)
 with open(constants_py_resource_path("limited_stacks.json"), "r") as f:
     LIMITED_STACK_ITEMS = json.load(f)
