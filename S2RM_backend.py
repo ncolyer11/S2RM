@@ -232,7 +232,7 @@ def extract_entity_materials(materials, entity_name, data):
     # Ender Dragon special case ofc
     elif entity_name == "ender_dragon":
         if "DragonPhase" in data:
-            add_material(materials, "end_crystal")
+            add_material(materials, "end_crystal", 4)
 
     # Leftover, but still not invalid, entities
     elif entity_name not in INVALID_ENTITIES:
@@ -252,10 +252,28 @@ def handle_additional_entity_materials(materials, data):
     # Don't want to check all tools and armour of mobs as it's kind arbitrary whether or not the
     # item is naturally part of the mob, or needed, but a helmet is the most likely to be required
     # to protect mobs from the sun e.g.. And it also doesn't spawn as often with the mob vs tools
+    
+    # May check boots in the future if they have frost walker 2 on them, as well as checking if a
+    # sword has looting or sharpness 5 on it (for mob farms and villager conversion, e.g.)
     if "ArmorItems" in data:
         for item in data.get("ArmorItems", []):
             item_name = item.get("id", "").replace("minecraft:", "")
             if any(keyword in item_name for keyword in HEADGEAR_KWS):
+                add_material(materials, item_name)
+            
+            if "boots" in item_name and "frost_walker" in item.get("tag", {}).get("Enchantments", {}):
+                add_material(materials, item_name)
+    
+    if "HandItems" in data:
+        for item in data.get("HandItems", []):
+            item_name = item.get("id", "").replace("minecraft:", "")
+            if "sword" in item_name and "looting" in item.get("tag", {}).get("Enchantments", {}):
+                looting_level = item["tag"]["Enchantments"]["looting"]
+                add_material(materials, f"$looting_{looting_level}_book")
+                add_material(materials, item_name)
+            elif "sword" in item_name and "sharpness" in item.get("tag", {}).get("Enchantments", {}):
+                sharpness_level = item["tag"]["Enchantments"]["sharpness"]
+                add_material(materials, f"$sharpness_{sharpness_level}_book")
                 add_material(materials, item_name)
 
 def print_formatted_entity_data(entity_data):
