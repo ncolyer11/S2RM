@@ -16,6 +16,13 @@ AXIOM_MATERIALS_REGEX = r"""
     raw_\w+(?!_block)|\w+dye|leather)$
 """
 
+# Crafting methods that are prioritised over others and can overwrite existing recipes
+PRIORITY_CRAFTING_METHODS = {
+    'crafting_shaped',
+    'crafting_shapeless',
+    'smithing_transform'
+}
+
 # Convert a tagged material category to its cheapest base material
 TAGGED_MATERIALS_BASE = {
     # Logs and wood-related materials
@@ -41,6 +48,7 @@ TAGGED_MATERIALS_BASE = {
     "#stone_tool_materials": "cobblestone",
     "#iron_tool_materials": "iron_ingot",
     "#diamond_tool_materials": "diamond",
+    "#netherite_tool_materials": "netherite_ingot",
     "#gold_tool_materials": "gold_ingot",
     "#stone_crafting_materials": "cobblestone",
     

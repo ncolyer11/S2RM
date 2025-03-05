@@ -1097,6 +1097,14 @@
     ],
     "bolt_armor_trim_smithing_template": [
         {
+            "item": "copper_ingot",
+            "quantity": 4.5
+        },
+        {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "bolt_armor_trim_smithing_template",
             "quantity": 1.0
         }
@@ -1971,8 +1979,16 @@
     ],
     "coast_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "coast_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobblestone",
+            "quantity": 0.5
         }
     ],
     "cobbled_deepslate": [
@@ -3301,6 +3317,14 @@
     ],
     "dune_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "sand",
+            "quantity": 2.0
+        },
+        {
             "item": "dune_armor_trim_smithing_template",
             "quantity": 1.0
         }
@@ -3577,8 +3601,16 @@
     ],
     "eye_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "eye_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "end_stone",
+            "quantity": 0.5
         }
     ],
     "farmland": [
@@ -3717,8 +3749,16 @@
     ],
     "flow_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "flow_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "breeze_rod",
+            "quantity": 0.5
         }
     ],
     "flow_banner_pattern": [
@@ -4576,6 +4616,14 @@
         }
     ],
     "host_armor_trim_smithing_template": [
+        {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "clay_ball",
+            "quantity": 2.0
+        },
         {
             "item": "host_armor_trim_smithing_template",
             "quantity": 1.0
@@ -6433,8 +6481,28 @@
     ],
     "netherite_axe": [
         {
-            "item": "netherite_axe",
+            "item": "diamond",
+            "quantity": 6.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.25
         }
     ],
     "netherite_block": [
@@ -6449,26 +6517,94 @@
     ],
     "netherite_boots": [
         {
-            "item": "netherite_boots",
+            "item": "diamond",
+            "quantity": 7.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "netherite_chestplate": [
         {
-            "item": "netherite_chestplate",
+            "item": "diamond",
+            "quantity": 11.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "netherite_helmet": [
         {
-            "item": "netherite_helmet",
+            "item": "diamond",
+            "quantity": 8.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "netherite_hoe": [
         {
-            "item": "netherite_hoe",
+            "item": "diamond",
+            "quantity": 5.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.25
         }
     ],
     "netherite_ingot": [
@@ -6483,14 +6619,50 @@
     ],
     "netherite_leggings": [
         {
-            "item": "netherite_leggings",
+            "item": "diamond",
+            "quantity": 10.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "netherite_pickaxe": [
         {
-            "item": "netherite_pickaxe",
+            "item": "diamond",
+            "quantity": 6.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.25
         }
     ],
     "netherite_scrap": [
@@ -6501,20 +6673,68 @@
     ],
     "netherite_shovel": [
         {
-            "item": "netherite_shovel",
+            "item": "diamond",
+            "quantity": 4.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.25
         }
     ],
     "netherite_sword": [
         {
-            "item": "netherite_sword",
+            "item": "diamond",
+            "quantity": 5.5
+        },
+        {
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
+        },
+        {
+            "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
+        },
+        {
+            "item": "oak_log",
+            "quantity": 0.125
         }
     ],
     "netherite_upgrade_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "netherite_upgrade_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "netherrack": [
@@ -8059,6 +8279,14 @@
     ],
     "raiser_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "clay_ball",
+            "quantity": 2.0
+        },
+        {
             "item": "raiser_armor_trim_smithing_template",
             "quantity": 1.0
         }
@@ -8489,8 +8717,16 @@
     ],
     "rib_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "rib_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "netherrack",
+            "quantity": 0.5
         }
     ],
     "rooted_dirt": [
@@ -8635,11 +8871,27 @@
     ],
     "sentry_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "sentry_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobblestone",
+            "quantity": 0.5
         }
     ],
     "shaper_armor_trim_smithing_template": [
+        {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "clay_ball",
+            "quantity": 2.0
+        },
         {
             "item": "shaper_armor_trim_smithing_template",
             "quantity": 1.0
@@ -8721,8 +8973,16 @@
     ],
     "silence_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "silence_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobbled_deepslate",
+            "quantity": 0.5
         }
     ],
     "silverfish_spawn_egg": [
@@ -8907,8 +9167,16 @@
     ],
     "snout_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "snout_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "blackstone",
+            "quantity": 0.5
         }
     ],
     "snow": [
@@ -9027,8 +9295,16 @@
     ],
     "spire_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "spire_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "chorus_fruit",
+            "quantity": 0.5
         }
     ],
     "splash_potion": [
@@ -9605,6 +9881,14 @@
     ],
     "tide_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "prismarine_shard",
+            "quantity": 2.0
+        },
+        {
             "item": "tide_armor_trim_smithing_template",
             "quantity": 1.0
         }
@@ -9849,8 +10133,16 @@
     ],
     "vex_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "vex_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobblestone",
+            "quantity": 0.5
         }
     ],
     "vex_spawn_egg": [
@@ -9885,8 +10177,16 @@
     ],
     "ward_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "ward_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobbled_deepslate",
+            "quantity": 0.5
         }
     ],
     "warden_spawn_egg": [
@@ -10427,6 +10727,14 @@
     ],
     "wayfinder_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
+            "item": "clay_ball",
+            "quantity": 2.0
+        },
+        {
             "item": "wayfinder_armor_trim_smithing_template",
             "quantity": 1.0
         }
@@ -10673,8 +10981,20 @@
     ],
     "wild_armor_trim_smithing_template": [
         {
+            "item": "diamond",
+            "quantity": 3.5
+        },
+        {
             "item": "wild_armor_trim_smithing_template",
             "quantity": 1.0
+        },
+        {
+            "item": "cobblestone",
+            "quantity": 0.5
+        },
+        {
+            "item": "vine",
+            "quantity": 0.5
         }
     ],
     "wildflowers": [

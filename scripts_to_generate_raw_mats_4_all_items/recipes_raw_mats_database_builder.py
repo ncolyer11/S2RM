@@ -11,7 +11,7 @@ from collections import defaultdict
 from helpers import resource_path
 from scripts_to_generate_raw_mats_4_all_items.graph_recipes import build_crafting_graph, \
     display_graph_sample, list_crafting_recipes
-from constants import BLOCKS_WITHOUT_ITEM, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, \
+from constants import BLOCKS_WITHOUT_ITEM, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, PRIORITY_CRAFTING_METHODS, \
     TAGGED_MATERIALS_BASE
 
 def main():
@@ -43,20 +43,21 @@ def get_raw_materials_cost_dict(recipe_json_raw_data: dict) -> dict:
         # Remove text after & incl '_from' to ignore alternate methods and 'dye_' from wool recipes
         item_name = item_name.split('_from')[0]
         item_name = re.sub(r'^dye_', '', item_name)
+        item_name = re.sub(r'_smithing$', '', item_name)
         
         modified_items = {}
-        for ingredient, data in items.items():
+        for ingredient, count in items.items():
             # Change the name of a hashed material inside items to its base material name
             if ingredient.startswith('#'):
                 base_material = TAGGED_MATERIALS_BASE[ingredient]
-                modified_items[base_material] = data
+                modified_items[base_material] = count
             else:
-                modified_items[ingredient] = data
+                modified_items[ingredient] = count
 
         if item_name not in raw_materials_cost:
             raw_materials_cost[item_name] = modified_items
         # Only overwrite if shaped or shapeless method
-        elif craft_type in ['crafting_shaped', 'crafting_shapeless'] and item_name != 'stick':
+        elif craft_type in PRIORITY_CRAFTING_METHODS and item_name != 'stick':
             raw_materials_cost[item_name] = modified_items
     
     return raw_materials_cost
@@ -76,9 +77,10 @@ def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
             return get_smelting_ingredients(recipe)
         # Handle smithing recipes for netherite gear
         case 'smithing_transform':
+            base_material = recipe['addition'].replace('minecraft:', '')
             base_item = recipe['base'].replace('minecraft:', '')
             template = recipe['template'].replace('minecraft:', '')
-            return {base_item: 1.0, template: 1.0, 'count': 1.0}
+            return {base_material: 1.0, base_item: 1.0, template: 1.0, 'count': 1.0}
         # Only 'crafting_transmute' recipes are bundles (which are ignored items) and shulker boxes
         case 'crafting_transmute':
             dye = recipe['material'].replace('minecraft:', '')
@@ -148,6 +150,7 @@ def add_ingredient(ingredients: dict, item: str):
 ### RAW MATERIALS LIST GENERATION ###
 #####################################
 def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
+    """Generates a master list of all items and their raw materials."""
     # Open data/items.json and get items field
     items_path = resource_path('data/items.json')
     with open(items_path, 'r') as file:
@@ -167,14 +170,12 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
     with open('raw_materials_table.json', 'w') as f:
         json.dump(master_raw_mats_list, f, indent=4)
 
-def get_ingredients(graph, target_item) -> list[dict]:
+def get_ingredients(graph: nx.DiGraph, target_item: str) -> list[dict]:
     """Lists all raw materials needed to craft a target item, handling circular dependencies."""
     # Convert 'uncraftable' (created outside a crafting table) to their raw base material
     target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)
     target_item = re.sub(r'(\w+)_concrete$', r'\1_concrete_powder', target_item)
     target_item = re.sub(r'(exposed|weathered|oxidized)_', '', target_item)
-    # target_item = re.sub(r'stripped_', '', target_item)
-    # target_item = re.sub(r'carved_', '', target_item)
     if target_item in ['waxed_copper', 'copper']:
         target_item += '_block'
 
@@ -191,29 +192,55 @@ def get_ingredients(graph, target_item) -> list[dict]:
         key=lambda x: (-x["quantity"], x["item"])
     )
 
-def _get_ingredients_recursive(graph, target_item, raw_materials, quantity=1.0):
+def _get_ingredients_recursive(graph: nx.DiGraph, target_item: str, raw_materials: dict, quantity=1.0):
     """Recursive helper function to find raw materials, handling circular dependencies."""
+    # For handling edge cases where items don't abide by the rules (e.g. netherite, hanging signs, etc)
+    if _handle_special_cases(graph, target_item, raw_materials, quantity):
+        return
+    
+    # Cycle detected when 2 semi-raw materials craft into each other
+    if re.match(AXIOM_MATERIALS_REGEX, target_item, re.VERBOSE):
+        raw_materials[target_item] += quantity
+        # Ensure other, non-axiomatic ingredients are accounted for when handling smithing templates
+        _handle_smithing_template(graph, target_item, raw_materials, quantity)
+        return
+
+    # Base case: no ingredients, it's a raw material
+    if not (ingredients := list(graph.predecessors(target_item))):
+        raw_materials[target_item] += quantity
+        return
+
+    # If the item does have ingredients, find the ingredients for each of those ingredients, and so on
+    for ingredient in ingredients:
+        weight = graph[ingredient][target_item]['weight']
+        _get_ingredients_recursive(graph, ingredient, raw_materials, quantity * weight)
+
+def _handle_special_cases(graph: nx.DiGraph, target_item: str, raw_materials: dict, quantity: int) -> bool:
     # Special case for when an ingot, netherite, isn't actually the raw material
     if target_item == 'netherite_ingot':
         _get_ingredients_recursive(graph, 'netherite_scrap', raw_materials, 4.0 * quantity)
         _get_ingredients_recursive(graph, 'gold_ingot', raw_materials, 4.0 * quantity)
-        return
+        return True
+    
     # Another case for an environmentally 'crafted' blocks with no simply interchangeable raw material
-    elif re.match(r'(stripped|carved)_', target_item):
+    if re.match(r'(stripped|carved)_', target_item):
         _get_ingredients_recursive(graph, re.sub(r'^(stripped|carved)_', '', target_item), raw_materials, quantity)
-        return
-    elif re.match(AXIOM_MATERIALS_REGEX, target_item, re.VERBOSE): # Cycle detected
-        raw_materials[target_item] += quantity
-        return
+        return True
+    
+    return False
 
-    predecessors = list(graph.predecessors(target_item))
-    if not predecessors: # Base case: no predecessors, it's a raw material
-        raw_materials[target_item] += quantity
-        return
-
-    for ingredient in predecessors:
-        weight = graph[ingredient][target_item]['weight']
-        _get_ingredients_recursive(graph, ingredient, raw_materials, quantity * weight)
+def _handle_smithing_template(graph: nx.DiGraph, target_item: str, raw_materials: dict, quantity: int):
+    """
+    If the raw material is a smithing template, we need to include the other ingredients,
+    but not the template again.
+    """
+    if target_item.endswith('_smithing_template'):
+        ingredients = list(graph.predecessors(target_item))
+        # Remove smithing template from its own list of ingredients to avoid a recursion loop
+        ingredients.remove(target_item)
+        for ingredient in ingredients:
+            weight = graph[ingredient][target_item]['weight']
+            _get_ingredients_recursive(graph, ingredient, raw_materials, quantity * weight)
 
 if __name__ == '__main__':
     main()
