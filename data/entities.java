@@ -1,148 +1,148 @@
-<Boat> ACACIA_BOAT: "acacia_boat",EntityType.Builder.of(boatFactory(() -> Items.ACACIA_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> ACACIA_CHEST_BOAT: "acacia_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.ACACIA_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Allay> ALLAY: "allay",EntityType.Builder.of(Allay::new, MobCategory.CREATURE).sized(0.35F, 0.6F).eyeHeight(0.36F).ridingOffset(0.04F).clientTrackingRange(8).updateInterval(2));
-<AreaEffectCloud> AREA_EFFECT_CLOUD: "area_effect_cloud",EntityType.Builder.<AreaEffectCloud>of(AreaEffectCloud::new, MobCategory.MISC).noLootTable().fireImmune().sized(6.0F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-<Armadillo> ARMADILLO: "armadillo", EntityType.Builder.of(Armadillo::new, MobCategory.CREATURE).sized(0.7F, 0.65F).eyeHeight(0.26F).clientTrackingRange(10));
-<ArmorStand> ARMOR_STAND: "armor_stand", EntityType.Builder.<ArmorStand>of(ArmorStand::new, MobCategory.MISC).sized(0.5F, 1.975F).eyeHeight(1.7775F).clientTrackingRange(10));
-<Arrow> ARROW: "arrow",EntityType.Builder.<Arrow>of(Arrow::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20));
-<Axolotl> AXOLOTL: "axolotl", EntityType.Builder.of(Axolotl::new, MobCategory.AXOLOTLS).sized(0.75F, 0.42F).eyeHeight(0.2751F).clientTrackingRange(10));
-<ChestRaft> BAMBOO_CHEST_RAFT: "bamboo_chest_raft",EntityType.Builder.of(chestRaftFactory(() -> Items.BAMBOO_CHEST_RAFT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Raft> BAMBOO_RAFT: "bamboo_raft",EntityType.Builder.of(raftFactory(() -> Items.BAMBOO_RAFT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Bat> BAT: "bat", EntityType.Builder.of(Bat::new, MobCategory.AMBIENT).sized(0.5F, 0.9F).eyeHeight(0.45F).clientTrackingRange(5));
-<Bee> BEE: "bee", EntityType.Builder.of(Bee::new, MobCategory.CREATURE).sized(0.7F, 0.6F).eyeHeight(0.3F).clientTrackingRange(8));
-<Boat> BIRCH_BOAT: "birch_boat",EntityType.Builder.of(boatFactory(() -> Items.BIRCH_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> BIRCH_CHEST_BOAT: "birch_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.BIRCH_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Blaze> BLAZE: "blaze", EntityType.Builder.of(Blaze::new, MobCategory.MONSTER).fireImmune().sized(0.6F, 1.8F).clientTrackingRange(8));
-<Bogged> BOGGED: "bogged", EntityType.Builder.of(Bogged::new, MobCategory.MONSTER).sized(0.6F, 1.99F).eyeHeight(1.74F).ridingOffset(-0.7F).clientTrackingRange(8));
-<Breeze> BREEZE: "breeze", EntityType.Builder.of(Breeze::new, MobCategory.MONSTER).sized(0.6F, 1.77F).eyeHeight(1.3452F).clientTrackingRange(10));
-<BreezeWindCharge> BREEZE_WIND_CHARGE: "breeze_wind_charge",EntityType.Builder.<BreezeWindCharge>of(BreezeWindCharge::new, MobCategory.MISC).noLootTable().sized(0.3125F, 0.3125F).eyeHeight(0.0F).clientTrackingRange(4).updateInterval(10));
-<Camel> CAMEL: "camel", EntityType.Builder.of(Camel::new, MobCategory.CREATURE).sized(1.7F, 2.375F).eyeHeight(2.275F).clientTrackingRange(10));
-<Cat> CAT: "cat", EntityType.Builder.of(Cat::new, MobCategory.CREATURE).sized(0.6F, 0.7F).eyeHeight(0.35F).passengerAttachments(0.5125F).clientTrackingRange(8));
-<CaveSpider> CAVE_SPIDER: "cave_spider", EntityType.Builder.of(CaveSpider::new, MobCategory.MONSTER).sized(0.7F, 0.5F).eyeHeight(0.45F).clientTrackingRange(8));
-<Boat> CHERRY_BOAT: "cherry_boat",EntityType.Builder.of(boatFactory(() -> Items.CHERRY_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> CHERRY_CHEST_BOAT: "cherry_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.CHERRY_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<MinecartChest> CHEST_MINECART: "chest_minecart",EntityType.Builder.of(MinecartChest::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<Chicken> CHICKEN: "chicken",EntityType.Builder.of(Chicken::new, MobCategory.CREATURE).sized(0.4F, 0.7F).eyeHeight(0.644F).passengerAttachments(new Vec3(0.0, 0.7, -0.1)).clientTrackingRange(10));
-<Cod> COD: "cod", EntityType.Builder.of(Cod::new, MobCategory.WATER_AMBIENT).sized(0.5F, 0.3F).eyeHeight(0.195F).clientTrackingRange(4));
-<MinecartCommandBlock> COMMAND_BLOCK_MINECART: "command_block_minecart",EntityType.Builder.of(MinecartCommandBlock::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<Cow> COW: "cow", EntityType.Builder.of(Cow::new, MobCategory.CREATURE).sized(0.9F, 1.4F).eyeHeight(1.3F).passengerAttachments(1.36875F).clientTrackingRange(10));
-<Creaking> CREAKING: "creaking", EntityType.Builder.of(Creaking::new, MobCategory.MONSTER).sized(0.9F, 2.7F).eyeHeight(2.3F).clientTrackingRange(8));
-<Creeper> CREEPER: "creeper", EntityType.Builder.of(Creeper::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
-<Boat> DARK_OAK_BOAT: "dark_oak_boat",EntityType.Builder.of(boatFactory(() -> Items.DARK_OAK_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> DARK_OAK_CHEST_BOAT: "dark_oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.DARK_OAK_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Dolphin> DOLPHIN: "dolphin", EntityType.Builder.of(Dolphin::new, MobCategory.WATER_CREATURE).sized(0.9F, 0.6F).eyeHeight(0.3F));
-<Donkey> DONKEY: "donkey",EntityType.Builder.of(Donkey::new, MobCategory.CREATURE).sized(1.3964844F, 1.5F).eyeHeight(1.425F).passengerAttachments(1.1125F).clientTrackingRange(10));
-<DragonFireball> DRAGON_FIREBALL: "dragon_fireball",EntityType.Builder.<DragonFireball>of(DragonFireball::new, MobCategory.MISC).noLootTable().sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
-<Drowned> DROWNED: "drowned",EntityType.Builder.of(Drowned::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.74F).passengerAttachments(2.0125F).ridingOffset(-0.7F).clientTrackingRange(8));
-<ThrownEgg> EGG: "egg", EntityType.Builder.<ThrownEgg>of(ThrownEgg::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<ElderGuardian> ELDER_GUARDIAN: "elder_guardian",EntityType.Builder.of(ElderGuardian::new, MobCategory.MONSTER).sized(1.9975F, 1.9975F).eyeHeight(0.99875F).passengerAttachments(2.350625F).clientTrackingRange(10));
-<EnderMan> ENDERMAN: "enderman",EntityType.Builder.of(EnderMan::new, MobCategory.MONSTER).sized(0.6F, 2.9F).eyeHeight(2.55F).passengerAttachments(2.80625F).clientTrackingRange(8));
-<Endermite> ENDERMITE: "endermite",EntityType.Builder.of(Endermite::new, MobCategory.MONSTER).sized(0.4F, 0.3F).eyeHeight(0.13F).passengerAttachments(0.2375F).clientTrackingRange(8));
-<EnderDragon> ENDER_DRAGON: "ender_dragon",EntityType.Builder.of(EnderDragon::new, MobCategory.MONSTER).fireImmune().sized(16.0F, 8.0F).passengerAttachments(3.0F).clientTrackingRange(10));
-<ThrownEnderpearl> ENDER_PEARL: "ender_pearl",EntityType.Builder.<ThrownEnderpearl>of(ThrownEnderpearl::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<EndCrystal> END_CRYSTAL: "end_crystal",EntityType.Builder.<EndCrystal>of(EndCrystal::new, MobCategory.MISC).noLootTable().fireImmune().sized(2.0F, 2.0F).clientTrackingRange(16).updateInterval(Integer.MAX_VALUE));
-<Evoker> EVOKER: "evoker", EntityType.Builder.of(Evoker::new, MobCategory.MONSTER).sized(0.6F, 1.95F).passengerAttachments(2.0F).ridingOffset(-0.6F).clientTrackingRange(8));
-<EvokerFangs> EVOKER_FANGS: "evoker_fangs",EntityType.Builder.<EvokerFangs>of(EvokerFangs::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.8F).clientTrackingRange(6).updateInterval(2));
-<ThrownExperienceBottle> EXPERIENCE_BOTTLE: "experience_bottle",EntityType.Builder.<ThrownExperienceBottle>of(ThrownExperienceBottle::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<ExperienceOrb> EXPERIENCE_ORB: "experience_orb",EntityType.Builder.<ExperienceOrb>of(ExperienceOrb::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).clientTrackingRange(6).updateInterval(20));
-<EyeOfEnder> EYE_OF_ENDER: "eye_of_ender",EntityType.Builder.<EyeOfEnder>of(EyeOfEnder::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(4));
-<FallingBlockEntity> FALLING_BLOCK: "falling_block",EntityType.Builder.<FallingBlockEntity>of(FallingBlockEntity::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.98F).clientTrackingRange(10).updateInterval(20));
-<LargeFireball> FIREBALL: "fireball",EntityType.Builder.<LargeFireball>of(LargeFireball::new, MobCategory.MISC).noLootTable().sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
-<FireworkRocketEntity> FIREWORK_ROCKET: "firework_rocket",EntityType.Builder.<FireworkRocketEntity>of(FireworkRocketEntity::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<Fox> FOX: "fox",EntityType.Builder.of(Fox::new, MobCategory.CREATURE).sized(0.6F, 0.7F).eyeHeight(0.4F).passengerAttachments(new Vec3(0.0, 0.6375, -0.25)).clientTrackingRange(8).immuneTo(Blocks.SWEET_BERRY_BUSH));
-<Frog> FROG: "frog", EntityType.Builder.of(Frog::new, MobCategory.CREATURE).sized(0.5F, 0.5F).passengerAttachments(new Vec3(0.0, 0.375, -0.25)).clientTrackingRange(10));
-<MinecartFurnace> FURNACE_MINECART: "furnace_minecart",EntityType.Builder.of(MinecartFurnace::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<Ghast> GHAST: "ghast",EntityType.Builder.of(Ghast::new, MobCategory.MONSTER).fireImmune().sized(4.0F, 4.0F).eyeHeight(2.6F).passengerAttachments(4.0625F).ridingOffset(0.5F).clientTrackingRange(10));
-<Giant> GIANT: "giant", EntityType.Builder.of(Giant::new, MobCategory.MONSTER).sized(3.6F, 12.0F).eyeHeight(10.44F).ridingOffset(-3.75F).clientTrackingRange(10));
-<GlowItemFrame> GLOW_ITEM_FRAME: "glow_item_frame",EntityType.Builder.<GlowItemFrame>of(GlowItemFrame::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.0F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-<GlowSquid> GLOW_SQUID: "glow_squid", EntityType.Builder.of(GlowSquid::new, MobCategory.UNDERGROUND_WATER_CREATURE).sized(0.8F, 0.8F).eyeHeight(0.4F).clientTrackingRange(10));
-<Goat> GOAT: "goat", EntityType.Builder.of(Goat::new, MobCategory.CREATURE).sized(0.9F, 1.3F).passengerAttachments(1.1125F).clientTrackingRange(10));
-<Guardian> GUARDIAN: "guardian",EntityType.Builder.of(Guardian::new, MobCategory.MONSTER).sized(0.85F, 0.85F).eyeHeight(0.425F).passengerAttachments(0.975F).clientTrackingRange(8));
-<Hoglin> HOGLIN: "hoglin", EntityType.Builder.of(Hoglin::new, MobCategory.MONSTER).sized(1.3964844F, 1.4F).passengerAttachments(1.49375F).clientTrackingRange(8));
-<MinecartHopper> HOPPER_MINECART: "hopper_minecart",EntityType.Builder.of(MinecartHopper::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<Horse> HORSE: "horse",EntityType.Builder.of(Horse::new, MobCategory.CREATURE).sized(1.3964844F, 1.6F).eyeHeight(1.52F).passengerAttachments(1.44375F).clientTrackingRange(10));
-<Husk> HUSK: "husk",EntityType.Builder.of(Husk::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.74F).passengerAttachments(2.075F).ridingOffset(-0.7F).clientTrackingRange(8));
-<Illusioner> ILLUSIONER: "illusioner",EntityType.Builder.of(Illusioner::new, MobCategory.MONSTER).sized(0.6F, 1.95F).passengerAttachments(2.0F).ridingOffset(-0.6F).clientTrackingRange(8));
-<Interaction> INTERACTION: "interaction", EntityType.Builder.of(Interaction::new, MobCategory.MISC).noLootTable().sized(0.0F, 0.0F).clientTrackingRange(10));
-<IronGolem> IRON_GOLEM: "iron_golem", EntityType.Builder.of(IronGolem::new, MobCategory.MISC).sized(1.4F, 2.7F).clientTrackingRange(10));
-<ItemEntity> ITEM: "item",EntityType.Builder.<ItemEntity>of(ItemEntity::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).eyeHeight(0.2125F).clientTrackingRange(6).updateInterval(20));
-<Display.ItemDisplay> ITEM_DISPLAY: "item_display", EntityType.Builder.of(Display.ItemDisplay::new, MobCategory.MISC).noLootTable().sized(0.0F, 0.0F).clientTrackingRange(10).updateInterval(1));
-<ItemFrame> ITEM_FRAME: "item_frame",EntityType.Builder.<ItemFrame>of(ItemFrame::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.0F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-<Boat> JUNGLE_BOAT: "jungle_boat",EntityType.Builder.of(boatFactory(() -> Items.JUNGLE_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> JUNGLE_CHEST_BOAT: "jungle_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.JUNGLE_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<LeashFenceKnotEntity> LEASH_KNOT: "leash_knot",EntityType.Builder.<LeashFenceKnotEntity>of(LeashFenceKnotEntity::new, MobCategory.MISC).noLootTable().noSave().sized(0.375F, 0.5F).eyeHeight(0.0625F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-<LightningBolt> LIGHTNING_BOLT: "lightning_bolt",EntityType.Builder.of(LightningBolt::new, MobCategory.MISC).noLootTable().noSave().sized(0.0F, 0.0F).clientTrackingRange(16).updateInterval(Integer.MAX_VALUE));
-<Llama> LLAMA: "llama",EntityType.Builder.of(Llama::new, MobCategory.CREATURE).sized(0.9F, 1.87F).eyeHeight(1.7765F).passengerAttachments(new Vec3(0.0, 1.37, -0.3)).clientTrackingRange(10));
-<LlamaSpit> LLAMA_SPIT: "llama_spit", EntityType.Builder.<LlamaSpit>of(LlamaSpit::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<MagmaCube> MAGMA_CUBE: "magma_cube",EntityType.Builder.of(MagmaCube::new, MobCategory.MONSTER).fireImmune().sized(0.52F, 0.52F).eyeHeight(0.325F).spawnDimensionsScale(4.0F).clientTrackingRange(8));
-<Boat> MANGROVE_BOAT: "mangrove_boat",EntityType.Builder.of(boatFactory(() -> Items.MANGROVE_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> MANGROVE_CHEST_BOAT: "mangrove_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.MANGROVE_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Marker> MARKER: "marker", EntityType.Builder.of(Marker::new, MobCategory.MISC).noLootTable().sized(0.0F, 0.0F).clientTrackingRange(0));
-<Minecart> MINECART: "minecart", EntityType.Builder.of(Minecart::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<MushroomCow> MOOSHROOM: "mooshroom",EntityType.Builder.of(MushroomCow::new, MobCategory.CREATURE).sized(0.9F, 1.4F).eyeHeight(1.3F).passengerAttachments(1.36875F).clientTrackingRange(10));
-<Mule> MULE: "mule", EntityType.Builder.of(Mule::new, MobCategory.CREATURE).sized(1.3964844F, 1.6F).eyeHeight(1.52F).passengerAttachments(1.2125F).clientTrackingRange(8));
-<Boat> OAK_BOAT: "oak_boat",EntityType.Builder.of(boatFactory(() -> Items.OAK_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> OAK_CHEST_BOAT: "oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.OAK_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Ocelot> OCELOT: "ocelot", EntityType.Builder.of(Ocelot::new, MobCategory.CREATURE).sized(0.6F, 0.7F).passengerAttachments(0.6375F).clientTrackingRange(10));
-<OminousItemSpawner> OMINOUS_ITEM_SPAWNER: "ominous_item_spawner", EntityType.Builder.of(OminousItemSpawner::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(8));
-<Painting> PAINTING: "painting",EntityType.Builder.<Painting>of(Painting::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE));
-<Boat> PALE_OAK_BOAT: "pale_oak_boat",EntityType.Builder.of(boatFactory(() -> Items.PALE_OAK_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> PALE_OAK_CHEST_BOAT: "pale_oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.PALE_OAK_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Panda> PANDA: "panda", EntityType.Builder.of(Panda::new, MobCategory.CREATURE).sized(1.3F, 1.25F).clientTrackingRange(10));
-<Parrot> PARROT: "parrot", EntityType.Builder.of(Parrot::new, MobCategory.CREATURE).sized(0.5F, 0.9F).eyeHeight(0.54F).passengerAttachments(0.4625F).clientTrackingRange(8));
-<Phantom> PHANTOM: "phantom",EntityType.Builder.of(Phantom::new, MobCategory.MONSTER).sized(0.9F, 0.5F).eyeHeight(0.175F).passengerAttachments(0.3375F).ridingOffset(-0.125F).clientTrackingRange(8));
-<Pig> PIG: "pig", EntityType.Builder.of(Pig::new, MobCategory.CREATURE).sized(0.9F, 0.9F).passengerAttachments(0.86875F).clientTrackingRange(10));
-<Piglin> PIGLIN: "piglin",EntityType.Builder.of(Piglin::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.79F).passengerAttachments(2.0125F).ridingOffset(-0.7F).clientTrackingRange(8));
-<PiglinBrute> PIGLIN_BRUTE: "piglin_brute",EntityType.Builder.of(PiglinBrute::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.79F).passengerAttachments(2.0125F).ridingOffset(-0.7F).clientTrackingRange(8));
-<Pillager> PILLAGER: "pillager",EntityType.Builder.of(Pillager::new, MobCategory.MONSTER).canSpawnFarFromPlayer().sized(0.6F, 1.95F).passengerAttachments(2.0F).ridingOffset(-0.6F).clientTrackingRange(8));
-<PolarBear> POLAR_BEAR: "polar_bear", EntityType.Builder.of(PolarBear::new, MobCategory.CREATURE).immuneTo(Blocks.POWDER_SNOW).sized(1.4F, 1.4F).clientTrackingRange(10));
-<ThrownSplashPotion> SPLASH_POTION: "splash_potion",EntityType.Builder.<ThrownSplashPotion>of(ThrownSplashPotion::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<ThrownLingeringPotion> LINGERING_POTION: "lingering_potion",EntityType.Builder.<ThrownLingeringPotion>of(ThrownLingeringPotion::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<Pufferfish> PUFFERFISH: "pufferfish", EntityType.Builder.of(Pufferfish::new, MobCategory.WATER_AMBIENT).sized(0.7F, 0.7F).eyeHeight(0.455F).clientTrackingRange(4));
-<Rabbit> RABBIT: "rabbit", EntityType.Builder.of(Rabbit::new, MobCategory.CREATURE).sized(0.4F, 0.5F).clientTrackingRange(8));
-<Ravager> RAVAGER: "ravager",EntityType.Builder.of(Ravager::new, MobCategory.MONSTER).sized(1.95F, 2.2F).passengerAttachments(new Vec3(0.0, 2.2625, -0.0625)).clientTrackingRange(10));
-<Salmon> SALMON: "salmon", EntityType.Builder.of(Salmon::new, MobCategory.WATER_AMBIENT).sized(0.7F, 0.4F).eyeHeight(0.26F).clientTrackingRange(4));
-<Sheep> SHEEP: "sheep", EntityType.Builder.of(Sheep::new, MobCategory.CREATURE).sized(0.9F, 1.3F).eyeHeight(1.235F).passengerAttachments(1.2375F).clientTrackingRange(10));
-<Shulker> SHULKER: "shulker",EntityType.Builder.of(Shulker::new, MobCategory.MONSTER).fireImmune().canSpawnFarFromPlayer().sized(1.0F, 1.0F).eyeHeight(0.5F).clientTrackingRange(10));
-<ShulkerBullet> SHULKER_BULLET: "shulker_bullet", EntityType.Builder.<ShulkerBullet>of(ShulkerBullet::new, MobCategory.MISC).noLootTable().sized(0.3125F, 0.3125F).clientTrackingRange(8));
-<Silverfish> SILVERFISH: "silverfish",EntityType.Builder.of(Silverfish::new, MobCategory.MONSTER).sized(0.4F, 0.3F).eyeHeight(0.13F).passengerAttachments(0.2375F).clientTrackingRange(8));
-<Skeleton> SKELETON: "skeleton", EntityType.Builder.of(Skeleton::new, MobCategory.MONSTER).sized(0.6F, 1.99F).eyeHeight(1.74F).ridingOffset(-0.7F).clientTrackingRange(8));
-<SkeletonHorse> SKELETON_HORSE: "skeleton_horse",EntityType.Builder.of(SkeletonHorse::new, MobCategory.CREATURE).sized(1.3964844F, 1.6F).eyeHeight(1.52F).passengerAttachments(1.31875F).clientTrackingRange(10));
-<Slime> SLIME: "slime", EntityType.Builder.of(Slime::new, MobCategory.MONSTER).sized(0.52F, 0.52F).eyeHeight(0.325F).spawnDimensionsScale(4.0F).clientTrackingRange(10));
-<SmallFireball> SMALL_FIREBALL: "small_fireball",EntityType.Builder.<SmallFireball>of(SmallFireball::new, MobCategory.MISC).noLootTable().sized(0.3125F, 0.3125F).clientTrackingRange(4).updateInterval(10));
-<Sniffer> SNIFFER: "sniffer",EntityType.Builder.of(Sniffer::new, MobCategory.CREATURE).sized(1.9F, 1.75F).eyeHeight(1.05F).passengerAttachments(2.09375F).nameTagOffset(2.05F).clientTrackingRange(10));
-<Snowball> SNOWBALL: "snowball", EntityType.Builder.<Snowball>of(Snowball::new, MobCategory.MISC).noLootTable().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
-<SnowGolem> SNOW_GOLEM: "snow_golem", EntityType.Builder.of(SnowGolem::new, MobCategory.MISC).immuneTo(Blocks.POWDER_SNOW).sized(0.7F, 1.9F).eyeHeight(1.7F).clientTrackingRange(8));
-<MinecartSpawner> SPAWNER_MINECART: "spawner_minecart",EntityType.Builder.of(MinecartSpawner::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<SpectralArrow> SPECTRAL_ARROW: "spectral_arrow",EntityType.Builder.<SpectralArrow>of(SpectralArrow::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20));
-<Spider> SPIDER: "spider", EntityType.Builder.of(Spider::new, MobCategory.MONSTER).sized(1.4F, 0.9F).eyeHeight(0.65F).passengerAttachments(0.765F).clientTrackingRange(8));
-<Boat> SPRUCE_BOAT: "spruce_boat",EntityType.Builder.of(boatFactory(() -> Items.SPRUCE_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<ChestBoat> SPRUCE_CHEST_BOAT: "spruce_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.SPRUCE_CHEST_BOAT), MobCategory.MISC).noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
-<Squid> SQUID: "squid", EntityType.Builder.of(Squid::new, MobCategory.WATER_CREATURE).sized(0.8F, 0.8F).eyeHeight(0.4F).clientTrackingRange(8));
-<Stray> STRAY: "stray",EntityType.Builder.of(Stray::new, MobCategory.MONSTER).sized(0.6F, 1.99F).eyeHeight(1.74F).ridingOffset(-0.7F).immuneTo(Blocks.POWDER_SNOW).clientTrackingRange(8));
-<Strider> STRIDER: "strider", EntityType.Builder.of(Strider::new, MobCategory.CREATURE).fireImmune().sized(0.9F, 1.7F).clientTrackingRange(10));
-<Tadpole> TADPOLE: "tadpole", EntityType.Builder.of(Tadpole::new, MobCategory.CREATURE).sized(0.4F, 0.3F).eyeHeight(0.19500001F).clientTrackingRange(10));
-<PrimedTnt> TNT: "tnt",EntityType.Builder.<PrimedTnt>of(PrimedTnt::new, MobCategory.MISC).noLootTable().fireImmune().sized(0.98F, 0.98F).eyeHeight(0.15F).clientTrackingRange(10).updateInterval(10));
-<MinecartTNT> TNT_MINECART: "tnt_minecart",EntityType.Builder.of(MinecartTNT::new, MobCategory.MISC).noLootTable().sized(0.98F, 0.7F).passengerAttachments(0.1875F).clientTrackingRange(8));
-<TraderLlama> TRADER_LLAMA: "trader_llama",EntityType.Builder.of(TraderLlama::new, MobCategory.CREATURE).sized(0.9F, 1.87F).eyeHeight(1.7765F).passengerAttachments(new Vec3(0.0, 1.37, -0.3)).clientTrackingRange(10));
-<ThrownTrident> TRIDENT: "trident",EntityType.Builder.<ThrownTrident>of(ThrownTrident::new, MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20));
-<TropicalFish> TROPICAL_FISH: "tropical_fish", EntityType.Builder.of(TropicalFish::new, MobCategory.WATER_AMBIENT).sized(0.5F, 0.4F).eyeHeight(0.26F).clientTrackingRange(4));
-<Turtle> TURTLE: "turtle",EntityType.Builder.of(Turtle::new, MobCategory.CREATURE).sized(1.2F, 0.4F).passengerAttachments(new Vec3(0.0, 0.55625, -0.25)).clientTrackingRange(10));
-<Vex> VEX: "vex",EntityType.Builder.of(Vex::new, MobCategory.MONSTER).fireImmune().sized(0.4F, 0.8F).eyeHeight(0.51875F).passengerAttachments(0.7375F).ridingOffset(0.04F).clientTrackingRange(8));
-<Villager> VILLAGER: "villager", EntityType.Builder.<Villager>of(Villager::new, MobCategory.MISC).sized(0.6F, 1.95F).eyeHeight(1.62F).clientTrackingRange(10));
-<Vindicator> VINDICATOR: "vindicator",EntityType.Builder.of(Vindicator::new, MobCategory.MONSTER).sized(0.6F, 1.95F).passengerAttachments(2.0F).ridingOffset(-0.6F).clientTrackingRange(8));
-<WanderingTrader> WANDERING_TRADER: "wandering_trader", EntityType.Builder.of(WanderingTrader::new, MobCategory.CREATURE).sized(0.6F, 1.95F).eyeHeight(1.62F).clientTrackingRange(10));
-<Warden> WARDEN: "warden",EntityType.Builder.of(Warden::new, MobCategory.MONSTER).sized(0.9F, 2.9F).passengerAttachments(3.15F).attach(EntityAttachment.WARDEN_CHEST, 0.0F, 1.6F, 0.0F).clientTrackingRange(16).fireImmune());
-<WindCharge> WIND_CHARGE: "wind_charge",EntityType.Builder.<WindCharge>of(WindCharge::new, MobCategory.MISC).noLootTable().sized(0.3125F, 0.3125F).eyeHeight(0.0F).clientTrackingRange(4).updateInterval(10));
-<Witch> WITCH: "witch", EntityType.Builder.of(Witch::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.62F).passengerAttachments(2.2625F).clientTrackingRange(8));
-<WitherBoss> WITHER: "wither", EntityType.Builder.of(WitherBoss::new, MobCategory.MONSTER).fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.9F, 3.5F).clientTrackingRange(10));
-<WitherSkeleton> WITHER_SKELETON: "wither_skeleton",EntityType.Builder.of(WitherSkeleton::new, MobCategory.MONSTER).fireImmune().immuneTo(Blocks.WITHER_ROSE).sized(0.7F, 2.4F).eyeHeight(2.1F).ridingOffset(-0.875F).clientTrackingRange(8));
-<WitherSkull> WITHER_SKULL: "wither_skull",EntityType.Builder.<WitherSkull>of(WitherSkull::new, MobCategory.MISC).noLootTable().sized(0.3125F, 0.3125F).clientTrackingRange(4).updateInterval(10));
-<Wolf> WOLF: "wolf",EntityType.Builder.of(Wolf::new, MobCategory.CREATURE).sized(0.6F, 0.85F).eyeHeight(0.68F).passengerAttachments(new Vec3(0.0, 0.81875, -0.0625)).clientTrackingRange(10));
-<Zoglin> ZOGLIN: "zoglin", EntityType.Builder.of(Zoglin::new, MobCategory.MONSTER).fireImmune().sized(1.3964844F, 1.4F).passengerAttachments(1.49375F).clientTrackingRange(8));
-<Zombie> ZOMBIE: "zombie",EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER).sized(0.6F, 1.95F).eyeHeight(1.74F).passengerAttachments(2.0125F).ridingOffset(-0.7F).clientTrackingRange(8));
-<ZombieHorse> ZOMBIE_HORSE: "zombie_horse",EntityType.Builder.of(ZombieHorse::new, MobCategory.CREATURE).sized(1.3964844F, 1.6F).eyeHeight(1.52F).passengerAttachments(1.31875F).clientTrackingRange(10));
-<ZombieVillager> ZOMBIE_VILLAGER: "zombie_villager",EntityType.Builder.of(ZombieVillager::new, MobCategory.MONSTER).sized(0.6F, 1.95F).passengerAttachments(2.125F).ridingOffset(-0.7F).eyeHeight(1.74F).clientTrackingRange(8));
-<ZombifiedPiglin> ZOMBIFIED_PIGLIN: "zombified_piglin",EntityType.Builder.of(ZombifiedPiglin::new, MobCategory.MONSTER).fireImmune().sized(0.6F, 1.95F).eyeHeight(1.79F).passengerAttachments(2.0F).ridingOffset(-0.7F).clientTrackingRange(8));
-<Player> PLAYER: "player",EntityType.Builder.<Player>createNothing(MobCategory.MISC).noSave().noSummon().sized(0.6F, 1.8F).eyeHeight(1.62F).vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT).clientTrackingRange(32).updateInterval(2));
-<FishingHook> FISHING_BOBBER: "fishing_bobber",EntityType.Builder.<FishingHook>of(FishingHook::new, MobCategory.MISC).noLootTable().noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5));
+<Boat> ACACIA_BOAT: "acacia_boat",EntityType.Builder.of(boatFactory(() -> Items.ACACIA_BOAT), MobCategory.MISC)
+<ChestBoat> ACACIA_CHEST_BOAT: "acacia_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.ACACIA_CHEST_BOAT), MobCategory.MISC)
+<Allay> ALLAY: "allay",EntityType.Builder.of(Allay::new, MobCategory.CREATURE)
+<AreaEffectCloud> AREA_EFFECT_CLOUD: "area_effect_cloud",EntityType.Builder.<AreaEffectCloud>of(AreaEffectCloud::new, MobCategory.MISC)
+<Armadillo> ARMADILLO: "armadillo", EntityType.Builder.of(Armadillo::new, MobCategory.CREATURE)
+<ArmorStand> ARMOR_STAND: "armor_stand", EntityType.Builder.<ArmorStand>of(ArmorStand::new, MobCategory.MISC)
+<Arrow> ARROW: "arrow",EntityType.Builder.<Arrow>of(Arrow::new, MobCategory.MISC)
+<Axolotl> AXOLOTL: "axolotl", EntityType.Builder.of(Axolotl::new, MobCategory.AXOLOTLS)
+<ChestRaft> BAMBOO_CHEST_RAFT: "bamboo_chest_raft",EntityType.Builder.of(chestRaftFactory(() -> Items.BAMBOO_CHEST_RAFT), MobCategory.MISC)
+<Raft> BAMBOO_RAFT: "bamboo_raft",EntityType.Builder.of(raftFactory(() -> Items.BAMBOO_RAFT), MobCategory.MISC)
+<Bat> BAT: "bat", EntityType.Builder.of(Bat::new, MobCategory.AMBIENT)
+<Bee> BEE: "bee", EntityType.Builder.of(Bee::new, MobCategory.CREATURE)
+<Boat> BIRCH_BOAT: "birch_boat",EntityType.Builder.of(boatFactory(() -> Items.BIRCH_BOAT), MobCategory.MISC)
+<ChestBoat> BIRCH_CHEST_BOAT: "birch_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.BIRCH_CHEST_BOAT), MobCategory.MISC)
+<Blaze> BLAZE: "blaze", EntityType.Builder.of(Blaze::new, MobCategory.MONSTER)
+<Bogged> BOGGED: "bogged", EntityType.Builder.of(Bogged::new, MobCategory.MONSTER)
+<Breeze> BREEZE: "breeze", EntityType.Builder.of(Breeze::new, MobCategory.MONSTER)
+<BreezeWindCharge> BREEZE_WIND_CHARGE: "breeze_wind_charge",EntityType.Builder.<BreezeWindCharge>of(BreezeWindCharge::new, MobCategory.MISC)
+<Camel> CAMEL: "camel", EntityType.Builder.of(Camel::new, MobCategory.CREATURE)
+<Cat> CAT: "cat", EntityType.Builder.of(Cat::new, MobCategory.CREATURE)
+<CaveSpider> CAVE_SPIDER: "cave_spider", EntityType.Builder.of(CaveSpider::new, MobCategory.MONSTER)
+<Boat> CHERRY_BOAT: "cherry_boat",EntityType.Builder.of(boatFactory(() -> Items.CHERRY_BOAT), MobCategory.MISC)
+<ChestBoat> CHERRY_CHEST_BOAT: "cherry_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.CHERRY_CHEST_BOAT), MobCategory.MISC)
+<MinecartChest> CHEST_MINECART: "chest_minecart",EntityType.Builder.of(MinecartChest::new, MobCategory.MISC)
+<Chicken> CHICKEN: "chicken",EntityType.Builder.of(Chicken::new, MobCategory.CREATURE)
+<Cod> COD: "cod", EntityType.Builder.of(Cod::new, MobCategory.WATER_AMBIENT)
+<MinecartCommandBlock> COMMAND_BLOCK_MINECART: "command_block_minecart",EntityType.Builder.of(MinecartCommandBlock::new, MobCategory.MISC)
+<Cow> COW: "cow", EntityType.Builder.of(Cow::new, MobCategory.CREATURE)
+<Creaking> CREAKING: "creaking", EntityType.Builder.of(Creaking::new, MobCategory.MONSTER)
+<Creeper> CREEPER: "creeper", EntityType.Builder.of(Creeper::new, MobCategory.MONSTER)
+<Boat> DARK_OAK_BOAT: "dark_oak_boat",EntityType.Builder.of(boatFactory(() -> Items.DARK_OAK_BOAT), MobCategory.MISC)
+<ChestBoat> DARK_OAK_CHEST_BOAT: "dark_oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.DARK_OAK_CHEST_BOAT), MobCategory.MISC)
+<Dolphin> DOLPHIN: "dolphin", EntityType.Builder.of(Dolphin::new, MobCategory.WATER_CREATURE)
+<Donkey> DONKEY: "donkey",EntityType.Builder.of(Donkey::new, MobCategory.CREATURE)
+<DragonFireball> DRAGON_FIREBALL: "dragon_fireball",EntityType.Builder.<DragonFireball>of(DragonFireball::new, MobCategory.MISC)
+<Drowned> DROWNED: "drowned",EntityType.Builder.of(Drowned::new, MobCategory.MONSTER)
+<ThrownEgg> EGG: "egg", EntityType.Builder.<ThrownEgg>of(ThrownEgg::new, MobCategory.MISC)
+<ElderGuardian> ELDER_GUARDIAN: "elder_guardian",EntityType.Builder.of(ElderGuardian::new, MobCategory.MONSTER)
+<EnderMan> ENDERMAN: "enderman",EntityType.Builder.of(EnderMan::new, MobCategory.MONSTER)
+<Endermite> ENDERMITE: "endermite",EntityType.Builder.of(Endermite::new, MobCategory.MONSTER)
+<EnderDragon> ENDER_DRAGON: "ender_dragon",EntityType.Builder.of(EnderDragon::new, MobCategory.MONSTER)
+<ThrownEnderpearl> ENDER_PEARL: "ender_pearl",EntityType.Builder.<ThrownEnderpearl>of(ThrownEnderpearl::new, MobCategory.MISC)
+<EndCrystal> END_CRYSTAL: "end_crystal",EntityType.Builder.<EndCrystal>of(EndCrystal::new, MobCategory.MISC)
+<Evoker> EVOKER: "evoker", EntityType.Builder.of(Evoker::new, MobCategory.MONSTER)
+<EvokerFangs> EVOKER_FANGS: "evoker_fangs",EntityType.Builder.<EvokerFangs>of(EvokerFangs::new, MobCategory.MISC)
+<ThrownExperienceBottle> EXPERIENCE_BOTTLE: "experience_bottle",EntityType.Builder.<ThrownExperienceBottle>of(ThrownExperienceBottle::new, MobCategory.MISC)
+<ExperienceOrb> EXPERIENCE_ORB: "experience_orb",EntityType.Builder.<ExperienceOrb>of(ExperienceOrb::new, MobCategory.MISC)
+<EyeOfEnder> EYE_OF_ENDER: "eye_of_ender",EntityType.Builder.<EyeOfEnder>of(EyeOfEnder::new, MobCategory.MISC)
+<FallingBlockEntity> FALLING_BLOCK: "falling_block",EntityType.Builder.<FallingBlockEntity>of(FallingBlockEntity::new, MobCategory.MISC)
+<LargeFireball> FIREBALL: "fireball",EntityType.Builder.<LargeFireball>of(LargeFireball::new, MobCategory.MISC)
+<FireworkRocketEntity> FIREWORK_ROCKET: "firework_rocket",EntityType.Builder.<FireworkRocketEntity>of(FireworkRocketEntity::new, MobCategory.MISC)
+<Fox> FOX: "fox",EntityType.Builder.of(Fox::new, MobCategory.CREATURE)
+<Frog> FROG: "frog", EntityType.Builder.of(Frog::new, MobCategory.CREATURE)
+<MinecartFurnace> FURNACE_MINECART: "furnace_minecart",EntityType.Builder.of(MinecartFurnace::new, MobCategory.MISC)
+<Ghast> GHAST: "ghast",EntityType.Builder.of(Ghast::new, MobCategory.MONSTER)
+<Giant> GIANT: "giant", EntityType.Builder.of(Giant::new, MobCategory.MONSTER)
+<GlowItemFrame> GLOW_ITEM_FRAME: "glow_item_frame",EntityType.Builder.<GlowItemFrame>of(GlowItemFrame::new, MobCategory.MISC)
+<GlowSquid> GLOW_SQUID: "glow_squid", EntityType.Builder.of(GlowSquid::new, MobCategory.UNDERGROUND_WATER_CREATURE)
+<Goat> GOAT: "goat", EntityType.Builder.of(Goat::new, MobCategory.CREATURE)
+<Guardian> GUARDIAN: "guardian",EntityType.Builder.of(Guardian::new, MobCategory.MONSTER)
+<Hoglin> HOGLIN: "hoglin", EntityType.Builder.of(Hoglin::new, MobCategory.MONSTER)
+<MinecartHopper> HOPPER_MINECART: "hopper_minecart",EntityType.Builder.of(MinecartHopper::new, MobCategory.MISC)
+<Horse> HORSE: "horse",EntityType.Builder.of(Horse::new, MobCategory.CREATURE)
+<Husk> HUSK: "husk",EntityType.Builder.of(Husk::new, MobCategory.MONSTER)
+<Illusioner> ILLUSIONER: "illusioner",EntityType.Builder.of(Illusioner::new, MobCategory.MONSTER)
+<Interaction> INTERACTION: "interaction", EntityType.Builder.of(Interaction::new, MobCategory.MISC)
+<IronGolem> IRON_GOLEM: "iron_golem", EntityType.Builder.of(IronGolem::new, MobCategory.MISC)
+<ItemEntity> ITEM: "item",EntityType.Builder.<ItemEntity>of(ItemEntity::new, MobCategory.MISC)
+<Display.ItemDisplay> ITEM_DISPLAY: "item_display", EntityType.Builder.of(Display.ItemDisplay::new, MobCategory.MISC)
+<ItemFrame> ITEM_FRAME: "item_frame",EntityType.Builder.<ItemFrame>of(ItemFrame::new, MobCategory.MISC)
+<Boat> JUNGLE_BOAT: "jungle_boat",EntityType.Builder.of(boatFactory(() -> Items.JUNGLE_BOAT), MobCategory.MISC)
+<ChestBoat> JUNGLE_CHEST_BOAT: "jungle_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.JUNGLE_CHEST_BOAT), MobCategory.MISC)
+<LeashFenceKnotEntity> LEASH_KNOT: "leash_knot",EntityType.Builder.<LeashFenceKnotEntity>of(LeashFenceKnotEntity::new, MobCategory.MISC)
+<LightningBolt> LIGHTNING_BOLT: "lightning_bolt",EntityType.Builder.of(LightningBolt::new, MobCategory.MISC)
+<Llama> LLAMA: "llama",EntityType.Builder.of(Llama::new, MobCategory.CREATURE)
+<LlamaSpit> LLAMA_SPIT: "llama_spit", EntityType.Builder.<LlamaSpit>of(LlamaSpit::new, MobCategory.MISC)
+<MagmaCube> MAGMA_CUBE: "magma_cube",EntityType.Builder.of(MagmaCube::new, MobCategory.MONSTER)
+<Boat> MANGROVE_BOAT: "mangrove_boat",EntityType.Builder.of(boatFactory(() -> Items.MANGROVE_BOAT), MobCategory.MISC)
+<ChestBoat> MANGROVE_CHEST_BOAT: "mangrove_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.MANGROVE_CHEST_BOAT), MobCategory.MISC)
+<Marker> MARKER: "marker", EntityType.Builder.of(Marker::new, MobCategory.MISC)
+<Minecart> MINECART: "minecart", EntityType.Builder.of(Minecart::new, MobCategory.MISC)
+<MushroomCow> MOOSHROOM: "mooshroom",EntityType.Builder.of(MushroomCow::new, MobCategory.CREATURE)
+<Mule> MULE: "mule", EntityType.Builder.of(Mule::new, MobCategory.CREATURE)
+<Boat> OAK_BOAT: "oak_boat",EntityType.Builder.of(boatFactory(() -> Items.OAK_BOAT), MobCategory.MISC)
+<ChestBoat> OAK_CHEST_BOAT: "oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.OAK_CHEST_BOAT), MobCategory.MISC)
+<Ocelot> OCELOT: "ocelot", EntityType.Builder.of(Ocelot::new, MobCategory.CREATURE)
+<OminousItemSpawner> OMINOUS_ITEM_SPAWNER: "ominous_item_spawner", EntityType.Builder.of(OminousItemSpawner::new, MobCategory.MISC)
+<Painting> PAINTING: "painting",EntityType.Builder.<Painting>of(Painting::new, MobCategory.MISC)
+<Boat> PALE_OAK_BOAT: "pale_oak_boat",EntityType.Builder.of(boatFactory(() -> Items.PALE_OAK_BOAT), MobCategory.MISC)
+<ChestBoat> PALE_OAK_CHEST_BOAT: "pale_oak_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.PALE_OAK_CHEST_BOAT), MobCategory.MISC)
+<Panda> PANDA: "panda", EntityType.Builder.of(Panda::new, MobCategory.CREATURE)
+<Parrot> PARROT: "parrot", EntityType.Builder.of(Parrot::new, MobCategory.CREATURE)
+<Phantom> PHANTOM: "phantom",EntityType.Builder.of(Phantom::new, MobCategory.MONSTER)
+<Pig> PIG: "pig", EntityType.Builder.of(Pig::new, MobCategory.CREATURE)
+<Piglin> PIGLIN: "piglin",EntityType.Builder.of(Piglin::new, MobCategory.MONSTER)
+<PiglinBrute> PIGLIN_BRUTE: "piglin_brute",EntityType.Builder.of(PiglinBrute::new, MobCategory.MONSTER)
+<Pillager> PILLAGER: "pillager",EntityType.Builder.of(Pillager::new, MobCategory.MONSTER)
+<PolarBear> POLAR_BEAR: "polar_bear", EntityType.Builder.of(PolarBear::new, MobCategory.CREATURE)
+<ThrownSplashPotion> SPLASH_POTION: "splash_potion",EntityType.Builder.<ThrownSplashPotion>of(ThrownSplashPotion::new, MobCategory.MISC)
+<ThrownLingeringPotion> LINGERING_POTION: "lingering_potion",EntityType.Builder.<ThrownLingeringPotion>of(ThrownLingeringPotion::new, MobCategory.MISC)
+<Pufferfish> PUFFERFISH: "pufferfish", EntityType.Builder.of(Pufferfish::new, MobCategory.WATER_AMBIENT)
+<Rabbit> RABBIT: "rabbit", EntityType.Builder.of(Rabbit::new, MobCategory.CREATURE)
+<Ravager> RAVAGER: "ravager",EntityType.Builder.of(Ravager::new, MobCategory.MONSTER)
+<Salmon> SALMON: "salmon", EntityType.Builder.of(Salmon::new, MobCategory.WATER_AMBIENT)
+<Sheep> SHEEP: "sheep", EntityType.Builder.of(Sheep::new, MobCategory.CREATURE)
+<Shulker> SHULKER: "shulker",EntityType.Builder.of(Shulker::new, MobCategory.MONSTER)
+<ShulkerBullet> SHULKER_BULLET: "shulker_bullet", EntityType.Builder.<ShulkerBullet>of(ShulkerBullet::new, MobCategory.MISC)
+<Silverfish> SILVERFISH: "silverfish",EntityType.Builder.of(Silverfish::new, MobCategory.MONSTER)
+<Skeleton> SKELETON: "skeleton", EntityType.Builder.of(Skeleton::new, MobCategory.MONSTER)
+<SkeletonHorse> SKELETON_HORSE: "skeleton_horse",EntityType.Builder.of(SkeletonHorse::new, MobCategory.CREATURE)
+<Slime> SLIME: "slime", EntityType.Builder.of(Slime::new, MobCategory.MONSTER)
+<SmallFireball> SMALL_FIREBALL: "small_fireball",EntityType.Builder.<SmallFireball>of(SmallFireball::new, MobCategory.MISC)
+<Sniffer> SNIFFER: "sniffer",EntityType.Builder.of(Sniffer::new, MobCategory.CREATURE)
+<Snowball> SNOWBALL: "snowball", EntityType.Builder.<Snowball>of(Snowball::new, MobCategory.MISC)
+<SnowGolem> SNOW_GOLEM: "snow_golem", EntityType.Builder.of(SnowGolem::new, MobCategory.MISC)
+<MinecartSpawner> SPAWNER_MINECART: "spawner_minecart",EntityType.Builder.of(MinecartSpawner::new, MobCategory.MISC)
+<SpectralArrow> SPECTRAL_ARROW: "spectral_arrow",EntityType.Builder.<SpectralArrow>of(SpectralArrow::new, MobCategory.MISC)
+<Spider> SPIDER: "spider", EntityType.Builder.of(Spider::new, MobCategory.MONSTER)
+<Boat> SPRUCE_BOAT: "spruce_boat",EntityType.Builder.of(boatFactory(() -> Items.SPRUCE_BOAT), MobCategory.MISC)
+<ChestBoat> SPRUCE_CHEST_BOAT: "spruce_chest_boat",EntityType.Builder.of(chestBoatFactory(() -> Items.SPRUCE_CHEST_BOAT), MobCategory.MISC)
+<Squid> SQUID: "squid", EntityType.Builder.of(Squid::new, MobCategory.WATER_CREATURE)
+<Stray> STRAY: "stray",EntityType.Builder.of(Stray::new, MobCategory.MONSTER)
+<Strider> STRIDER: "strider", EntityType.Builder.of(Strider::new, MobCategory.CREATURE)
+<Tadpole> TADPOLE: "tadpole", EntityType.Builder.of(Tadpole::new, MobCategory.CREATURE)
+<PrimedTnt> TNT: "tnt",EntityType.Builder.<PrimedTnt>of(PrimedTnt::new, MobCategory.MISC)
+<MinecartTNT> TNT_MINECART: "tnt_minecart",EntityType.Builder.of(MinecartTNT::new, MobCategory.MISC)
+<TraderLlama> TRADER_LLAMA: "trader_llama",EntityType.Builder.of(TraderLlama::new, MobCategory.CREATURE)
+<ThrownTrident> TRIDENT: "trident",EntityType.Builder.<ThrownTrident>of(ThrownTrident::new, MobCategory.MISC)
+<TropicalFish> TROPICAL_FISH: "tropical_fish", EntityType.Builder.of(TropicalFish::new, MobCategory.WATER_AMBIENT)
+<Turtle> TURTLE: "turtle",EntityType.Builder.of(Turtle::new, MobCategory.CREATURE)
+<Vex> VEX: "vex",EntityType.Builder.of(Vex::new, MobCategory.MONSTER)
+<Villager> VILLAGER: "villager", EntityType.Builder.<Villager>of(Villager::new, MobCategory.MISC)
+<Vindicator> VINDICATOR: "vindicator",EntityType.Builder.of(Vindicator::new, MobCategory.MONSTER)
+<WanderingTrader> WANDERING_TRADER: "wandering_trader", EntityType.Builder.of(WanderingTrader::new, MobCategory.CREATURE)
+<Warden> WARDEN: "warden",EntityType.Builder.of(Warden::new, MobCategory.MONSTER)
+<WindCharge> WIND_CHARGE: "wind_charge",EntityType.Builder.<WindCharge>of(WindCharge::new, MobCategory.MISC)
+<Witch> WITCH: "witch", EntityType.Builder.of(Witch::new, MobCategory.MONSTER)
+<WitherBoss> WITHER: "wither", EntityType.Builder.of(WitherBoss::new, MobCategory.MONSTER)
+<WitherSkeleton> WITHER_SKELETON: "wither_skeleton",EntityType.Builder.of(WitherSkeleton::new, MobCategory.MONSTER)
+<WitherSkull> WITHER_SKULL: "wither_skull",EntityType.Builder.<WitherSkull>of(WitherSkull::new, MobCategory.MISC)
+<Wolf> WOLF: "wolf",EntityType.Builder.of(Wolf::new, MobCategory.CREATURE)
+<Zoglin> ZOGLIN: "zoglin", EntityType.Builder.of(Zoglin::new, MobCategory.MONSTER)
+<Zombie> ZOMBIE: "zombie",EntityType.Builder.<Zombie>of(Zombie::new, MobCategory.MONSTER)
+<ZombieHorse> ZOMBIE_HORSE: "zombie_horse",EntityType.Builder.of(ZombieHorse::new, MobCategory.CREATURE)
+<ZombieVillager> ZOMBIE_VILLAGER: "zombie_villager",EntityType.Builder.of(ZombieVillager::new, MobCategory.MONSTER)
+<ZombifiedPiglin> ZOMBIFIED_PIGLIN: "zombified_piglin",EntityType.Builder.of(ZombifiedPiglin::new, MobCategory.MONSTER)
+<Player> PLAYER: "player",EntityType.Builder.<Player>createNothing(MobCategory.MISC)
+<FishingHook> FISHING_BOBBER: "fishing_bobber",EntityType.Builder.<FishingHook>of(FishingHook::new, MobCategory.MISC)
