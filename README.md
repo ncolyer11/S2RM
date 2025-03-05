@@ -24,8 +24,8 @@ This tool automates the process of converting Litematica material lists into the
 
 ## Usage
 
-1.  Select a Litematica material list (`.txt` or `.json`).
-2.  Process the list.
+1.  Drag & drop or select one or multiple Litematica files (`.litematic`) and/or material lists (`.txt` or `.json`) into the program.
+2.  Hit the `Process` button to compute the raw materials list.
 3.  (Optional) Track collected materials, choose output/ice types, search, or save/load.
 
 If Windows defender keeps quartinting the program like so:
