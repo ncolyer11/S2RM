@@ -91,6 +91,7 @@ def get_latest_minecraft_snapshot():
         return None, None
 
 def download_minecraft_jar(version_id, version_url):
+    """Download the Minecraft version JAR and extract recipes and item JSONs"""
     try:
         version_meta_response = requests.get(version_url)
         version_meta_response.raise_for_status()
@@ -101,20 +102,36 @@ def download_minecraft_jar(version_id, version_url):
         if not download_file(jar_url, jar_path):
             return None
         
+        # Open the JAR file
         with zipfile.ZipFile(jar_path, 'r') as jar:
             os.makedirs('minecraft_downloads/recipe', exist_ok=True)
             
-            # Extract all recipe files
+            # Extract all recipe JSON files
             recipe_files = [
                 f for f in jar.namelist() 
                 if f.startswith('data/minecraft/recipe/') and f.endswith('.json')
             ]
-            for recipe_file in tqdm(recipe_files, desc="Extracting Recipes", colour='green'):
+            for recipe_file in tqdm(recipe_files, desc="Extracting Recipes", colour='blue'):
                 with jar.open(recipe_file) as source, \
                      open(f'minecraft_downloads/recipe/{os.path.basename(recipe_file)}', 'wb') as target:
                     target.write(source.read())
+                    
+            os.makedirs('minecraft_downloads/items', exist_ok=True)
+                    
+            # Extract all item JSON files
+            item_files = [
+                f for f in jar.namelist() 
+                if f.startswith('assets/minecraft/items/') and f.endswith('.json')
+            ]
+            for item_file in tqdm(item_files, desc="Extracting Item JSONs", colour='blue'):
+                with jar.open(item_file) as source, \
+                     open(f'minecraft_downloads/items/{os.path.basename(item_file)}', 'wb') as target:
+                    target.write(source.read())
+            
+            print(f"Extracted {len(item_files)} item JSON files")
         
-        print(f"Successfully downloaded and extracted recipes for version {version_id}\n")
+        
+        print(f"Successfully downloaded and extracted resources for version {version_id}\n")
         return version_id
     
     except Exception as e:
