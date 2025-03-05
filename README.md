@@ -1,8 +1,7 @@
 # S2RM: Schematic to Raw Materials
 Calculates a raw material list from a Litematica material list.txt, extracting recipe data from Minecraft's `.jar` files. "Raw materials" are somewhat subjective.
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5ef31c7d-2b10-46a6-a70f-a731b4fce0c6" width="960">
-</p>
+  <img src="https://github.com/user-attachments/assets/029e0acb-5a0e-484d-8c05-b21323cd4598" width="1000">
 
 ## Tutorial/Showcase Video
 [![Watch the video](https://img.youtube.com/vi/FdPh9KoVuV8/maxresdefault.jpg)](https://youtu.be/FdPh9KoVuV8)
@@ -25,8 +24,8 @@ This tool automates the process of converting Litematica material lists into the
 
 ## Usage
 
-1.  Select a Litematica material list (`.txt` or `.json`).
-2.  Process the list.
+1.  Drag & drop or select one or multiple Litematica files (`.litematic`) and/or material lists (`.txt` or `.json`) into the program.
+2.  Hit the `Process` button to compute the raw materials list.
 3.  (Optional) Track collected materials, choose output/ice types, search, or save/load.
 
 If Windows defender keeps quartinting the program like so:
