@@ -30,11 +30,9 @@ def parse_items_list():
         
         # Get list of item names (filenames without .json)
         items = [
-            os.path.splitext(filename)[0] 
-            for filename in os.listdir(item_dir) 
+            os.path.splitext(filename)[0] for filename in os.listdir(item_dir) 
             if filename.endswith('.json')
         ]
-        
         
         # Sort items by name
         items.sort()
@@ -93,11 +91,14 @@ def parse_entities_list():
 
 def save_json_file(filename, data):
     """
-    Save data to a JSON file in the 'data' directory
+    Save data to a JSON file in the MC_DATA_PATH directory
     
-    Args:
-        filename (str): Name of the output file
-        data (list or dict): Data to be saved as JSON
+    Parameters
+    ----------
+    filename : str
+        Name of the output file
+    data : list or dict
+        Data to be saved as JSON
     """
     try:
         output_path = os.path.join(MC_DATA_PATH, filename)
@@ -139,7 +140,7 @@ def main():
     save_json_file('limited_stack_items.json', items_stack_sizes)
     
     # Clean up downloads directory
-    # cleanup_downloads()
+    cleanup_downloads()
 
 if __name__ == '__main__':
     main()
