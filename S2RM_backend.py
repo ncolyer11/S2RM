@@ -5,7 +5,7 @@ from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
 from constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
-    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE, MATERIALS_TABLE
+    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
 from helpers import add_material, int_to_roman, print_formatted_entity_data
 from itertools import product
 
