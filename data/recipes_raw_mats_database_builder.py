@@ -9,7 +9,7 @@ from collections import defaultdict
 
 
 from helpers import resource_path
-from scripts_to_generate_raw_mats_4_all_items.graph_recipes import build_crafting_graph, \
+from data.graph_recipes import build_crafting_graph, \
     display_graph_sample, list_crafting_recipes
 from constants import BLOCKS_WITHOUT_ITEM, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, PRIORITY_CRAFTING_METHODS, \
     TAGGED_MATERIALS_BASE
