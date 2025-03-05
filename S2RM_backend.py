@@ -1,6 +1,5 @@
 import re
 import os
-import json
 
 from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category

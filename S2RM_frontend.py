@@ -24,6 +24,7 @@ PROGRAM_VERSION = "1.3.2"
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
+# Store relative locations, and column widths, of each table header
 TABLE_HEADERS = {
     "inputs": {
         "Input Material": 230,
@@ -36,13 +37,7 @@ TABLE_HEADERS = {
         "Collected": 85
     },
 }
-
-FILE_LABEL_TEXT = "Select material list file(s):"
-TRUNCATE_LEN = 70
-WINDOW_X = 20
-WINDOW_Y = 20
-WINDOW_WIDTH = 1250
-WINDOW_HEIGHT = 850
+HEADERS_LIST = TABLE_HEADERS["inputs"].keys() + TABLE_HEADERS["outputs"].keys()
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
@@ -52,6 +47,22 @@ RAW_MATERIALS_COL_NUM = 0
 RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = RAW_QUANTITIES_COL_NUM + 1
 
+FILE_LABEL_TEXT = "Select material list file(s):"
+TRUNCATE_LEN = 70
+WINDOW_X = 20
+WINDOW_Y = 20
+WINDOW_WIDTH = 1250
+WINDOW_HEIGHT = 850
+
+# Notes
+# menu to change default path for input files (saves data to persistent config.json file)
+# open window to scroll through all items (with icons) and select which ones should be 'raw' - > would then attempt to Regen the mats list before accepting these changes (catch a recursion error)
+
+# change how the raw mats list is generated to do entity processing then instead of having to redo it everytime an entity is called during runtime. also means u can display all entities and input materials before converting them directly using the raw material json file
+
+# see code camp pyside6 tutorial 5hr 
+# For making new applications (or redoing old ones COUGH stemlight) use qt design studio: https://doc.qt.io/qtdesignstudio/studio-installation.html
+
 class S2RMFrontend(QWidget):
     def __init__(self):
         super().__init__()
@@ -60,9 +71,9 @@ class S2RMFrontend(QWidget):
         self.ice_type = "ice"
         self.file_paths = []
         
-        # Explicitly store table text and table values
-        self.tt = TableCols([], [], [], [], [], [])
+        # Explicitly store table values and table text
         self.tv = TableCols([], [], [], [], [], [])
+        self.tt = TableCols([], [], [], [], [], [])
 
         self.dark_mode = True
         
