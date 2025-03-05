@@ -49,7 +49,7 @@
     ],
     "acacia_hanging_sign": [
         {
-            "item": "stripped_acacia_log",
+            "item": "acacia_log",
             "quantity": 1.0
         },
         {
@@ -375,8 +375,8 @@
     ],
     "bamboo_hanging_sign": [
         {
-            "item": "stripped_bamboo_block",
-            "quantity": 1.0
+            "item": "bamboo",
+            "quantity": 9.0
         },
         {
             "item": "iron_ingot",
@@ -603,7 +603,7 @@
     ],
     "birch_hanging_sign": [
         {
-            "item": "stripped_birch_log",
+            "item": "birch_log",
             "quantity": 1.0
         },
         {
@@ -1479,7 +1479,11 @@
     ],
     "bundle": [
         {
-            "item": "bundle",
+            "item": "leather",
+            "quantity": 1.0
+        },
+        {
+            "item": "string",
             "quantity": 1.0
         }
     ],
@@ -1599,7 +1603,7 @@
     ],
     "carved_pumpkin": [
         {
-            "item": "carved_pumpkin",
+            "item": "pumpkin",
             "quantity": 1.0
         }
     ],
@@ -1713,7 +1717,7 @@
     ],
     "cherry_hanging_sign": [
         {
-            "item": "stripped_cherry_log",
+            "item": "cherry_log",
             "quantity": 1.0
         },
         {
@@ -2351,7 +2355,7 @@
     ],
     "crimson_hanging_sign": [
         {
-            "item": "stripped_crimson_stem",
+            "item": "crimson_stem",
             "quantity": 1.0
         },
         {
@@ -2717,7 +2721,7 @@
     ],
     "dark_oak_hanging_sign": [
         {
-            "item": "stripped_dark_oak_log",
+            "item": "dark_oak_log",
             "quantity": 1.0
         },
         {
@@ -4783,7 +4787,7 @@
     ],
     "jack_o_lantern": [
         {
-            "item": "carved_pumpkin",
+            "item": "pumpkin",
             "quantity": 1.0
         },
         {
@@ -4861,7 +4865,7 @@
     ],
     "jungle_hanging_sign": [
         {
-            "item": "stripped_jungle_log",
+            "item": "jungle_log",
             "quantity": 1.0
         },
         {
@@ -5887,7 +5891,7 @@
     ],
     "mangrove_hanging_sign": [
         {
-            "item": "stripped_mangrove_log",
+            "item": "mangrove_log",
             "quantity": 1.0
         },
         {
@@ -6567,7 +6571,7 @@
     ],
     "oak_hanging_sign": [
         {
-            "item": "stripped_oak_log",
+            "item": "oak_log",
             "quantity": 1.0
         },
         {
@@ -7017,7 +7021,7 @@
     ],
     "pale_oak_hanging_sign": [
         {
-            "item": "stripped_pale_oak_log",
+            "item": "pale_oak_log",
             "quantity": 1.0
         },
         {
@@ -9095,7 +9099,7 @@
     ],
     "spruce_hanging_sign": [
         {
-            "item": "stripped_spruce_log",
+            "item": "spruce_log",
             "quantity": 1.0
         },
         {
@@ -9345,139 +9349,139 @@
     ],
     "stripped_acacia_log": [
         {
-            "item": "stripped_acacia_log",
+            "item": "acacia_log",
             "quantity": 1.0
         }
     ],
     "stripped_acacia_wood": [
         {
-            "item": "stripped_acacia_log",
+            "item": "acacia_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_bamboo_block": [
         {
-            "item": "stripped_bamboo_block",
-            "quantity": 1.0
+            "item": "bamboo",
+            "quantity": 9.0
         }
     ],
     "stripped_birch_log": [
         {
-            "item": "stripped_birch_log",
+            "item": "birch_log",
             "quantity": 1.0
         }
     ],
     "stripped_birch_wood": [
         {
-            "item": "stripped_birch_log",
+            "item": "birch_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_cherry_log": [
         {
-            "item": "stripped_cherry_log",
+            "item": "cherry_log",
             "quantity": 1.0
         }
     ],
     "stripped_cherry_wood": [
         {
-            "item": "stripped_cherry_log",
+            "item": "cherry_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_crimson_hyphae": [
         {
-            "item": "stripped_crimson_stem",
+            "item": "crimson_stem",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_crimson_stem": [
         {
-            "item": "stripped_crimson_stem",
+            "item": "crimson_stem",
             "quantity": 1.0
         }
     ],
     "stripped_dark_oak_log": [
         {
-            "item": "stripped_dark_oak_log",
+            "item": "dark_oak_log",
             "quantity": 1.0
         }
     ],
     "stripped_dark_oak_wood": [
         {
-            "item": "stripped_dark_oak_log",
+            "item": "dark_oak_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_jungle_log": [
         {
-            "item": "stripped_jungle_log",
+            "item": "jungle_log",
             "quantity": 1.0
         }
     ],
     "stripped_jungle_wood": [
         {
-            "item": "stripped_jungle_log",
+            "item": "jungle_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_mangrove_log": [
         {
-            "item": "stripped_mangrove_log",
+            "item": "mangrove_log",
             "quantity": 1.0
         }
     ],
     "stripped_mangrove_wood": [
         {
-            "item": "stripped_mangrove_log",
+            "item": "mangrove_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_oak_log": [
         {
-            "item": "stripped_oak_log",
+            "item": "oak_log",
             "quantity": 1.0
         }
     ],
     "stripped_oak_wood": [
         {
-            "item": "stripped_oak_log",
+            "item": "oak_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_pale_oak_log": [
         {
-            "item": "stripped_pale_oak_log",
+            "item": "pale_oak_log",
             "quantity": 1.0
         }
     ],
     "stripped_pale_oak_wood": [
         {
-            "item": "stripped_pale_oak_log",
+            "item": "pale_oak_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_spruce_log": [
         {
-            "item": "stripped_spruce_log",
+            "item": "spruce_log",
             "quantity": 1.0
         }
     ],
     "stripped_spruce_wood": [
         {
-            "item": "stripped_spruce_log",
+            "item": "spruce_log",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_warped_hyphae": [
         {
-            "item": "stripped_warped_stem",
+            "item": "warped_stem",
             "quantity": 1.3333333333333333
         }
     ],
     "stripped_warped_stem": [
         {
-            "item": "stripped_warped_stem",
+            "item": "warped_stem",
             "quantity": 1.0
         }
     ],
@@ -9945,7 +9949,7 @@
     ],
     "warped_hanging_sign": [
         {
-            "item": "stripped_warped_stem",
+            "item": "warped_stem",
             "quantity": 1.0
         },
         {

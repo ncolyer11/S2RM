@@ -153,6 +153,7 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
     
         # Get materials required to craft/obtain entities
         for entity in region.entities:
+            print_formatted_entity_data(entity.data)
             get_materials_from_entity(materials, entity)
         
         # Get items stored inside of inventories
@@ -255,26 +256,69 @@ def handle_additional_entity_materials(materials, data):
     
     # May check boots in the future if they have frost walker 2 on them, as well as checking if a
     # sword has looting or sharpness 5 on it (for mob farms and villager conversion, e.g.)
+    
+    # Zombie eg data
+    """
+        id: minecraft:zombie
+        UUID: [ 1603329617  -657111915 -1850001601 -1124205682]
+        Motion: List[Double]([Double(0.0), Double(-0.0784000015258789), Double(0.0)])
+        Health: Float(12.0)
+        LeftHanded: Byte(0)
+        Air: Short(300)
+        OnGround: Byte(1)
+        Rotation: List[Float]([Float(177.05099487304688), Float(0.0)])
+        HandItems: List[Compound]([Compound({'components': Compound({'minecraft:enchantments': Compound({'levels': Compound({'minecraft:looting': Int(3), 'minecraft:sharpness': Int(5)})})}), 'count': Int(1), 'id': String('minecraft:netherite_sword')}), Compound({})])
+        ArmorDropChances: List[Float]([Float(2.0), Float(0.08500000089406967), Float(0.08500000089406967), Float(0.08500000089406967)])
+        Pos: List[Double]([Double(-0.4739698566251036), Double(0.0), Double(-2.1855780615233265)])
+        CanBreakDoors: Byte(0)
+        Fire: Short(-1)
+        ArmorItems: List[Compound]([Compound({'components': Compound({'minecraft:enchantments': Compound({'levels': Compound({'minecraft:frost_walker': Int(2)})})}), 'count': Int(1), 'id': String('minecraft:chainmail_boots')}), Compound({}), Compound({}), Compound({})])
+        CanPickUpLoot: Byte(1)
+        attributes: List[Compound]([Compound({'id': String('minecraft:generic.attack_damage'), 'base': Double(3.0)}), Compound({'id': String('minecraft:generic.armor'), 'base': Double(2.0)}), Compound({'id': String('minecraft:generic.movement_speed'), 'base': Double(0.23000000417232513)}), Compound({'id': String('minecraft:generic.armor_toughness'), 'base': Double(0.0)})])
+        HurtTime: Short(0)
+        DrownedConversionTime: Int(-1)
+    """
     if "ArmorItems" in data:
         for item in data.get("ArmorItems", []):
             item_name = item.get("id", "").replace("minecraft:", "")
             if any(keyword in item_name for keyword in HEADGEAR_KWS):
                 add_material(materials, item_name)
             
+            added = False
             if "boots" in item_name and "frost_walker" in item.get("tag", {}).get("Enchantments", {}):
+                check_and_add_enchanted_item(materials, item, "boots", "frost_walker", added)
                 add_material(materials, item_name)
     
     if "HandItems" in data:
         for item in data.get("HandItems", []):
             item_name = item.get("id", "").replace("minecraft:", "")
+            
+            added = False
+            added = check_and_add_enchanted_item(materials, item, "sword", "looting", added)
+            added = check_and_add_enchanted_item(materials, item, "sword", "sharpness", added)
             if "sword" in item_name and "looting" in item.get("tag", {}).get("Enchantments", {}):
                 looting_level = item["tag"]["Enchantments"]["looting"]
                 add_material(materials, f"$looting_{looting_level}_book")
-                add_material(materials, item_name)
-            elif "sword" in item_name and "sharpness" in item.get("tag", {}).get("Enchantments", {}):
+                if not sword_added:
+                    add_material(materials, item_name)
+                sword_added = True
+            if "sword" in item_name and "sharpness" in item.get("tag", {}).get("Enchantments", {}):
                 sharpness_level = item["tag"]["Enchantments"]["sharpness"]
                 add_material(materials, f"$sharpness_{sharpness_level}_book")
-                add_material(materials, item_name)
+                if not sword_added:
+                    add_material(materials, item_name)
+                sword_added = True
+            
+
+def check_and_add_enchanted_item(materials, item, tool, enchantment, item_added):
+    item_name = item.get("id", "").replace("minecraft:", "")
+    if tool in item_name and enchantment in item.get("tag", {}).get("Enchantments", {}):
+        add_material(materials, f"${enchantment}_{...}_book")
+        if not item_added:
+            add_material(materials, item_name)
+            return True
+        
+    return False
 
 def print_formatted_entity_data(entity_data):
     print()

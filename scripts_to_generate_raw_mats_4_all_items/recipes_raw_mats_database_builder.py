@@ -74,6 +74,11 @@ def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
         # Smelting recipes only have one ingredient and always of quantity 1
         case 'smelting':
             return get_smelting_ingredients(recipe)
+        # Handle smithing recipes for netherite gear
+        case 'smithing_transform':
+            base_item = recipe['base'].replace('minecraft:', '')
+            template = recipe['template'].replace('minecraft:', '')
+            return {base_item: 1.0, template: 1.0, 'count': 1.0}
         # Only 'crafting_transmute' recipes are bundles (which are ignored items) and shulker boxes
         case 'crafting_transmute':
             dye = recipe['material'].replace('minecraft:', '')
@@ -168,6 +173,8 @@ def get_ingredients(graph, target_item) -> list[dict]:
     target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)
     target_item = re.sub(r'(\w+)_concrete$', r'\1_concrete_powder', target_item)
     target_item = re.sub(r'(exposed|weathered|oxidized)_', '', target_item)
+    # target_item = re.sub(r'stripped_', '', target_item)
+    # target_item = re.sub(r'carved_', '', target_item)
     if target_item in ['waxed_copper', 'copper']:
         target_item += '_block'
 
@@ -190,6 +197,10 @@ def _get_ingredients_recursive(graph, target_item, raw_materials, quantity=1.0):
     if target_item == 'netherite_ingot':
         _get_ingredients_recursive(graph, 'netherite_scrap', raw_materials, 4.0 * quantity)
         _get_ingredients_recursive(graph, 'gold_ingot', raw_materials, 4.0 * quantity)
+        return
+    # Another case for an environmentally 'crafted' blocks with no simply interchangeable raw material
+    elif re.match(r'(stripped|carved)_', target_item):
+        _get_ingredients_recursive(graph, re.sub(r'^(stripped|carved)_', '', target_item), raw_materials, quantity)
         return
     elif re.match(AXIOM_MATERIALS_REGEX, target_item, re.VERBOSE): # Cycle detected
         raw_materials[target_item] += quantity

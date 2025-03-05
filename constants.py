@@ -9,7 +9,7 @@ DF_SHULKER_BOX_STACK_SIZE = DF_STACK_SIZE * SHULKER_BOX_SIZE
 
 NODE_COLOUR = '#102d5c'
 
-IGNORE_ITEMS_REGEX = r'(dye_\w+_(bed|carpet))|bundle'
+IGNORE_ITEMS_REGEX = r'dye_\w+_(bed|carpet)'
 AXIOM_MATERIALS_REGEX = r"""
     (stone|cobblestone|\w+_ingot$|slime_ball|redstone|\w+smithing_template|bone_meal|
     wheat|quartz|resin_clump|coal|diamond|dried_kelp|emerald|honey_bottle|lapis_lazuli|white_wool|
@@ -144,6 +144,7 @@ INVALID_ENTITIES = {
     "item"
 }
 
+# Keywords for matching headgear items on mobs
 HEADGEAR_KWS = {
     "helmet",
     "head",
