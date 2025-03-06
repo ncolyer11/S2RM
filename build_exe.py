@@ -4,7 +4,7 @@ import subprocess
 
 # Define important paths
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_SCRIPT = "S2RM_frontend.py"
+ENTRY_POINT = "main.py"
 DIST_DIR = os.path.join(PROJECT_DIR, "dist")
 
 # Files and directories that should be included in the .exe bundle
@@ -35,7 +35,7 @@ pyinstaller_cmd = [
     "--distpath", DIST_DIR,  # Specify output directory
     "--name", "S2RM",
     "--noconsole",  # Hide the terminal window
-    FRONTEND_SCRIPT
+    ENTRY_POINT  # The main script
 ] + add_data_args
 
 # Run PyInstaller
