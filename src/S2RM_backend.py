@@ -1,13 +1,13 @@
 import re
 import os
 
+from itertools import product
 from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
-from constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
+from src.constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
     SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
-from helpers import add_material, int_to_roman, print_formatted_entity_data
-from itertools import product
+from src.helpers import add_material, int_to_roman, print_formatted_entity_data
 
 
 def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
@@ -365,15 +365,18 @@ def clean_string(s):
     return re.sub(r'[^[a-zA-Z_\s\'].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
 
 def get_litematica_dir():
-    """Gets the Litematica directory, trying the S: drive first, then %appdata%."""
-    s_drive_path = r"S:\mc\.minecraft\config\litematica"
-    if os.path.exists(s_drive_path):
-        return s_drive_path
-    appdata_path = os.getenv('APPDATA')
-    if appdata_path:
-        appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "config", "litematica")
+    """
+    Gets the Litematica directory, checking for S2RM specific directories first, and then the default.
+    """
+    if appdata_path := os.getenv('APPDATA'):
+        appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "schematics")
+        for dir_name in os.listdir(appdata_litematica_path):
+            if "s2rm" in dir_name.lower():
+                return os.path.join(appdata_litematica_path, dir_name)
+
         if os.path.exists(appdata_litematica_path):
             return appdata_litematica_path
+
     return "" # Return an empty string if directory not found
 
 def condense_material(processed_materials: dict, material: str, quantity: float) -> None:

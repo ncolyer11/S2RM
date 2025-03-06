@@ -3,18 +3,17 @@ import re
 import json
 import shutil
 
-from helpers import resource_path
+from src.helpers import resource_path
+from src.constants import DATA_DIR, GAME_DATA_DIR, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
 
-MC_DATA_PATH = resource_path("data/game")
-MC_DOWNLOADS_PATH = "minecraft_downloads"
 
 def create_mc_data_dirs():
     try:
         # Ensure 'data' directory exists
-        os.makedirs('data', exist_ok=True)
+        os.makedirs(DATA_DIR, exist_ok=True)
         
         # Then make the game data directory
-        os.makedirs(MC_DATA_PATH, exist_ok=True)
+        os.makedirs(GAME_DATA_DIR, exist_ok=True)
     except Exception as e:
         print(f"Error creating directories: {e}")
 
@@ -27,7 +26,7 @@ def parse_items_list():
     """
     try:
         # Directory with item JSONs
-        item_dir = os.path.join(MC_DOWNLOADS_PATH, 'items')
+        item_dir = os.path.join(MC_DOWNLOADS_DIR, 'items')
         
         # Get list of item names (filenames without .json)
         items = [
@@ -48,7 +47,7 @@ def parse_items_stack_sizes():
     Parse items from `Items.java` that don't stack to 64, and their stack size (either 16 or 1)
     """
     # Current code for this, to run on mostly parsed data tho
-    with open(resource_path(os.path.join(MC_DOWNLOADS_PATH, "Items.java")), "r") as f:
+    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "Items.java")), "r") as f:
         lines = f.readlines()
 
     # Replace all newlines with nothing, and then replace all 'public static final Item ' with newlines
@@ -88,7 +87,7 @@ def parse_entities_list():
 
 def save_json_file(filename, data):
     """
-    Save data to a JSON file in the MC_DATA_PATH directory
+    Save data to a JSON file in the GAME_DATA_DIR directory
     
     Parameters
     ----------
@@ -98,7 +97,7 @@ def save_json_file(filename, data):
         Data to be saved as JSON
     """
     try:
-        output_path = os.path.join(MC_DATA_PATH, filename)
+        output_path = os.path.join(GAME_DATA_DIR, filename)
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Saved {filename}")
@@ -110,13 +109,13 @@ def cleanup_downloads():
     Remove the minecraft_downloads directory
     """
     try:
-        if os.path.exists(MC_DOWNLOADS_PATH):
-            shutil.rmtree(MC_DOWNLOADS_PATH)
+        if os.path.exists(MC_DOWNLOADS_DIR):
+            shutil.rmtree(MC_DOWNLOADS_DIR)
             print("Cleaned up downloads directory")
     except Exception as e:
         print(f"Error cleaning up downloads: {e}")
 
-def calculate_materials_table():
+def calculate_materials_table(delete=True):
     # Create the 'data/game' directories
     create_mc_data_dirs()
     
@@ -134,10 +133,11 @@ def calculate_materials_table():
     
     # Parse item stack sizes (stub)
     items_stack_sizes = parse_items_stack_sizes()
-    save_json_file('limited_stack_items.json', items_stack_sizes)
+    save_json_file(LIMTED_STACKS_NAME, items_stack_sizes)
     
-    # Clean up downloads directory
-    # cleanup_downloads()
+    # Remove the downloads directory if specified
+    if delete:
+        cleanup_downloads()
 
 if __name__ == '__main__':
     calculate_materials_table()

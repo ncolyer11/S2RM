@@ -5,18 +5,28 @@ import requests
 import zipfile
 
 from tqdm import tqdm
+
+from src.constants import CONFIG_PATH, MC_DOWNLOADS_DIR
+from src.helpers import resource_path
 from data.parse_mc_data import calculate_materials_table
 
-def check_mc_version() -> bool:
+def check_mc_version(redownload: bool = False, delete=True) -> bool:
     """
     Search for latest mc version from manifest and compare to the program's current version
     stored in config.json.
+    
+    Parameters
+    ----------
+    redownload : bool
+        Force redownload of game data and recalculate the materials table.
+    delete : bool
+        Delete the mc_downloads directory after downloading the game data.
     """
     # Get the latest version from the manifest
     latest_version, _ = get_latest_minecraft_snapshot()
 
     # Get the current version from config.json
-    with open("config.json", "r") as f:
+    with open(CONFIG_PATH, "r") as f:
         config = json.load(f)
         current_version = config.get("mc_version", None)
 
@@ -28,7 +38,12 @@ def check_mc_version() -> bool:
         print(f"MC data is not up to date with the latest version: {latest_version}, "
               f"was: {current_version}. Downloading new data and updating materials table now...")
         download_game_data()
-    calculate_materials_table() # XXX run everytime for now
+        calculate_materials_table(delete)
+    
+    if redownload and matching_versions:
+        print("Forcing redownload of game data and updating materials table now...")
+        download_game_data()
+        calculate_materials_table(delete)
 
     return matching_versions
 
@@ -126,13 +141,13 @@ def download_minecraft_jar(version_id, version_url):
         version_meta = version_meta_response.json()
         
         jar_url = version_meta['downloads']['client']['url']
-        jar_path = f'minecraft_downloads/{version_id}.jar'
+        jar_path = os.path.join(MC_DOWNLOADS_DIR, f'{version_id}.jar')
         if not download_file(jar_url, jar_path):
             return None
         
         # Open the JAR file
         with zipfile.ZipFile(jar_path, 'r') as jar:
-            os.makedirs('minecraft_downloads/recipe', exist_ok=True)
+            os.makedirs(os.path.join(MC_DOWNLOADS_DIR, 'recipe'), exist_ok=True)
             
             # Extract all recipe JSON files
             recipe_files = [
@@ -140,11 +155,12 @@ def download_minecraft_jar(version_id, version_url):
                 if f.startswith('data/minecraft/recipe/') and f.endswith('.json')
             ]
             for recipe_file in tqdm(recipe_files, desc="Extracting Recipes", colour='blue'):
+                recipe_path = os.path.join(MC_DOWNLOADS_DIR, f'recipe/{os.path.basename(recipe_file)}')
                 with jar.open(recipe_file) as source, \
-                     open(f'minecraft_downloads/recipe/{os.path.basename(recipe_file)}', 'wb') as target:
+                     open(resource_path(recipe_path), 'wb') as target:
                     target.write(source.read())
                     
-            os.makedirs('minecraft_downloads/items', exist_ok=True)
+            os.makedirs(os.path.join(MC_DOWNLOADS_DIR, 'items'), exist_ok=True)
                     
             # Extract all item JSON files
             item_files = [
@@ -152,12 +168,12 @@ def download_minecraft_jar(version_id, version_url):
                 if f.startswith('assets/minecraft/items/') and f.endswith('.json')
             ]
             for item_file in tqdm(item_files, desc="Extracting Item JSONs", colour='blue'):
+                item_path = os.path.join(MC_DOWNLOADS_DIR, f'/items/{os.path.basename(item_file)}')
                 with jar.open(item_file) as source, \
-                     open(f'minecraft_downloads/items/{os.path.basename(item_file)}', 'wb') as target:
+                    open(item_path, 'wb') as target:
                     target.write(source.read())
             
             print(f"Extracted {len(item_files)} item JSON files")
-        
         
         print(f"Successfully downloaded and extracted resources for version {version_id}\n")
         return version_id
@@ -168,7 +184,7 @@ def download_minecraft_jar(version_id, version_url):
 
 def cleanup_jar_file(version_id):
     """Remove the downloaded JAR file after extracting the recipes."""
-    jar_path = f'minecraft_downloads/{version_id}.jar'
+    jar_path = os.path.join(MC_DOWNLOADS_DIR, f'{version_id}.jar')
     
     try:
         # Check if file exists before attempting to remove
@@ -183,14 +199,17 @@ def cleanup_jar_file(version_id):
 def download_game_data():
     repo_path = "NikitaCartes-archive/MinecraftDeobfuscated-Mojang"
     files_to_download = [
-        ('minecraft/src/net/minecraft/world/item/Items.java', 'minecraft_downloads/Items.java'),
-        ('minecraft/src/net/minecraft/world/level/block/Blocks.java', 'minecraft_downloads/Blocks.java'),
-        ('minecraft/src/net/minecraft/world/entity/EntityType.java', 'minecraft_downloads/EntityType.java')
+        ('minecraft/src/net/minecraft/world/item/Items.java',
+         os.path.join(MC_DOWNLOADS_DIR, 'Items.java')),
+        ('minecraft/src/net/minecraft/world/level/block/Blocks.java',
+         os.path.join(MC_DOWNLOADS_DIR, 'Blocks.java')),
+        ('minecraft/src/net/minecraft/world/entity/EntityType.java',
+         os.path.join(MC_DOWNLOADS_DIR, 'EntityType.java'))
     ]
     
     # Delete any exisiting minecraft_downloads folder
     try:
-        shutil.rmtree("minecraft_downloads")
+        shutil.rmtree(MC_DOWNLOADS_DIR)
     except FileNotFoundError:
         pass
 
@@ -205,14 +224,14 @@ def download_game_data():
         # Cleanup the JAR file after extraction and update the config with the latest version
         if download_result:
             # Read the config file
-            with open("config.json", "r") as f:
+            with open(CONFIG_PATH, "r") as f:
                 config = json.load(f)
             
             # Update the version field
             config["mc_version"] = download_result
             
             # Write the updated config back to the file
-            with open("config.json", "w") as f:
+            with open(CONFIG_PATH, "w") as f:
                 json.dump(config, f, indent=4)
 
 

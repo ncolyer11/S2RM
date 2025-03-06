@@ -13,13 +13,11 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
 
-from constants import ICE_PER_ICE, MATERIALS_TABLE
-from helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
-from porting import OUTPUT_JSON_VERSION, forwardportJson, get_error_message
-from S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
+from src.constants import ICE_PER_ICE, MATERIALS_TABLE, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
+from src.helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
+from src.porting import forwardportJson, get_error_message
+from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
-
-PROGRAM_VERSION = "1.3.2"
 
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
@@ -461,6 +459,9 @@ class S2RMFrontend(QWidget):
                         return
 
             print(f"JSON opened successfully from: {json_file_path}")
+            print(f"Table dict:")
+            for key, value in table_dict.items():
+                print(f"{key}: {value}")
 
             # Reset the tables
             self.input_table.setRowCount(0)
@@ -881,7 +882,7 @@ class DropArea(QPushButton):
 def start():
     global app
     app = QApplication(sys.argv)
-    app_icon = QIcon(resource_path("icon.ico"))
+    app_icon = QIcon(resource_path(ICON_PATH))
     app.setWindowIcon(app_icon)
     app.setStyle('Fusion')
     window = S2RMFrontend()

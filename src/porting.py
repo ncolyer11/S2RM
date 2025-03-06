@@ -1,10 +1,10 @@
-from helpers import format_quantities, TableCols
+from src.helpers import format_quantities, TableCols
+from src.constants import OUTPUT_JSON_VERSION
 
 NO_ERR = 0    # No Error
 IV_ERR = 1    # Incompatible Version Error
 CJ_ERR = 2    # Corrupt JSON Error
 
-OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 OUTPUT_JSON_DEFAULT = {
     "version": OUTPUT_JSON_VERSION,
     "material_list_paths": [],
@@ -17,6 +17,7 @@ OUTPUT_JSON_DEFAULT = {
     "raw_quantities": [],
     "collected": {}
 }
+
 
 def get_error_message(ec: int, version: int) -> str:
     """Return the error message for the given error code."""

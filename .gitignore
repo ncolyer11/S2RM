@@ -172,4 +172,5 @@ cython_debug/
 out.txt
 test.py
 scripts_to_generate_raw_mats_4_all_items/regex_test.py
-minecraft_downloads
+mc_downloads
+dev

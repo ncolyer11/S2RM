@@ -4,7 +4,7 @@ import sys
 
 from dataclasses import dataclass
 
-from constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
+from src.constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
 
 @dataclass
 class TableCols:

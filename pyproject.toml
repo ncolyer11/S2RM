@@ -1,20 +1,23 @@
-[tool.poetry]
+[project]
 name = "s2rm"
 version = "0.1.0"
-description = "A program that converts a schematic into a raw materials list"
-authors = ["ncolyer <ncolyer@not_a_real_email.com>"]
+description = "Minecraft Schematic to Raw Materials Program"
+authors = [{name = "ncolyer", email = "ncolyer@example.com"}]
+requires-python = ">=3.12,<3.14"
 license = "MIT"
 readme = "README.md"
 package-mode = false
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.14"
-networkx = "^3.4.2"
-tqdm = "^4.67.1"
-matplotlib = "^3.10.1"
-pyside6 = "^6.8.2.1"
-litemapy = "^0.10.0b0"
+
+dependencies = [
+    "matplotlib (>=3.10.1,<4.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "litemapy (>=0.10.0b0,<0.11.0)",
+    "pyside6 (>=6.8.2.1,<7.0.0.0)",
+    "networkx (>=3.4.2,<4.0.0)"
+]
+
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
