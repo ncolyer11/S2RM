@@ -26,7 +26,7 @@ def check_mc_version(redownload: bool = False, delete=True) -> bool:
     latest_version, _ = get_latest_minecraft_snapshot()
 
     # Get the current version from config.json
-    with open(CONFIG_PATH, "r") as f:
+    with open(resource_path(CONFIG_PATH), "r") as f:
         config = json.load(f)
         current_version = config.get("mc_version", None)
 
@@ -224,14 +224,14 @@ def download_game_data():
         # Cleanup the JAR file after extraction and update the config with the latest version
         if download_result:
             # Read the config file
-            with open(CONFIG_PATH, "r") as f:
+            with open(resource_path(CONFIG_PATH), "r") as f:
                 config = json.load(f)
             
             # Update the version field
             config["mc_version"] = download_result
             
             # Write the updated config back to the file
-            with open(CONFIG_PATH, "w") as f:
+            with open(resource_path(CONFIG_PATH), "w") as f:
                 json.dump(config, f, indent=4)
 
 

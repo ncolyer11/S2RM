@@ -1,10 +1,9 @@
 from src.S2RM_frontend import start
 from data.download_game_data import check_mc_version
 
-# Notes:
-# XXX:
-# - Both radio buttons get set to right state when reloading a json
-# - Loading jsons doesn't do shiii
+# XXX issue when importing a lot of files sometimes the loading bar doesnt show after a bit
+# but mainly the input materials list doesnt get reset and new stuff just gets appended to the end?
+
 
 def main():
     # Download the latest mc game data if the program's mc version is out of date

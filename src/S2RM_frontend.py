@@ -7,11 +7,12 @@ import math
 import time
 
 from dataclasses import asdict
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QPalette, QColor, QDragEnterEvent, QDropEvent
-from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox,
+from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QDialog,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
-                               QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox)
+                               QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox,
+                               QSizePolicy, QProgressBar)
 
 from src.constants import ICE_PER_ICE, MATERIALS_TABLE, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
 from src.helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
@@ -252,45 +253,48 @@ class S2RMFrontend(QWidget):
             print(f"Time to process files: {(time.time_ns() - start_time) / 1e6:.2f} ms")
 
     def processSelectedFiles(self, file_paths=None):
-        # Reset input items and raw materials
-        self.tv.reset()
-        self.tt.reset()
-        
-        # Use the dragged in file paths if none are provided
-        if file_paths is not None:
-            self.file_paths = file_paths
-        
-        file_names = ", ".join(os.path.basename(path) for path in self.file_paths)
-        # Truncate the file names if they're too long
-        if len(file_names) > TRUNCATE_LEN:
-            truncated_file_names = file_names[:TRUNCATE_LEN]
-            paths_that_fit = truncated_file_names.count(",") + 1
-            file_names = file_names[:TRUNCATE_LEN] + f"... (+{len(self.file_paths) - paths_that_fit} more)"
-        self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
-        
-        # Sum all the material lists together into a combined dictionary
-        total_input_items = {}
-        for file_path in self.file_paths:
-            materials_dict = input_file_to_mats_dict(file_path)
-            if materials_dict is None:
-                print(f"Error reading file: {file_path}. See Above.")
-                continue
-                
-            for material, quantity in materials_dict.items():
-                total_input_items[material] = total_input_items.get(material, 0) + quantity
-        
-        # Sort by quantity in reverse first, then by material name
-        sorted_input_items = dict(sorted(total_input_items.items(), key=lambda x: (-x[1], x[0])))
-        for material, quantity in sorted_input_items.items():
-            self.tv.input_items.append(material)
-            self.tv.input_quantities.append(quantity)
-    
-        # Clear raw materials columns
-        self.tv.raw_materials = []
-        self.tv.raw_quantities = []
-        self.tv.collected_data = []
+        # ... (your existing code for file selection and setup)
 
-        self.updateTableText()
+        self.loading_dialog = LoadingDialog(self)
+        self.loading_dialog.show()
+
+        total_files = len(self.file_paths)
+        processed_files = 0
+
+        total_input_items = {}
+        
+        def process_file(index):
+            nonlocal processed_files
+            if index < total_files:
+                file_path = self.file_paths[index]
+                materials_dict = input_file_to_mats_dict(file_path)
+                if materials_dict is not None:
+                    for material, quantity in materials_dict.items():
+                        total_input_items[material] = total_input_items.get(material, 0) + quantity
+                else:
+                    print(f"Error reading file: {file_path}. See Above.")
+
+                processed_files += 1
+                progress = int((processed_files / total_files) * 100)
+                self.loading_dialog.update_progress(progress)
+
+                QTimer.singleShot(10, lambda: process_file(index + 1)) # process next file after a small delay.
+            else:
+                # Processing complete
+                sorted_input_items = dict(sorted(total_input_items.items(), key=lambda x: (-x[1], x[0])))
+                for material, quantity in sorted_input_items.items():
+                    self.tv.input_items.append(material)
+                    self.tv.input_quantities.append(quantity)
+
+                self.tv.raw_materials = []
+                self.tv.raw_quantities = []
+                self.tv.collected_data = []
+
+                self.updateTableText()
+                self.loading_dialog.close()
+                self.loading_dialog = None
+
+        process_file(0) # start processing the first file.
 
     def updateTableText(self, search_term=None, keep_exc_col=False, keep_table=False):
         """
@@ -558,22 +562,6 @@ class S2RMFrontend(QWidget):
                 for related_list in related_lists:
                     related_list.pop(i)
 
-    def __add_checkbox(self, row, material):
-        """Add a checkbox to the table at the given row."""
-        # Add checkbox
-        checkbox = QCheckBox()
-        checkbox.setChecked(self.tv.collected_data[row])
-        checkbox.stateChanged.connect(lambda state, row=row: self.updateCollected(row, state))
-        
-        # Create a widget to center the checkbox
-        checkbox_widget = QWidget()
-        checkbox_layout = QHBoxLayout(checkbox_widget)
-        checkbox_layout.addWidget(checkbox)
-        checkbox_layout.setAlignment(Qt.AlignCenter)
-        checkbox_layout.setContentsMargins(0, 0, 0, 0) # Remove margins
-
-        self.raw_table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
-
     def __get_total_mats_from_input(self) -> None:
         # Clear the raw materials table
         self.tv.raw_materials = []
@@ -780,6 +768,22 @@ class S2RMFrontend(QWidget):
             f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
 
+    def __add_checkbox(self, row, material):
+        """Add a checkbox to the table at the given row."""
+        # Add checkbox
+        checkbox = QCheckBox()
+        checkbox.setChecked(self.tv.collected_data[row])
+        checkbox.stateChanged.connect(lambda state, row=row: self.updateCollected(row, state))
+        
+        # Create a widget to center the checkbox
+        checkbox_widget = QWidget()
+        checkbox_layout = QHBoxLayout(checkbox_widget)
+        checkbox_layout.addWidget(checkbox)
+        checkbox_layout.setAlignment(Qt.AlignCenter)
+        checkbox_layout.setContentsMargins(0, 0, 0, 0) # Remove margins
+
+        self.raw_table.setCellWidget(row, COLLECTIONS_COL_NUM, checkbox_widget)
+
     def __set_exclude_text_cell(self, row, quantity: int | str):
         """
         Set the exclude text cell in the table.
@@ -872,6 +876,53 @@ class DropArea(QPushButton):
         
         # Restore original stylesheet
         self.setStyleSheet(self._original_stylesheet)
+
+class LoadingDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setModal(True)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint) # Make it modal and frameless
+
+        layout = QVBoxLayout(self)
+
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setAlignment(Qt.AlignCenter)
+        self.progress_bar.setRange(0, 100)
+        layout.addWidget(self.progress_bar)
+
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed) # Keep the size static
+
+        self.setFixedWidth(300) # Set a fixed width
+
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #353535;
+                color: white;
+                border: 2px solid #555;
+                border-radius: 8px;
+                padding: 15px;
+            }
+            QLabel {
+                color: white;
+                padding: 10px;
+                font-size: 14px;
+            }
+            QProgressBar {
+                border: 2px solid #555;
+                border-radius: 8px;
+                text-align: center;
+                background-color: transparent; /* Make background transparent */ 
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #42A5F5;
+                border-radius: 6px;
+                margin: 1px;
+            }
+        """)
+
+    def update_progress(self, value):
+        self.progress_bar.setValue(value)
 
 def start():
     global app

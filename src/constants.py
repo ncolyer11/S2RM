@@ -3,7 +3,7 @@ import os
 import sys
 
 
-PROGRAM_VERSION = "1.3.2"
+PROGRAM_VERSION = "1.3.3"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 
 

@@ -18,16 +18,14 @@ if %errorlevel% neq 0 (
 
 :: Build with PyInstaller
 pyinstaller ^
---add-data "icon.ico;icon" ^
---add-data "limited_stacks.json;." ^
---add-data "icon.ico;." ^
---add-data "raw_materials_table.json;." ^
---add-data "constants.py;." ^
---add-data "S2RM_backend.py;." ^
---add-data "helpers.py;." ^
---icon=icon.ico ^
---name "S2RM" ^
---windowed ^
+    --name "S2RM" ^
+    --windowed ^
+    --add-data "src;src" ^
+    --add-data "data/*.json;data" ^
+    --add-data "data/*.py;data" ^
+    --add-data "data/game;data/game" ^
+    --icon "src\icon.ico" ^
+    --distpath "." ^
 main.py
 
 :: Check if PyInstaller was successful
@@ -37,7 +35,7 @@ if %errorlevel% neq 0 (
 )
 
 :: Compress the output folder
-powershell Compress-Archive -Path 'dist\\S2RM\\*' -Force -DestinationPath 'S2RM.zip'
+powershell Compress-Archive -Path "S2RM\*" -Force -DestinationPath "S2RM\S2RM.zip"
 
 :: Check if compression was successful
 if %errorlevel% neq 0 (
