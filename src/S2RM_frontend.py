@@ -292,7 +292,7 @@ class S2RMFrontend(QWidget):
 
         self.updateTableText()
 
-    def updateTableText(self, search_term=None, keep_exc_col=False):
+    def updateTableText(self, search_term=None, keep_exc_col=False, keep_table=False):
         """
         Set the text or widgets from self.tt to the table atfer formatting.
         
@@ -301,20 +301,21 @@ class S2RMFrontend(QWidget):
         search_term : str, optional
             This isn't used and is just there to absorb the search term param sent from the search bar
         """
-        # Ensure all text is up to date
-        self.tt = copy.deepcopy(self.tv)
+        if not keep_table:
+            # Ensure all text is up to date
+            self.tt = copy.deepcopy(self.tv)
 
-        # Break down large values into shulker boxes and stacks
-        format_quantities(self.tv.input_items, self.input_vals_text)
-        format_quantities(self.tv.raw_materials, self.raw_vals_text)
+            # Break down large values into shulker boxes and stacks
+            format_quantities(self.tv.input_items, self.input_vals_text)
+            format_quantities(self.tv.raw_materials, self.raw_vals_text)
         
-        # Check all user inputted exclude values, and update the exclude column accordingly
-        if not keep_exc_col:
-            self.getExcludeVals()
-        self.format_exclude_column()
+            # Check all user inputted exclude values, and update the exclude column accordingly
+            if not keep_exc_col:
+                self.getExcludeVals()
+            self.format_exclude_column()
 
-        # Check for search terms in the raw materials search bar
-        self.filterMaterials()
+            # Check for search terms in the raw materials search bar
+            self.filterMaterials()
 
         # Set the new table length to the maximum of the input items and raw materials
         self.input_table.setRowCount(len(self.tt.input_items))
@@ -459,7 +460,6 @@ class S2RMFrontend(QWidget):
                         return
 
             print(f"JSON opened successfully from: {json_file_path}")
-            print(f"Table dict:")
 
             # Reset the tables
             self.input_table.setRowCount(0)
@@ -476,18 +476,14 @@ class S2RMFrontend(QWidget):
                 self.__set_radio_button(self.ice_type, ["ice", "freeze"],
                                         [self.ice_radio, self.freeze_ice_radio])
 
-            # Load the table values from legacy version 8
-            if "table_values" in table_dict:
-                self.tv = TableCols(**table_dict["table_values"])
-
-                self.updateTableText(keep_exc_col=True)
-
             # Updated version 8 as of v1.3.2
             if "tv" in table_dict:
                 self.tv = TableCols(**table_dict["tv"])
             
             if "tt" in table_dict:
                 self.tt = TableCols(**table_dict["tt"])
+                
+            self.updateTableText(keep_table=True)
 
             self.file_paths = [json_file_path]
             self.file_label.setText(f"{FILE_LABEL_TEXT} {os.path.basename(json_file_path)}")
