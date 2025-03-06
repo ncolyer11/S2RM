@@ -141,9 +141,9 @@ class S2RMFrontend(QWidget):
         ice_layout = QHBoxLayout()
         self.ice_radio = QRadioButton("Only Ice")
         self.ice_radio.setChecked(True)  # Default to Ice
-        self.packed_ice_radio = QRadioButton("Freeze Ice")
+        self.freeze_ice_radio = QRadioButton("Freeze Ice")
         ice_layout.addWidget(self.ice_radio)
-        ice_layout.addWidget(self.packed_ice_radio)
+        ice_layout.addWidget(self.freeze_ice_radio)
         layout.addLayout(ice_layout)
 
         # Radio Button Groups
@@ -154,7 +154,7 @@ class S2RMFrontend(QWidget):
 
         self.ice_group = QButtonGroup()
         self.ice_group.addButton(self.ice_radio)
-        self.ice_group.addButton(self.packed_ice_radio)
+        self.ice_group.addButton(self.freeze_ice_radio)
         self.ice_group.buttonToggled.connect(self.updateIceType)
 
         # Process and Save Buttons
@@ -460,8 +460,6 @@ class S2RMFrontend(QWidget):
 
             print(f"JSON opened successfully from: {json_file_path}")
             print(f"Table dict:")
-            for key, value in table_dict.items():
-                print(f"{key}: {value}")
 
             # Reset the tables
             self.input_table.setRowCount(0)
@@ -476,7 +474,7 @@ class S2RMFrontend(QWidget):
             if "ice_type" in table_dict:
                 self.ice_type = table_dict["ice_type"]
                 self.__set_radio_button(self.ice_type, ["ice", "freeze"],
-                                        [self.packed_ice_radio, self.ice_radio])
+                                        [self.ice_radio, self.freeze_ice_radio])
 
             # Load the table values from legacy version 8
             if "table_values" in table_dict:
