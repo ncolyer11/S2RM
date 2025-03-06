@@ -1,8 +1,36 @@
 import os
+import json
+import shutil
 import requests
 import zipfile
 
 from tqdm import tqdm
+from data.parse_mc_data import calculate_materials_table
+
+def check_mc_version() -> bool:
+    """
+    Search for latest mc version from manifest and compare to the program's current version
+    stored in config.json.
+    """
+    # Get the latest version from the manifest
+    latest_version, _ = get_latest_minecraft_snapshot()
+
+    # Get the current version from config.json
+    with open("config.json", "r") as f:
+        config = json.load(f)
+        current_version = config.get("mc_version", None)
+
+    # Compare the two versions
+    if matching_versions := latest_version == current_version:
+        print(f"MC data is up to date with the latest version: {latest_version}.")
+    # Recalculate the materials table if new data is available
+    else:
+        print(f"MC data is not up to date with the latest version: {latest_version}, "
+              f"was: {current_version}. Downloading new data and updating materials table now...")
+        download_game_data()
+    calculate_materials_table() # XXX run everytime for now
+
+    return matching_versions
 
 def download_file(url, output_path):
     """Download a file with a progress bar."""
@@ -68,7 +96,7 @@ def download_github_file(repo_path, file_path, output_path):
     except Exception as e:
         print(f"Error downloading {file_path}: {e}")
 
-def get_latest_minecraft_snapshot():
+def get_latest_minecraft_snapshot() -> tuple:
     """Fetch the latest Minecraft version (including snapshots) from Mojang's version manifest."""
     version_manifest_url = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
     
@@ -152,7 +180,7 @@ def cleanup_jar_file(version_id):
     except Exception as e:
         print(f"Error removing JAR file: {e}")
 
-def main():
+def download_game_data():
     repo_path = "NikitaCartes-archive/MinecraftDeobfuscated-Mojang"
     files_to_download = [
         ('minecraft/src/net/minecraft/world/item/Items.java', 'minecraft_downloads/Items.java'),
@@ -160,6 +188,12 @@ def main():
         ('minecraft/src/net/minecraft/world/entity/EntityType.java', 'minecraft_downloads/EntityType.java')
     ]
     
+    # Delete any exisiting minecraft_downloads folder
+    try:
+        shutil.rmtree("minecraft_downloads")
+    except FileNotFoundError:
+        pass
+
     # Download GitHub files using the latest commit
     for file_path, output_path in files_to_download:
         download_github_file(repo_path, file_path, output_path)
@@ -168,9 +202,21 @@ def main():
     version_id, version_url = get_latest_minecraft_snapshot()
     if version_id and version_url:
         download_result = download_minecraft_jar(version_id, version_url)
-        # Cleanup the JAR file after extraction
+        # Cleanup the JAR file after extraction and update the config with the latest version
         if download_result:
+            # Read the config file
+            with open("config.json", "r") as f:
+                config = json.load(f)
+            
+            # Update the version field
+            config["mc_version"] = download_result
+            
+            # Write the updated config back to the file
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=4)
+
+
             cleanup_jar_file(version_id)
 
 if __name__ == '__main__':
-    main()
+    download_game_data()

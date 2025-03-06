@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+
 # Define important paths
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_SCRIPT = "S2RM_frontend.py"

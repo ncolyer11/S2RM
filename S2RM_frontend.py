@@ -37,7 +37,7 @@ TABLE_HEADERS = {
         "Collected": 85
     },
 }
-HEADERS_LIST = TABLE_HEADERS["inputs"].keys() + TABLE_HEADERS["outputs"].keys()
+HEADERS_LIST = list(TABLE_HEADERS["inputs"].keys()) + list(TABLE_HEADERS["outputs"].keys())
 
 # Constants for the table columns
 INPUT_ITEMS_COL_NUM = 0
@@ -878,7 +878,8 @@ class DropArea(QPushButton):
         # Restore original stylesheet
         self.setStyleSheet(self._original_stylesheet)
 
-if __name__ == "__main__":
+def start():
+    global app
     app = QApplication(sys.argv)
     app_icon = QIcon(resource_path("icon.ico"))
     app.setWindowIcon(app_icon)
@@ -886,3 +887,6 @@ if __name__ == "__main__":
     window = S2RMFrontend()
     window.show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    start()

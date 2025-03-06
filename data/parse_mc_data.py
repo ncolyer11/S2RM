@@ -6,7 +6,7 @@ import shutil
 from helpers import resource_path
 
 MC_DATA_PATH = resource_path("data/game")
-MC_DOWNLOADS_PATH = "data/minecraft_downloads"
+MC_DOWNLOADS_PATH = "minecraft_downloads"
 
 def create_mc_data_dirs():
     try:
@@ -27,7 +27,7 @@ def parse_items_list():
     """
     try:
         # Directory with item JSONs
-        item_dir = MC_DOWNLOADS_PATH + '/items'
+        item_dir = os.path.join(MC_DOWNLOADS_PATH, 'items')
         
         # Get list of item names (filenames without .json)
         items = [
@@ -45,32 +45,28 @@ def parse_items_list():
 
 def parse_items_stack_sizes():
     """
-    Stub function for parsing item stack sizes from Items.java
-    
-    TO BE IMPLEMENTED
+    Parse items from `Items.java` that don't stack to 64, and their stack size (either 16 or 1)
     """
-    print("parse_items_stack_sizes() stub - to be implemented")
-
     # Current code for this, to run on mostly parsed data tho
-    # with open(resource_path("data/items.txt"), "r") as f:
-    #     lines = f.readlines()
+    with open(resource_path(os.path.join(MC_DOWNLOADS_PATH, "Items.java")), "r") as f:
+        lines = f.readlines()
 
-    # pattern = re.compile(r'\.stacksTo\((16|1)\)|ToolMaterial|ArmorMaterial|durability')
-    # limited_stacked_lines = [line for line in lines if pattern.search(line)]
+    # Replace all newlines with nothing, and then replace all 'public static final Item ' with newlines
+    lines = "".join(lines).replace("\n", "").replace("public static final Item ", "\n").split("\n")
 
-    # limited_stack_items = {}
-    # for line in limited_stacked_lines:
-    #     material = line.split(" ")[0].lower()
-    #     quantity = 16 if "16" in line else 1
-    #     limited_stack_items[material] = quantity
+    # Filter out lines that contain '.stacksTo(16)' or '.stacksTo(1)' or 'ToolMaterial' or
+    # 'ArmorMaterial' or 'durability'
+    pattern = re.compile(r'\.stacksTo\((16|1)\)|ToolMaterial|ArmorMaterial|durability')
+    limited_stacked_lines = [line for line in lines if pattern.search(line)]
 
-    # # Sort the dictionary by key then quantity value
-    # sorted_limited_stack_items = dict(sorted(limited_stack_items.items(), key=lambda x: (x[0], x[1])))
+    limited_stack_items = {}
+    for line in limited_stacked_lines:
+        material = line.split(" ")[0].lower()
+        quantity = 16 if "16" in line else 1
+        limited_stack_items[material] = quantity
 
-    # with open(resource_path("limited_stacks.json"), "w") as f:
-    #     json.dump(sorted_limited_stack_items, f, indent=4)
-
-    return {}
+    # Sort the dictionary by key then quantity value
+    return dict(sorted(limited_stack_items.items(), key=lambda x: (x[0], x[1])))
 
 def parse_blocks_list():
     """
@@ -120,7 +116,7 @@ def cleanup_downloads():
     except Exception as e:
         print(f"Error cleaning up downloads: {e}")
 
-def main():
+def calculate_materials_table():
     # Create the 'data/game' directories
     create_mc_data_dirs()
     
@@ -141,7 +137,7 @@ def main():
     save_json_file('limited_stack_items.json', items_stack_sizes)
     
     # Clean up downloads directory
-    cleanup_downloads()
+    # cleanup_downloads()
 
 if __name__ == '__main__':
-    main()
+    calculate_materials_table()
