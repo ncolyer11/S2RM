@@ -6,8 +6,8 @@ from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
 from src.constants import GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
-    SIMPLE_ENTITIES, LIMITED_STACK_ITEMS, SHULKER_BOX_SIZE
-from src.helpers import add_material, int_to_roman, print_formatted_entity_data
+    SIMPLE_ENTITIES, SHULKER_BOX_SIZE
+from src.helpers import add_material, int_to_roman, get_limit_stack_items, print_formatted_entity_data
 
 
 def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
@@ -451,6 +451,8 @@ def process_exclude_string(input_str: str, material: str) -> int:
     
     matches = re.finditer(r"(\d+)(sb|s)?", input_str, re.IGNORECASE)
 
+
+    LIMITED_STACK_ITEMS = get_limit_stack_items() # XXX opening this file every time is inefficient
     stack_size = LIMITED_STACK_ITEMS.get(material, DF_STACK_SIZE)
     shulker_stack_size = stack_size * SHULKER_BOX_SIZE
     total = 0

@@ -14,12 +14,14 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox,
                                QSizePolicy, QProgressBar)
 
-from src.constants import ICE_PER_ICE, MATERIALS_TABLE, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
-from src.helpers import format_quantities, clamp, resource_path, verify_regexes, TableCols
+from data.parse_mc_data import calculate_materials_table
+from src.constants import CONFIG_PATH, ICE_PER_ICE, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
+from src.helpers import format_quantities, clamp, get_materials_table, resource_path, verify_regexes, TableCols, \
+    get_current_mc_version, set_current_mc_version
 from src.porting import forwardportJson, get_error_message
 from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
-
+from data.download_game_data import download_game_data
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
@@ -69,6 +71,8 @@ class S2RMFrontend(QWidget):
         self.output_type = "ingots"
         self.ice_type = "ice"
         self.file_paths = []
+        # Get the current version of Minecraft the program is using for recipe data
+        self.__mc_version = get_current_mc_version()
         
         # Explicitly store table values and table text
         self.tv = TableCols([], [], [], [], [], [])
@@ -89,6 +93,16 @@ class S2RMFrontend(QWidget):
     @property
     def raw_vals_text(self):
         return (self.tv.raw_quantities, self.tt.raw_quantities)
+    
+    @property
+    def mc_version(self):
+        return self.__mc_version
+    
+    @mc_version.setter
+    def mc_version(self, version):
+        self.__mc_version = version
+        self.version_label.setText(f"MC Version (current: {version})")
+        set_current_mc_version(version)
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -108,8 +122,13 @@ class S2RMFrontend(QWidget):
         # Export on the other hand doesn't mean it can be reloaded necessarily
         export_to_csv_action = self.file_menu.addAction("Export to CSV")
         export_to_csv_action.triggered.connect(self.exportCSV)
-        
         self.menu_bar.addMenu(self.file_menu)
+        
+        # Add Edit Menu
+        self.edit_menu = QMenu("Edit", self)
+        version_action = self.edit_menu.addAction(f"MC Version (current: {get_current_mc_version()})")
+        version_action.triggered.connect(self.showVersionDialog)
+        self.menu_bar.addMenu(self.edit_menu)
         
         # Store view_menu
         self.view_menu = QMenu("View", self)  
@@ -568,6 +587,8 @@ class S2RMFrontend(QWidget):
         self.tv.raw_quantities = []
         self.tv.collected_data = []
         
+        MATERIALS_TABLE = get_materials_table(self.mc_version)
+        
         total_materials = {}
         for row, input_material in enumerate(self.tv.input_items):
             if input_material in MATERIALS_TABLE:
@@ -646,6 +667,49 @@ class S2RMFrontend(QWidget):
     def updateCollected(self, row, state):
         self.tv.collected_data[row] = Qt.CheckState(state) == Qt.CheckState.Checked
 
+    def showVersionDialog(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Set Version")
+        dialog.setFixedSize(250, 150)
+
+        layout = QVBoxLayout()
+
+        label = QLabel("Enter new version:")
+        layout.addWidget(label)
+
+        version_input = QLineEdit()
+        version_input.setPlaceholderText("e.g. 1.19.4, 1.21.5-pre1, 20w06a")
+        layout.addWidget(version_input)
+
+        # Mark a version folder in game data to not be removed when switching from that version
+        cache_checkbox = QCheckBox("Cache this version")
+        layout.addWidget(cache_checkbox)
+
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+        layout.addLayout(button_layout)
+
+        dialog.setLayout(layout)
+
+        ok_button.clicked.connect(lambda: self.saveVersion(version_input.text(),
+                                                           cache_checkbox.isChecked(), dialog))
+        cancel_button.clicked.connect(dialog.reject)
+
+        dialog.exec_()
+
+    def saveVersion(self, version, cache, dialog):
+        # Update the config.json file with the new version (and it auto updates the label)
+        self.mc_version = version
+
+        download_game_data()
+        calculate_materials_table(cache)
+
+        dialog.accept()
+
     def toggleDarkMode(self, checked):
         self.dark_mode = checked
         if self.dark_mode:
@@ -689,27 +753,22 @@ class S2RMFrontend(QWidget):
             QTableCornerButton::section { background-color: #353535; }
         """)
 
+        menu_styles = """
+            QMenu { background-color: #353535; color: white; }
+            QMenu::item { background-color: #353535; color: white; }
+            QMenu::item:selected { background-color: #4A4A4A; }
+        """
+
         self.menu_bar.setStyleSheet("""
             QMenuBar { background-color: #252525; color: white; }
             QMenuBar::item { background-color: #252525; color: white; }  # Style the menu items
             QMenuBar::item:selected { background-color: #4A4A4A; }
-            QMenu { background-color: #252525; color: white; }
-            QMenu::item { background-color: #252525; color: white; }  # Style the menu items
-            QMenu::item:selected { background-color: #4A4A4A; }
-        """)
+        """ + menu_styles)
 
         # Apply styles to the menus
-        self.file_menu.setStyleSheet("""
-            QMenu { background-color: #353535; color: white; }
-            QMenu::item { background-color: #353535; color: white; }
-            QMenu::item:selected { background-color: #4A4A4A; }
-        """)
-
-        self.view_menu.setStyleSheet("""
-            QMenu { background-color: #353535; color: white; }
-            QMenu::item { background-color: #353535; color: white; }
-            QMenu::item:selected { background-color: #4A4A4A; }
-        """)
+        self.file_menu.setStyleSheet(menu_styles)
+        self.edit_menu.setStyleSheet(menu_styles)
+        self.view_menu.setStyleSheet(menu_styles)
         
         self.setEditableCellStyles(DARK_INPUT_CELL)  # Dark mode cell color
 
@@ -735,6 +794,7 @@ class S2RMFrontend(QWidget):
         # Reset menu styles
         self.menu_bar.setStyleSheet("")
         self.file_menu.setStyleSheet("")
+        self.edit_menu.setStyleSheet("")
         self.view_menu.setStyleSheet("")
         
         self.setEditableCellStyles(LIGHT_INPUT_CELL)
@@ -757,6 +817,11 @@ class S2RMFrontend(QWidget):
         else:
             link_color = "#0066CC" # More pleasant dark blue for light mode
             version_color = "#FF4500" # Slightly darker orange for light mode
+        
+        # Get the current version from config.json
+        with open(resource_path(CONFIG_PATH), "r") as f:
+            config = json.load(f)
+            programs_mc_version = config.get("mc_version", None)
         
         # Set the text with inline styling for the links
         non_breaking_spaces = "&nbsp;" * 10

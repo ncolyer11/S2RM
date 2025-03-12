@@ -16,6 +16,7 @@ ICON_PATH = "src/icon.ico"
 
 LIMTED_STACKS_NAME = "limited_stack_items.json"
 RAW_MATS_TABLE_NAME = "raw_materials_table.json"
+GAME_DATA_FILES = ["blocks.json", "items.json", "entities.json", "limited_stack_items.json"]
 
 ICE_PER_ICE = 9
 DF_STACK_SIZE = 64
@@ -193,11 +194,3 @@ def constants_py_resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
-
-# Load the raw materials table containing the number of raw materials required to craft one of each item
-with open(constants_py_resource_path(os.path.join(DATA_DIR, RAW_MATS_TABLE_NAME)), "r") as f:
-    MATERIALS_TABLE = json.load(f)
-
-# Load a dictionary containing all items that don't stack to 64, and their stack size (either 16 or 1)
-with open(constants_py_resource_path(os.path.join(GAME_DATA_DIR, LIMTED_STACKS_NAME)), "r") as f:
-    LIMITED_STACK_ITEMS = json.load(f)

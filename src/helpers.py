@@ -1,10 +1,11 @@
+import json
 import re
 import os
 import sys
 
 from dataclasses import dataclass
 
-from src.constants import DF_STACK_SIZE, SHULKER_BOX_SIZE, LIMITED_STACK_ITEMS
+from src.constants import CONFIG_PATH, DATA_DIR, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME, SHULKER_BOX_SIZE
 
 @dataclass
 class TableCols:
@@ -99,6 +100,8 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
     if "shulker_box" in item_name:
         return str(quantity)
 
+    LIMITED_STACK_ITEMS = get_limit_stack_items() # XXX opening this file every time is inefficient
+    
     # Determine the stack size for this item
     stack_size = LIMITED_STACK_ITEMS.get(item_name, DF_STACK_SIZE)
     # Calculate how many items fit in a shulker box
@@ -198,3 +201,57 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def get_current_mc_version():
+    """Get the current Minecraft version stored in config.json."""
+    try:
+        with open(resource_path(CONFIG_PATH), "r") as f:
+            config = json.load(f)
+            return config.get("mc_version", None)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+    
+def set_current_mc_version(version):
+    """Set the current Minecraft version in config.json."""
+    try:
+        with open(resource_path(CONFIG_PATH), "r") as f:
+            config = json.load(f)
+        
+        config["mc_version"] = version
+        
+        with open(resource_path(CONFIG_PATH), "w") as f:
+            json.dump(config, f, indent=4)
+    
+    except (FileNotFoundError, json.JSONDecodeError):
+        print("Error setting current Minecraft version")
+        return False
+    
+    return True
+
+def get_materials_table(version="current"):
+    """
+    Load the raw materials table containing the number of raw materials required to craft one
+    of each item.
+    """
+    try:
+        if version == "current":
+            version = get_current_mc_version()
+            
+        with open(resource_path(os.path.join(DATA_DIR, version, RAW_MATS_TABLE_NAME)), "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+
+def get_limit_stack_items(version="current"):
+    """
+    Load a dictionary containing all items that don't stack to 64, and their stack size (either
+    16 or 1).
+    """
+    try:
+        if version == "current":
+            version = get_current_mc_version()
+
+        with open(resource_path(os.path.join(GAME_DATA_DIR, version, LIMTED_STACKS_NAME)), "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None

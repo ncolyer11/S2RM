@@ -3,17 +3,28 @@ import re
 import json
 import shutil
 
-from src.helpers import resource_path
+from src.helpers import get_current_mc_version, resource_path
 from src.constants import DATA_DIR, GAME_DATA_DIR, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
 
-
-def create_mc_data_dirs():
+def create_mc_data_dirs(mc_version, cache=False):
     try:
         # Ensure 'data' directory exists
         os.makedirs(DATA_DIR, exist_ok=True)
         
         # Then make the game data directory
         os.makedirs(GAME_DATA_DIR, exist_ok=True)
+            
+        # When creating this new mc version folder, prepend with a . if it's not to be cached
+        if not cache:
+            mc_version = f".{mc_version}"
+
+        # Delete all cached data
+        for item in os.listdir(GAME_DATA_DIR):
+            if item.startswith("."):
+                shutil.rmtree(os.path.join(GAME_DATA_DIR, item))
+
+        # Then make the new mc version directory
+        os.makedirs(os.path.join(GAME_DATA_DIR, mc_version), exist_ok=True)
     except Exception as e:
         print(f"Error creating directories: {e}")
 
@@ -85,19 +96,22 @@ def parse_entities_list():
     print("parse_entities_list() stub - to be implemented")
     return []
 
-def save_json_file(filename, data):
+def save_json_file(mc_version, filename, data):
     """
-    Save data to a JSON file in the GAME_DATA_DIR directory
+    Save data to a JSON file in the GAME_DATA_DIR directory for a specific minecraft version
     
     Parameters
     ----------
+    mc_version : str
+        Minecraft version to save the data in a certain directory for
     filename : str
         Name of the output file
     data : list or dict
         Data to be saved as JSON
     """
     try:
-        output_path = os.path.join(GAME_DATA_DIR, filename)
+        output_path = os.path.join(GAME_DATA_DIR, mc_version, filename)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Saved {filename}")
@@ -115,25 +129,39 @@ def cleanup_downloads():
     except Exception as e:
         print(f"Error cleaning up downloads: {e}")
 
-def calculate_materials_table(delete=True):
+def calculate_materials_table(delete=True, cache=True):
+    """
+    Parse the Minecraft game data and save it to JSON files after parsing.
+    
+    Parameters
+    ----------
+    delete : bool, optional
+        Whether to delete the downloads directory after parsing (default is True)
+    cache : bool, optional
+        Whether to cache the parsed data so it doesn't get wiped after switching/updating versions
+        (default is False).
+    """
+    # Get the current Minecraft version
+    mc_version = get_current_mc_version()
+    
     # Create the 'data/game' directories
-    create_mc_data_dirs()
+    create_mc_data_dirs(mc_version, cache)
     
     # Parse and save items list
     items_list = parse_items_list()
-    save_json_file('items.json', items_list)
+    save_json_file(mc_version, 'items.json', items_list)
     
     # Parse and save entities list (stub)
     entities_list = parse_entities_list()
-    save_json_file('entities.json', entities_list)
+    save_json_file(mc_version, 'entities.json', entities_list)
     
     # Parse and save blocks list (stub)
     blocks_list = parse_blocks_list()
-    save_json_file('blocks.json', blocks_list)
+    save_json_file(mc_version, 'blocks.json', blocks_list)
     
     # Parse item stack sizes (stub)
     items_stack_sizes = parse_items_stack_sizes()
-    save_json_file(LIMTED_STACKS_NAME, items_stack_sizes)
+    save_json_file(mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
     
     # Remove the downloads directory if specified
     if delete:
