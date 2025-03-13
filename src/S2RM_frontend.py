@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 import sys
 import copy
 import json
@@ -12,10 +13,10 @@ from PySide6.QtGui import QIcon, QPalette, QColor, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QDialog,
                                QLabel, QPushButton, QFileDialog, QTableWidget, QTableWidgetItem,
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox,
-                               QSizePolicy, QProgressBar)
+                               QSizePolicy, QProgressBar, QComboBox)
 
 from data.parse_mc_data import calculate_materials_table
-from src.constants import CONFIG_PATH, ICE_PER_ICE, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
+from src.constants import CONFIG_PATH, GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
 from src.helpers import format_quantities, clamp, get_materials_table, resource_path, verify_regexes, TableCols, \
     get_current_mc_version, set_current_mc_version
 from src.porting import forwardportJson, get_error_message
@@ -101,7 +102,10 @@ class S2RMFrontend(QWidget):
     @mc_version.setter
     def mc_version(self, version):
         self.__mc_version = version
-        self.version_label.setText(f"MC Version (current: {version})")
+        if version is None:
+            self.version_action.setText("MC Version (current: unspecified)")
+        else:
+            self.version_action.setText(f"MC Version (current: {version})")
         set_current_mc_version(version)
 
     def initUI(self):
@@ -122,12 +126,15 @@ class S2RMFrontend(QWidget):
         # Export on the other hand doesn't mean it can be reloaded necessarily
         export_to_csv_action = self.file_menu.addAction("Export to CSV")
         export_to_csv_action.triggered.connect(self.exportCSV)
+        # Clear mc versions cache
+        clear_cache_action = self.file_menu.addAction("Clear MC Versions Cache")
+        clear_cache_action.triggered.connect(self.clearCache)
         self.menu_bar.addMenu(self.file_menu)
         
         # Add Edit Menu
         self.edit_menu = QMenu("Edit", self)
-        version_action = self.edit_menu.addAction(f"MC Version (current: {get_current_mc_version()})")
-        version_action.triggered.connect(self.showVersionDialog)
+        self.version_action = self.edit_menu.addAction(f"MC Version (current: {get_current_mc_version()})")
+        self.version_action.triggered.connect(self.showVersionDialog)
         self.menu_bar.addMenu(self.edit_menu)
         
         # Store view_menu
@@ -206,7 +213,6 @@ class S2RMFrontend(QWidget):
         layout.addLayout(search_layout)
 
         table_layout = QHBoxLayout()
-
 
         # Input Table
         self.input_table = QTableWidget()
@@ -670,45 +676,74 @@ class S2RMFrontend(QWidget):
     def showVersionDialog(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Set Version")
-        dialog.setFixedSize(250, 150)
-
+        dialog.setFixedSize(250, 180)  # Made wider to accommodate dropdown
+        
+        downloaded_versions = []
+        # Check data/game folder for versions folders in the top level
+        for folder in os.listdir(os.path.join("data", "game")):
+            if re.match(MC_VERSION_REGEX, folder):
+                downloaded_versions.append(folder)
+        
         layout = QVBoxLayout()
-
+        
+        # Add label
         label = QLabel("Enter new version:")
         layout.addWidget(label)
-
-        version_input = QLineEdit()
-        version_input.setPlaceholderText("e.g. 1.19.4, 1.21.5-pre1, 20w06a")
-        layout.addWidget(version_input)
-
-        # Mark a version folder in game data to not be removed when switching from that version
+        
+        # Use QComboBox instead of QLineEdit to allow both dropdown and text entry
+        version_combo = QComboBox()
+        version_combo.setEditable(True)  # Allow manual text entry
+        version_combo.setInsertPolicy(QComboBox.InsertAtBottom)  # Add new items at the bottom
+        
+        # Add placeholder text
+        version_combo.setPlaceholderText("e.g. 1.19.4, 1.21.5-pre1, 20w06a")
+    
+        # Add downloaded versions to the combo box
+        version_combo.addItems(downloaded_versions)
+        
+        layout.addWidget(version_combo)
+        
+        # Cache checkbox
         cache_checkbox = QCheckBox("Cache this version")
         layout.addWidget(cache_checkbox)
-
+        
+        # Buttons
         button_layout = QHBoxLayout()
         ok_button = QPushButton("OK")
         cancel_button = QPushButton("Cancel")
-
         button_layout.addWidget(ok_button)
         button_layout.addWidget(cancel_button)
         layout.addLayout(button_layout)
-
+        
         dialog.setLayout(layout)
-
-        ok_button.clicked.connect(lambda: self.saveVersion(version_input.text(),
-                                                           cache_checkbox.isChecked(), dialog))
+        
+        # Connect buttons
+        ok_button.clicked.connect(lambda: self.saveVersion(version_combo.currentText(),
+                                                        cache_checkbox.isChecked(), dialog))
         cancel_button.clicked.connect(dialog.reject)
-
-        dialog.exec_()
+        
+        dialog.exec()
 
     def saveVersion(self, version, cache, dialog):
         # Update the config.json file with the new version (and it auto updates the label)
+        if version is None or version == "" or not version:
+            QMessageBox.warning(self, "Invalid Version", "Please enter a valid version.")
+            return # XXX MAKE THIS CAPTURE INVALID VERSIONS TOO NOT JUST EMPTY ONES
         self.mc_version = version
 
-        download_game_data()
-        calculate_materials_table(cache)
+        download_game_data(specific_version=version)
+        calculate_materials_table(cache=cache)
 
         dialog.accept()
+
+    def clearCache(self):
+        # Clear the cache of downloaded versions
+        shutil.rmtree(resource_path(GAME_DATA_DIR))
+        # Clear the current version
+        self.mc_version = None
+        # Remake the game data folder
+        os.makedirs(resource_path(GAME_DATA_DIR))
+        print("Cleared MC versions cache")
 
     def toggleDarkMode(self, checked):
         self.dark_mode = checked
@@ -991,9 +1026,11 @@ class LoadingDialog(QDialog):
 
 def start():
     global app
-    app = QApplication(sys.argv)
-    app_icon = QIcon(resource_path(ICON_PATH))
-    app.setWindowIcon(app_icon)
+    if not QApplication.instance():
+        app = QApplication(sys.argv)
+    else:
+        app = QApplication.instance()
+    app.setWindowIcon(QIcon(resource_path(ICON_PATH)))
     app.setStyle('Fusion')
     window = S2RMFrontend()
     window.show()

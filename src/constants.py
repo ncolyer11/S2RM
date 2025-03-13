@@ -31,6 +31,7 @@ AXIOM_MATERIALS_REGEX = r"""
     wheat|quartz|resin_clump|coal|diamond|dried_kelp|emerald|honey_bottle|lapis_lazuli|white_wool|
     raw_\w+(?!_block)|\w+dye|leather)$
 """
+MC_VERSION_REGEX = r"(\d+\.\d+(\.\d+(-\w+\d*)?)?|(\d{2}w\d{2}[a-z]))$"
 
 # Crafting methods that are prioritised over others and can overwrite existing recipes
 PRIORITY_CRAFTING_METHODS = {

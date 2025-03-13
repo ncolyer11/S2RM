@@ -5,6 +5,9 @@ import sys
 
 from dataclasses import dataclass
 
+import requests
+from tqdm import tqdm
+
 from src.constants import CONFIG_PATH, DATA_DIR, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME, SHULKER_BOX_SIZE
 
 @dataclass
@@ -47,6 +50,39 @@ def verify_regexes(search_str: str) -> list[str] | bool:
         return False
 
     return valid_search_terms
+
+def download_file(url, output_path) -> bool:
+    """Download a file with a progress bar."""
+    try:
+        # Send GET request and then raise an exception for bad HTTP status codes
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Get the total file size for tracking progress
+        total_size = int(response.headers.get('content-length', 0))
+        # Open the output file in binary write mode and start a progress bar
+        with open(output_path, 'wb') as file, \
+             tqdm(
+                desc=os.path.basename(output_path),
+                total=total_size,
+                colour='green',
+                unit='iB',
+                unit_scale=True,
+                unit_divisor=1024,
+             ) as progress_bar:
+            
+            for data in response.iter_content(chunk_size=1024):
+                size = file.write(data)
+                progress_bar.update(size)
+        
+        print(f"Successfully downloaded {url}\n")
+        return True
+    
+    except Exception as e:
+        print(f"Error downloading {url}: {e}")
+        return False
 
 def format_quantities(materials: list[str], qs_vals_text: tuple[list[int], list[str]],
                       is_exclude_col: bool = False) -> None:
