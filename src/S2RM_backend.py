@@ -162,20 +162,30 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
 
     return materials
 
-def convert_block_to_item(block_name: str) -> str:
-    block_name = re.sub(r'wall_', '', block_name)
-    block_name = re.sub(r'attached_', '', block_name)
-    block_name = re.sub(r'potted_', '', block_name)
-    
-    block_name = BLOCK_TAGS.get(block_name, block_name)
+def block_to_item_name(block_name: str) -> str:
+    is_quoted = block_name.startswith('"')
+    data_name = block_name.lower().replace('"', '')
 
-    # Convert remove wall_ from things that go on walls like torches and signs
+    data_name = re.sub(r'wall_', '', data_name)
+    data_name = re.sub(r'attached_', '', data_name)
+    data_name = re.sub(r'potted_', '', data_name)
+    
+    data_name = BLOCK_TAGS.get(data_name, data_name)
+
+    if match := re.match(r'(weeping|twisting)_vines_plant', data_name):
+        data_name = f"{match.group(1)}_vines"
+
+    item_name = f'"{data_name}"' if is_quoted else data_name
+    return item_name
+
+def convert_block_to_item(block_name: str) -> str:
+    block_name = block_to_item_name(block_name)
+
+    # Handle 1 block -> 2 items edge cases
     if "candle" in block_name and "cake" in block_name:
         return ["candle", "cake"]
     elif match := re.match(r'(lava|water|powder_snow)_cauldron', block_name):
         return ["cauldron", f"{match.group(1)}_bucket"]
-    elif match := re.match(r'(weeping|twisting)_vines_plant', block_name):
-        return [f"{match.group(1)}_vines"]
 
     return [block_name] if isinstance(block_name, str) else block_name
 

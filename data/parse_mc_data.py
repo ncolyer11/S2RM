@@ -3,8 +3,9 @@ import re
 import json
 import shutil
 
+from src.S2RM_backend import block_to_item_name
 from src.helpers import get_current_mc_version, resource_path
-from src.constants import DATA_DIR, GAME_DATA_DIR, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
+from src.constants import DATA_DIR, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
 
 def create_mc_data_dirs(mc_version, cache=False):
     try:
@@ -79,22 +80,57 @@ def parse_items_stack_sizes():
     return dict(sorted(limited_stack_items.items(), key=lambda x: (x[0], x[1])))
 
 def parse_blocks_list():
-    """
-    Stub function for parsing blocks from Blocks.java
-    
-    TO BE IMPLEMENTED
-    """
-    print("parse_blocks_list() stub - to be implemented")
-    return []
+    """Parses block names from Blocks.java, converting them into material names"""
+    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "Blocks.java")), "r") as f:
+        lines = f.readlines()
+
+    # Replace all newlines with nothing, and then replace all 'register(' with newlines
+    lines = "".join(lines) \
+        .replace("\n", "") \
+        .replace("register(", "\n") \
+        .replace("net.minecraft.references.Blocks.", '\n"') \
+        .split("\n")
+
+    item_names = [block_to_item_name(line.split(',')[0].strip()) for line in lines]
+
+    # Remove unrelated lines in the code
+    for i in range(len(item_names) - 1,  -1, -1):
+        if not item_names[i].startswith('"'):
+            item_names.pop(i)
+        # Fix item name if it's semi-valid
+        elif not item_names[i].endswith('"'):
+            item_names[i] += '"'
+
+    item_names.sort()
+
+    # Remove duplicate entries after processing block names and sorting
+    for i in range(len(item_names) - 1,  0, -1):
+        if item_names[i].replace('"', '') in INVALID_BLOCKS or item_names[i] == item_names[i - 1]:
+            item_names.pop(i)
+
+    return item_names
 
 def parse_entities_list():
-    """
-    Stub function for parsing entities from EntityType.java
-    
-    TO BE IMPLEMENTED
-    """
-    print("parse_entities_list() stub - to be implemented")
-    return []
+    """Stub function for parsing entities from EntityType.java"""
+    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "EntityType.java")), "r") as f:
+        lines = f.readlines()
+
+    # Replace all newlines with nothing, and then replace all 'register(' with newlines
+    lines = "".join(lines) \
+        .replace("\n", "") \
+        .replace("register(", "\n") \
+        .split("\n")
+
+    entity_names = [block_to_item_name(line.split(',')[0].strip()) for line in lines]
+
+    # Remove unrelated lines in the code
+    for i in range(len(entity_names) - 1,  -1, -1):
+        if not entity_names[i].startswith('"'):
+            entity_names.pop(i)
+
+    entity_names.sort()
+
+    return entity_names
 
 def save_json_file(mc_version, filename, data):
     """
@@ -143,6 +179,8 @@ def calculate_materials_table(delete=True, cache=True):
     """
     # Get the current Minecraft version
     mc_version = get_current_mc_version()
+    if mc_version is None:
+        return
     
     # Create the 'data/game' directories
     create_mc_data_dirs(mc_version, cache)
@@ -151,15 +189,15 @@ def calculate_materials_table(delete=True, cache=True):
     items_list = parse_items_list()
     save_json_file(mc_version, 'items.json', items_list)
     
-    # Parse and save entities list (stub)
+    # Parse and save entities list
     entities_list = parse_entities_list()
     save_json_file(mc_version, 'entities.json', entities_list)
     
-    # Parse and save blocks list (stub)
+    # Parse and save blocks list
     blocks_list = parse_blocks_list()
     save_json_file(mc_version, 'blocks.json', blocks_list)
     
-    # Parse item stack sizes (stub)
+    # Parse item stack sizes
     items_stack_sizes = parse_items_stack_sizes()
     save_json_file(mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
     
@@ -168,4 +206,12 @@ def calculate_materials_table(delete=True, cache=True):
         cleanup_downloads()
 
 if __name__ == '__main__':
-    calculate_materials_table()
+    # items = parse_blocks_list()
+    # for item in items:
+    #     print(item)
+
+    # entities = parse_entities_list()
+    # for entity in entities:
+    #     print(entity)
+
+    calculate_materials_table(delete=False)

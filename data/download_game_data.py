@@ -37,6 +37,10 @@ def check_mc_data(redownload: bool = False, delete=True) -> bool:
     # Get the latest version from the manifest
     latest_version, _ = get_latest_minecraft_version()
 
+    # Cancel checking/downloading mc data if there's a connection/other error
+    if latest_version is None:
+        return
+
     # Check all currently downloaded version to see if the latest version is already downloaded
     matching_versions = False
     if not os.path.exists(resource_path(GAME_DATA_DIR)):
