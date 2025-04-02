@@ -9,7 +9,6 @@ from src.constants import CONDENSABLES, GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLO
     SIMPLE_ENTITIES, SHULKER_BOX_SIZE
 from src.helpers import add_material, int_to_roman, get_limit_stack_items, \
     print_formatted_entity_data
-from src.config import create_default_config
 
 def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
     """

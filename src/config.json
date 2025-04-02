@@ -1,7 +1,7 @@
 {
     "program_version": "1.3.3",
-    "declined_latest_program_version": false,
+    "declined_latest_program_version": true,
     "selected_mc_version": "1.21.5",
-    "latest_mc_version": "1.21.5",
-    "declined_latest_mc_version": false
+    "latest_mc_version": "25w14craftmine",
+    "declined_latest_mc_version": true
 }

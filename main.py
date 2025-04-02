@@ -1,5 +1,5 @@
 from data.download_game_data import check_mc_data
-from s2rm.src.helpers import check_connection
+from src.helpers import check_connection
 from src.S2RM_frontend import start
 from src.config import update_config
 
@@ -12,6 +12,7 @@ def main():
         update_config()
         # Download the latest mc game data if the program's mc version is out of date
         check_mc_data(delete=True)
+        print("in main")
 
     # Start the frontend
     start()

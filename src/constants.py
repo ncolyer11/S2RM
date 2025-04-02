@@ -4,13 +4,26 @@ import sys
 PROGRAM_VERSION = "1.3.3"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 
+S2RM_API_RELEASES_URL = "https://api.github.com/repos/ncolyer11/S2RM/releases/latest"
+S2RM_RELEASES_URL = "https://github.com/ncolyer11/S2RM/releases/latest"
+MC_CODE_REPO_URL = "NikitaCartes-archive/MinecraftDeobfuscated-Mojang"
+
 # File related constants
 DATA_DIR = "data"
 GAME_DATA_DIR = "data/game"
 MC_DOWNLOADS_DIR = "mc_downloads"
 CONFIG_PATH = "src/config.json"
 ICON_PATH = "src/icon.ico"
+MC_CODE_TO_DOWNLOAD = [
+    ('minecraft/src/net/minecraft/world/item/Items.java',
+        os.path.join(MC_DOWNLOADS_DIR, 'Items.java')),
+    ('minecraft/src/net/minecraft/world/level/block/Blocks.java',
+        os.path.join(MC_DOWNLOADS_DIR, 'Blocks.java')),
+    ('minecraft/src/net/minecraft/world/entity/EntityType.java',
+        os.path.join(MC_DOWNLOADS_DIR, 'EntityType.java'))
+]
 
+BACKUP_VERSION = "1.21.5" # The latest version that I know this programs parsing works with
 LIMTED_STACKS_NAME = "limited_stack_items.json"
 RAW_MATS_TABLE_NAME = "raw_materials_table.json"
 GAME_DATA_FILES = ["blocks.json", "items.json", "entities.json", "limited_stack_items.json"]

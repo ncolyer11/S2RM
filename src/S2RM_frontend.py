@@ -16,13 +16,15 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QSizePolicy, QProgressBar, QComboBox)
 
 from data.parse_mc_data import calculate_materials_table
-from src.constants import GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
-from src.helpers import format_quantities, clamp, get_materials_table, resource_path, verify_regexes, TableCols, \
-    get_current_mc_version, set_current_mc_version
+from src.constants import GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, \
+    OUTPUT_JSON_VERSION, ICON_PATH
+from src.helpers import format_quantities, clamp, get_materials_table, resource_path, \
+    verify_regexes, TableCols
+from src.config import get_config_value, set_config_value
 from src.porting import forwardportJson, get_error_message
 from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
-from data.download_game_data import download_game_data
+from data.download_game_data import check_mc_version_in_program_exists, download_game_data, get_minecraft_version_url
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
@@ -73,7 +75,7 @@ class S2RMFrontend(QWidget):
         self.ice_type = "ice"
         self.file_paths = []
         # Get the current version of Minecraft the program is using for recipe data
-        self.__mc_version = get_current_mc_version()
+        self.__mc_version = get_config_value("selected_mc_version")
         
         # Explicitly store table values and table text
         self.tv = TableCols([], [], [], [], [], [])
@@ -106,7 +108,7 @@ class S2RMFrontend(QWidget):
             self.version_action.setText("MC Version (current: unspecified)")
         else:
             self.version_action.setText(f"MC Version (current: {version})")
-        set_current_mc_version(version)
+        set_config_value("selected_mc_version", version)
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -133,7 +135,7 @@ class S2RMFrontend(QWidget):
         
         # Add Edit Menu
         self.edit_menu = QMenu("Edit", self)
-        self.version_action = self.edit_menu.addAction(f"MC Version (current: {get_current_mc_version()})")
+        self.version_action = self.edit_menu.addAction(f"MC Version (current: {self.__mc_version})")
         self.version_action.triggered.connect(self.showVersionDialog)
         self.menu_bar.addMenu(self.edit_menu)
         
@@ -703,10 +705,6 @@ class S2RMFrontend(QWidget):
         
         layout.addWidget(version_combo)
         
-        # Cache checkbox
-        cache_checkbox = QCheckBox("Cache this version")
-        layout.addWidget(cache_checkbox)
-        
         # Buttons
         button_layout = QHBoxLayout()
         ok_button = QPushButton("OK")
@@ -718,32 +716,47 @@ class S2RMFrontend(QWidget):
         dialog.setLayout(layout)
         
         # Connect buttons
-        ok_button.clicked.connect(lambda: self.saveVersion(version_combo.currentText(),
-                                                        cache_checkbox.isChecked(), dialog))
+        ok_button.clicked.connect(lambda: self.saveVersion(version_combo.currentText(), dialog))
         cancel_button.clicked.connect(dialog.reject)
         
         dialog.exec()
 
-    def saveVersion(self, version, cache, dialog):
+    def saveVersion(self, version, dialog):
         # Update the config.json file with the new version (and it auto updates the label)
-        if version is None or version == "" or not version:
+        if version is None or version == "" or not version or not re.match(MC_VERSION_REGEX, version) or not get_minecraft_version_url(version):
             QMessageBox.warning(self, "Invalid Version", "Please enter a valid version.")
-            return # XXX MAKE THIS CAPTURE INVALID VERSIONS TOO NOT JUST EMPTY ONES
+            return
+
+        # If the version is already downloaded, just update the label
+        if check_mc_version_in_program_exists(version):
+            self.version_action.setText(f"MC Version (current: {version})")
+        # Otherwise, download the new version
+        else:
+            download_game_data(version)
+            calculate_materials_table()
+
         self.mc_version = version
-
-        download_game_data(specific_version=version)
-        calculate_materials_table(cache=cache)
-
         dialog.accept()
 
     def clearCache(self):
-        # Clear the cache of downloaded versions
-        shutil.rmtree(resource_path(GAME_DATA_DIR))
-        # Clear the current version
-        self.mc_version = None
-        # Remake the game data folder
-        os.makedirs(resource_path(GAME_DATA_DIR))
-        print("Cleared MC versions cache")
+        # Clear the cache of downloaded versions except for the selected one
+        removed_count = 0
+        removed_versions = []
+        selected_version = get_config_value("selected_mc_version")
+        for folder in os.listdir(os.path.join("data", "game")):
+            if re.match(MC_VERSION_REGEX, folder) and folder != selected_version:
+                folder_path = os.path.join("data", "game", folder)
+                if os.path.isdir(folder_path):
+                    shutil.rmtree(folder_path)
+                    removed_count += 1
+                    removed_versions.append(folder)
+                    
+                    print(f"Cleared cache for version: {folder}")
+        
+        if removed_count > 0:
+            QMessageBox.information(self, "Cache Cleared", f"Cleared cache for {removed_count} versions:\n{', '.join(removed_versions)}")
+        else:
+            QMessageBox.information(self, "Cache Cleared", "No versions were cleared from the cache.")
 
     def toggleDarkMode(self, checked):
         self.dark_mode = checked
@@ -985,9 +998,9 @@ class LoadingDialog(QDialog):
         self.progress_bar.setRange(0, 100)
         layout.addWidget(self.progress_bar)
 
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed) # Keep the size static
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.setFixedWidth(300) # Set a fixed width
+        self.setFixedWidth(300)
 
         self.setStyleSheet("""
             QDialog {

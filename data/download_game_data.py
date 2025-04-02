@@ -1,20 +1,21 @@
 import os
-import json
 import shutil
 import requests
 import zipfile
 
 from tqdm import tqdm
-from PySide6.QtWidgets import QApplication, QMessageBox
-from PySide6.QtGui import QIcon
 
-from s2rm.src.S2RM_backend import create_default_config
-from src.constants import CONFIG_PATH, GAME_DATA_DIR, ICON_PATH, MC_DOWNLOADS_DIR, GAME_DATA_FILES
-from src.helpers import check_connection, download_file, resource_path, set_config_value
+from src.helpers import download_file, resource_path
 from data.parse_mc_data import calculate_materials_table
+from src.config import get_config_value, get_current_mc_version, set_config_value
+from src.constants import BACKUP_VERSION, GAME_DATA_DIR, MC_CODE_REPO_URL, MC_CODE_TO_DOWNLOAD, MC_DOWNLOADS_DIR, \
+    GAME_DATA_FILES
 
 # TODO: finish logic for this. consider redoing to make all folder creation and deletion happen at
 # one point in the program for reliability. also add better handling for temp folders etc
+
+# XXX ireckon the only data you need for this shi is just the limited stacked items list
+# and the materials table list for each version, can delete all kinds of stuff after that
 def check_mc_data(redownload: bool = False, delete=True) -> bool:
     """
     Search for latest mc version from manifest and compare to the program's current version
@@ -35,25 +36,19 @@ def check_mc_data(redownload: bool = False, delete=True) -> bool:
     bool
         True if the latest version is already downloaded, False if the latest version is not found.
     """
-    # Get the latest version from the manifest and update the config
-    latest_version, latest_version_url = get_latest_minecraft_version()
-    set_config_value("latest_mc_version", latest_version)
-
+    selected_mc_version = get_config_value("selected_mc_version")
     # Check all currently downloaded version to see if the latest version is already downloaded
-    matching_versions = False
-    if not os.path.exists(resource_path(GAME_DATA_DIR)):
-        os.makedirs(resource_path(GAME_DATA_DIR), exist_ok=True)
-    else:
-        for version in os.listdir(resource_path(GAME_DATA_DIR)):
-            if version == latest_version:
-                matching_versions = True
-                break
+    matching_versions = check_mc_version_in_program_exists(selected_mc_version)
 
-    # Compare the two versions
+    # At this point, the user would've already been prompted to update the programs selected mc
+    # version to the latest one
+    
+    # So if a matching version (a folder containing the selected versions actual game data) isn't
+    # found, then we need to download that, regardless of if the selected version is the latest or not
     if matching_versions:
         # Folder could exist but not all the files
-        if not os.path.exists(resource_path(os.path.join(GAME_DATA_DIR, latest_version))) or not all(
-            os.path.exists(resource_path(os.path.join(GAME_DATA_DIR, latest_version, f))) for f in GAME_DATA_FILES
+        if not os.path.exists(resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version))) or not all(
+            os.path.exists(resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version, f))) for f in GAME_DATA_FILES
         ):
             print("Game data files not found. Downloading new data and updating materials table now...")
 
@@ -62,81 +57,32 @@ def check_mc_data(redownload: bool = False, delete=True) -> bool:
             print("Versions match but redownload is forced. Downloading new data and updating "
                   "materials table now...")
         else:
-            print(f"Latest MC data found in program: {latest_version}.")
+            print(f"Downloaded data exists for selected version")
             # Return early to avoid unnecessary downloads and recalculating the materials table
             return matching_versions
-
-    # If the latest version was not found, prompt the user to download the new version
-    else:
-        # Create a QApplication instance if one doesn't exist
-        app = QApplication.instance()
-        if app is None:
-            app = QApplication([])
-
-        app.setWindowIcon(QIcon(resource_path(ICON_PATH)))
-        app.setStyle('Fusion')
-        # Create and configure message box
-        msgBox = QMessageBox()
-        msgBox.setWindowTitle("New Minecraft Version Available")
-        msgBox.setText(f"A new Minecraft version ({latest_version}) is available.")
-        msgBox.setInformativeText("Would you like to download this version?")
-        msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        msgBox.setDefaultButton(QMessageBox.Yes)
         
-        # Check the user's response
-        response = msgBox.exec()
-
-        # Close the application instance
-        app.quit()
-
-        # If the user selects No, return early
-        if response != QMessageBox.Yes:
-            return matching_versions
-        print(f"Latest MC data not found in program: {latest_version}. "
-              "Downloading new data and updating materials table now...")
-
-    download_game_data()
+    download_game_data(selected_mc_version)
     calculate_materials_table(delete)
 
     return matching_versions
 
-def get_latest_minecraft_version() -> tuple:
+def check_mc_version_in_program_exists(mc_version: str) -> bool:
     """
-    Fetch the latest Minecraft version (including snapshots) from Mojang's version manifest.
-    
-    Raises
-    ------
-    ValueError
-        If no latest version is found in the manifest.
+    Check if a given mc version has a folder in game data with a materials table, limited
+    stacked items list etc.
     """
-    version_manifest_url = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
+    matching_versions = False
+    if not os.path.exists(resource_path(GAME_DATA_DIR)):
+        os.makedirs(resource_path(GAME_DATA_DIR), exist_ok=True)
+    else:
+        for version in os.listdir(resource_path(GAME_DATA_DIR)):
+            if version == mc_version:
+                matching_versions = True
+                break
     
-    response = requests.get(version_manifest_url)
-    response.raise_for_status()
-    version_data = response.json()
-    
-    latest_version = version_data['latest']['snapshot']
-    
-    # Find the download URL for this version
-    for version in version_data['versions']:
-        if version['id'] == latest_version:
-            return latest_version, version['url']
-    
-    if not latest_version:
-        raise ValueError("No latest version found in the manifest")
-    
+    return matching_versions
 
-def download_game_data(specific_version=None):
-    repo_path = "NikitaCartes-archive/MinecraftDeobfuscated-Mojang"
-    files_to_download = [
-        ('minecraft/src/net/minecraft/world/item/Items.java',
-         os.path.join(MC_DOWNLOADS_DIR, 'Items.java')),
-        ('minecraft/src/net/minecraft/world/level/block/Blocks.java',
-         os.path.join(MC_DOWNLOADS_DIR, 'Blocks.java')),
-        ('minecraft/src/net/minecraft/world/entity/EntityType.java',
-         os.path.join(MC_DOWNLOADS_DIR, 'EntityType.java'))
-    ]
-   
+def download_game_data(specific_version = None, fix_redownload = False) -> bool:
     # Delete any existing minecraft_downloads folder
     try:
         shutil.rmtree(MC_DOWNLOADS_DIR)
@@ -144,32 +90,38 @@ def download_game_data(specific_version=None):
         pass
     
     # Create the downloads directory
-    os.makedirs(MC_DOWNLOADS_DIR, exist_ok=True)
+    os.makedirs(MC_DOWNLOADS_DIR, exist_ok=False)
     
     # If specific version is provided, get the url for that version
     if specific_version:
-        version_id = specific_version
-        version_url = get_minecraft_version_url(version_id)
+        version_id, version_url = specific_version, get_minecraft_version_url(specific_version)
     # Otherwise, find and retrieve the latest version
     else:
-        version_id, version_url = get_latest_minecraft_version()
+        version_id, version_url = get_current_mc_version()
    
     # Download .java game files from GitHub using specific version if provided
-    for file_path, output_path in files_to_download:
-        git_downloaded = download_github_file(repo_path, file_path, output_path, version_id)
+    git_downloaded, jar_downloaded = False, False
+    for file_path, output_path in MC_CODE_TO_DOWNLOAD:
+        if download_github_file(MC_CODE_REPO_URL, file_path, output_path, version_id):
+            git_downloaded = True
 
     if version_id and version_url:
         jar_downloaded = download_minecraft_jar(version_id, version_url)
     
-    # Cleanup the JAR file after extraction and update the config with the latest version if successful
+    # Cleanup the JAR file after extraction and ensure config selected version is set
     if git_downloaded and jar_downloaded:
-        set_config_value("selected_mc_version", version_id)
-        # Remove the downloaded .jar file
         cleanup_jar_file(version_id)
+        set_config_value("selected_mc_version", version_id)
+        return True
     else:
-        print("Failed to download game data. Removing the downloads directory...")
         shutil.rmtree(MC_DOWNLOADS_DIR)
-
+        print(f"\nFailed to download game data: git: {git_downloaded}, jar:{jar_downloaded}. "
+              f"Removing downloads directory.\n"
+              f"Downloading backup version {BACKUP_VERSION} instead...\n")
+        if not fix_redownload:
+            return download_game_data(BACKUP_VERSION, fix_redownload=True)
+        else:
+            raise ValueError(F"Failed to download to backup version: {BACKUP_VERSION}.")
 def get_minecraft_version_url(version_id: str) -> str | None:
     """
     Get the version URL from the Mojang version manifest.
@@ -286,7 +238,8 @@ def download_minecraft_jar(version_id, version_url) -> bool:
             print(f"Extracted {len(item_files)} item JSON files")
 
             if not recipe_files or not item_files:
-                print("No recipe or item JSON files found in the JAR")
+                print("No recipe or item JSON files found in the JAR. "
+                      f"recipes: {len(recipe_files)}, items: {len(item_files)}")
                 return False
 
         print(f"Successfully downloaded and extracted resources for version {version_id}\n")

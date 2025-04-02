@@ -4,10 +4,11 @@ import json
 import shutil
 
 from src.S2RM_backend import block_to_item_name
-from src.helpers import get_current_mc_version, resource_path
+from src.helpers import resource_path
+from src.config import get_config_value, get_current_mc_version
 from src.constants import DATA_DIR, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
 
-def create_mc_data_dirs(mc_version, cache=False):
+def create_mc_data_dirs(mc_version: str):
     try:
         # Ensure 'data' directory exists
         os.makedirs(DATA_DIR, exist_ok=True)
@@ -15,15 +16,6 @@ def create_mc_data_dirs(mc_version, cache=False):
         # Then make the game data directory
         os.makedirs(GAME_DATA_DIR, exist_ok=True)
             
-        # When creating this new mc version folder, prepend with a . if it's not to be cached
-        if not cache:
-            mc_version = f".{mc_version}"
-
-        # Delete all cached data
-        for item in os.listdir(GAME_DATA_DIR):
-            if item.startswith("."):
-                shutil.rmtree(os.path.join(GAME_DATA_DIR, item))
-
         # Then make the new mc version directory
         os.makedirs(os.path.join(GAME_DATA_DIR, mc_version), exist_ok=True)
     except Exception as e:
@@ -165,7 +157,7 @@ def cleanup_downloads():
     except Exception as e:
         print(f"Error cleaning up downloads: {e}")
 
-def calculate_materials_table(delete=True, cache=True):
+def calculate_materials_table(delete=True):
     """
     Parse the Minecraft game data and save it to JSON files after parsing.
     
@@ -176,14 +168,13 @@ def calculate_materials_table(delete=True, cache=True):
     cache : bool, optional
         Whether to cache the parsed data so it doesn't get wiped after switching/updating versions
         (default is False).
+    # XXX remove cache and replace it with a manual tool to delete specific downloaded versions (plus a clear all (but selected) option)
     """
-    # Get the current Minecraft version
-    mc_version = get_current_mc_version()
-    if mc_version is None:
-        return
+    # Get the selected Minecraft version
+    mc_version = get_config_value("selected_mc_version")
     
     # Create the 'data/game' directories
-    create_mc_data_dirs(mc_version, cache)
+    create_mc_data_dirs(mc_version)
     
     # Parse and save items list
     items_list = parse_items_list()

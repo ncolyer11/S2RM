@@ -18,7 +18,6 @@ OUTPUT_JSON_DEFAULT = {
     "collected": {}
 }
 
-
 def get_error_message(ec: int, version: int) -> str:
     """Return the error message for the given error code."""
     error_messages = {
