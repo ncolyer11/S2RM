@@ -173,6 +173,9 @@ def calculate_materials_table(delete=True):
     # Get the selected Minecraft version
     mc_version = get_config_value("selected_mc_version")
     
+    # XXX oh this stuff all should be done right after downloading an mc version
+    # this function should be part of that and a new one should be created just for
+    # loading a spefici versions materials table into the backend scope
     # Create the 'data/game' directories
     create_mc_data_dirs(mc_version)
     
