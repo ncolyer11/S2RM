@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QSizePolicy, QProgressBar, QComboBox)
 
 from data.parse_mc_data import calculate_materials_table
-from src.constants import CONFIG_PATH, GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
+from src.constants import GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, OUTPUT_JSON_VERSION, ICON_PATH
 from src.helpers import format_quantities, clamp, get_materials_table, resource_path, verify_regexes, TableCols, \
     get_current_mc_version, set_current_mc_version
 from src.porting import forwardportJson, get_error_message
@@ -852,11 +852,6 @@ class S2RMFrontend(QWidget):
         else:
             link_color = "#0066CC" # More pleasant dark blue for light mode
             version_color = "#FF4500" # Slightly darker orange for light mode
-        
-        # Get the current version from config.json
-        with open(resource_path(CONFIG_PATH), "r") as f:
-            config = json.load(f)
-            programs_mc_version = config.get("mc_version", None)
         
         # Set the text with inline styling for the links
         non_breaking_spaces = "&nbsp;" * 10

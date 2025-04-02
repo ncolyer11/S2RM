@@ -1,11 +1,8 @@
-import json
 import os
 import sys
 
-
 PROGRAM_VERSION = "1.3.3"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
-
 
 # File related constants
 DATA_DIR = "data"
@@ -183,6 +180,20 @@ GOLEM_RECIPES = {
     "iron_golem": {"iron_block": 4, "carved_pumpkin": 1},
     "snow_golem": {"snow_block": 1, "carved_pumpkin": 1},
     "wither": {"soul_sand": 3, "wither_skeleton_skull": 3},
+}
+
+# Condenseable items that don't follow a specific naming pattern, e.g. ingots -> blocks
+CONDENSABLES = {
+    "bone_meal": {"bone_block", 9},
+    "coal": {"coal_block", 9},
+    "diamond": {"diamond_block", 9},
+    "emerald": {"emerald_block", 9},
+    "honey_bottle": {"honey_block", 4},
+    "lapis_lazuli": {"lapis_block", 9},
+    "redstone": {"redstone_block", 9},
+    "slime_ball": {"slime_block", 9},
+    "snowball": {"snow_block", 4},
+    "wheat": {"hay_block", 9},
 }
 
 # To get this to build to .exe we need this code, but to avoid circular dependencies it needs to be here, kinda eh

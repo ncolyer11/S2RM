@@ -8,6 +8,7 @@ from dataclasses import dataclass
 import requests
 from tqdm import tqdm
 
+from s2rm.src.config import create_default_config, get_config_value
 from src.constants import CONFIG_PATH, DATA_DIR, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME, SHULKER_BOX_SIZE
 
 @dataclass
@@ -27,10 +28,55 @@ class TableCols:
         self.raw_quantities = []
         self.collected_data = []
 
+def check_connection() -> bool:
+    """Check if the user is connected to the internet and if the config file exists."""
+    try:
+        requests.get("https://www.google.com", timeout=5)
+    except requests.ConnectionError:
+        print("No internet connection. Skipping game data download.")
+        return False
+    except requests.Timeout:
+        print("Connection timed out. Skipping game data download.")
+        return False
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return False
+
+    # Check if the config file exists
+    if not os.path.exists(resource_path(CONFIG_PATH)):
+        print("Config file not found. Generating a new default config file "
+              "and skipping game data download.")
+        create_default_config()
+        return False
+    
+    return True
+
+def get_latest_s2rm_release() -> str:
+    """
+    Get the latest release version of the S2RM program from GitHub.
+    
+    Raises
+    ------
+    ValueError
+        If the latest release name is not found in the response.
+    """
+    try:
+        response = requests.get("https://api.github.com/repos/ncolyer11/S2RM/releases/latest")
+        response.raise_for_status()
+        release_data = response.json()
+        latest_release = release_data.get("name", None)
+        if latest_release is None:
+            raise ValueError("Latest release name not found in response.")
+        # Remove the "v" prefix if it exists
+        return latest_release.lstrip("v")
+    except Exception as e:
+        print(f"Error fetching latest release version: {e}")
+        raise e
+
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
 
-def add_material(materials, item, count=1):
+def add_material(materials: dict[str, int], item: str, count:int = 1):
     """Helper function to add materials safely."""
     materials[item] = materials.get(item, 0) + count
 
@@ -238,32 +284,6 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-def get_current_mc_version():
-    """Get the current Minecraft version stored in config.json."""
-    try:
-        with open(resource_path(CONFIG_PATH), "r") as f:
-            config = json.load(f)
-            return config.get("mc_version", None)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
-    
-def set_current_mc_version(version):
-    """Set the current Minecraft version in config.json."""
-    try:
-        with open(resource_path(CONFIG_PATH), "r") as f:
-            config = json.load(f)
-        
-        config["mc_version"] = version
-        
-        with open(resource_path(CONFIG_PATH), "w") as f:
-            json.dump(config, f, indent=4)
-    
-    except (FileNotFoundError, json.JSONDecodeError):
-        print("Error setting current Minecraft version")
-        return False
-    
-    return True
-
 def get_materials_table(version="current"):
     """
     Load the raw materials table containing the number of raw materials required to craft one
@@ -271,7 +291,7 @@ def get_materials_table(version="current"):
     """
     try:
         if version == "current":
-            version = get_current_mc_version()
+            version = get_config_value("mc_version")
             
         with open(resource_path(os.path.join(DATA_DIR, version, RAW_MATS_TABLE_NAME)), "r") as f:
             return json.load(f)
@@ -285,9 +305,10 @@ def get_limit_stack_items(version="current"):
     """
     try:
         if version == "current":
-            version = get_current_mc_version()
+            version = get_config_value("mc_version")
 
         with open(resource_path(os.path.join(GAME_DATA_DIR, version, LIMTED_STACKS_NAME)), "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return None
+    

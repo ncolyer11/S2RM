@@ -3,7 +3,7 @@ name = "s2rm"
 version = "0.1.0"
 description = "Minecraft Schematic to Raw Materials Program"
 authors = [{name = "ncolyer", email = "ncolyer@example.com"}]
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.11,<3.14"
 license = "MIT"
 readme = "README.md"
 package-mode = false

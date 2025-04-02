@@ -8,8 +8,9 @@ from tqdm import tqdm
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtGui import QIcon
 
+from s2rm.src.S2RM_backend import create_default_config
 from src.constants import CONFIG_PATH, GAME_DATA_DIR, ICON_PATH, MC_DOWNLOADS_DIR, GAME_DATA_FILES
-from src.helpers import download_file, resource_path
+from src.helpers import check_connection, download_file, resource_path, set_config_value
 from data.parse_mc_data import calculate_materials_table
 
 # TODO: finish logic for this. consider redoing to make all folder creation and deletion happen at
@@ -34,12 +35,9 @@ def check_mc_data(redownload: bool = False, delete=True) -> bool:
     bool
         True if the latest version is already downloaded, False if the latest version is not found.
     """
-    # Get the latest version from the manifest
-    latest_version, _ = get_latest_minecraft_version()
-
-    # Cancel checking/downloading mc data if there's a connection/other error
-    if latest_version is None:
-        return
+    # Get the latest version from the manifest and update the config
+    latest_version, latest_version_url = get_latest_minecraft_version()
+    set_config_value("latest_mc_version", latest_version)
 
     # Check all currently downloaded version to see if the latest version is already downloaded
     matching_versions = False
@@ -103,26 +101,30 @@ def check_mc_data(redownload: bool = False, delete=True) -> bool:
     return matching_versions
 
 def get_latest_minecraft_version() -> tuple:
-    """Fetch the latest Minecraft version (including snapshots) from Mojang's version manifest."""
+    """
+    Fetch the latest Minecraft version (including snapshots) from Mojang's version manifest.
+    
+    Raises
+    ------
+    ValueError
+        If no latest version is found in the manifest.
+    """
     version_manifest_url = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
     
-    try:
-        response = requests.get(version_manifest_url)
-        response.raise_for_status()
-        version_data = response.json()
-        
-        latest_version = version_data['latest']['snapshot']
-        
-        # Find the download URL for this version
-        for version in version_data['versions']:
-            if version['id'] == latest_version:
-                return latest_version, version['url']
-        
-        raise ValueError("Could not find latest version")
+    response = requests.get(version_manifest_url)
+    response.raise_for_status()
+    version_data = response.json()
     
-    except Exception as e:
-        print(f"Error fetching version: {e}")
-        return None, None
+    latest_version = version_data['latest']['snapshot']
+    
+    # Find the download URL for this version
+    for version in version_data['versions']:
+        if version['id'] == latest_version:
+            return latest_version, version['url']
+    
+    if not latest_version:
+        raise ValueError("No latest version found in the manifest")
+    
 
 def download_game_data(specific_version=None):
     repo_path = "NikitaCartes-archive/MinecraftDeobfuscated-Mojang"
@@ -161,14 +163,7 @@ def download_game_data(specific_version=None):
     
     # Cleanup the JAR file after extraction and update the config with the latest version if successful
     if git_downloaded and jar_downloaded:
-        # Read, modify, and then write back the config file, changing it's mc version
-        with open(resource_path(CONFIG_PATH), "r") as f:
-            config = json.load(f)
-        config["mc_version"] = version_id
-        config["latest_mc_version"] = get_latest_minecraft_version()[0]
-        with open(resource_path(CONFIG_PATH), "w") as f:
-            json.dump(config, f, indent=4)
-
+        set_config_value("selected_mc_version", version_id)
         # Remove the downloaded .jar file
         cleanup_jar_file(version_id)
     else:
