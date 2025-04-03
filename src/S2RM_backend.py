@@ -177,7 +177,7 @@ def convert_name_to_tag(name):
 
 def clean_string_stage1(s):
     """Removes control characters and symbols but keeps numbers."""
-    return re.sub(r'[^[a-zA-Z0-9_\s\'].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
+    return re.sub(r'[^[a-zA-Z0-9\$_\s\'].*', '', ''.join(c for c in s if unicode_category(c)[0] != 'C'))
 
 def clean_string_stage2(s):
     """Removes numbers and trailing text."""

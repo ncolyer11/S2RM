@@ -360,7 +360,6 @@ class S2RMFrontend(QWidget):
 
         # Set new values for the input materials table
         for row, material in enumerate(self.tt.input_items):
-            print(f"Material: {material}")
             self.__set_input_materials_cell(row, INPUT_ITEMS_COL_NUM, material.replace("$", "")) # Remove $ from encoded entities
             self.__set_input_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
             self.__set_exclude_text_cell(row, self.tt.exclude[row])
