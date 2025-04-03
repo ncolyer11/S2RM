@@ -41,7 +41,7 @@ def download_game_data(specific_version = None, fix_redownload = False) -> str:
         version_id, version_url = specific_version, get_minecraft_version_url(specific_version)
     # Otherwise, find and retrieve the latest version
     else:
-        version_id, version_url = get_current_mc_version()
+        version_id, version_url = get_latest_mc_version()
    
     # Download .java game files from GitHub using specific version if provided
     git_downloaded, jar_downloaded = False, False
@@ -172,9 +172,14 @@ def download_minecraft_jar(version_id, version_url) -> bool:
         print(f"Error downloading and extracting Minecraft JAR: {e}")
         return False
 
-def get_current_mc_version() -> tuple[str, str]:
+def get_latest_mc_version(level: str = "release") -> tuple[str, str]:
     """
     Fetch the latest Minecraft version (including snapshots) from Mojang's version manifest.
+    
+    Parameters
+    ----------
+    level : str
+        The level of version to fetch. If != "release", fetch the latest snapshot version.
     
     Returns
     -------
@@ -192,7 +197,11 @@ def get_current_mc_version() -> tuple[str, str]:
     response.raise_for_status()
     version_data = response.json()
     
-    latest_version = version_data['latest']['snapshot']
+    # Determine the latest version based on the specified level
+    if level == "release":
+        latest_version = version_data['latest']['release']
+    else:
+        latest_version = version_data['latest']['snapshot']
     
     # Find the download URL for this version
     for version in version_data['versions']:

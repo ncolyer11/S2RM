@@ -20,11 +20,11 @@ from src.constants import GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_
     OUTPUT_JSON_VERSION, ICON_PATH
 from src.helpers import format_quantities, clamp, verify_regexes, TableCols
 from src.use_config import get_config_value, set_config_value, print_config
-from src.config import get_materials_table
+from src.config import check_has_selected_mc_vers, get_materials_table
 from src.porting import forwardportJson, get_error_message
 from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
-from data.download_game_data import check_mc_version_in_program_exists, download_game_data, get_minecraft_version_url
+from data.download_game_data import check_mc_version_in_program_exists, download_game_data, get_latest_mc_version, get_minecraft_version_url
 from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
@@ -53,6 +53,7 @@ RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = RAW_QUANTITIES_COL_NUM + 1
 
 FILE_LABEL_TEXT = "Select material list file(s):"
+MC_VERS_TEXT = "MC Version:"
 TRUNCATE_LEN = 65
 WINDOW_X = 20
 WINDOW_Y = 20
@@ -106,9 +107,9 @@ class S2RMFrontend(QWidget):
     def mc_version(self, version):
         self.__mc_version = version
         if version is None:
-            self.version_action.setText("MC Version (current: unspecified)")
+            self.version_action.setText(f"{MC_VERS_TEXT} unspecified")
         else:
-            self.version_action.setText(f"MC Version (current: {version})")
+            self.version_action.setText(f"{MC_VERS_TEXT} {version}")
         set_config_value("selected_mc_version", version)
 
     def initUI(self):
@@ -129,15 +130,18 @@ class S2RMFrontend(QWidget):
         # Export on the other hand doesn't mean it can be reloaded necessarily
         export_to_csv_action = self.file_menu.addAction("Export to CSV")
         export_to_csv_action.triggered.connect(lambda: self.exportCSV(use_values=True))
-        # Clear mc versions cache
-        clear_cache_action = self.file_menu.addAction("Clear Saved MC Versions")
-        clear_cache_action.triggered.connect(self.clearCache)
         self.menu_bar.addMenu(self.file_menu)
         
         # Add Edit Menu
         self.edit_menu = QMenu("Edit", self)
-        self.version_action = self.edit_menu.addAction(f"MC Version: {self.__mc_version}")
+        self.version_action = self.edit_menu.addAction(f"{MC_VERS_TEXT} {self.__mc_version}")
         self.version_action.triggered.connect(self.showVersionDialog)
+        # Clear all downloaded game data except the selected version
+        clear_cache_action = self.edit_menu.addAction("Clear Saved MC Versions")
+        clear_cache_action.triggered.connect(self.clearCache)
+        # Let the user recieve update alerts for the program and mc version again
+        self.reset_alerts_action = self.edit_menu.addAction("Reset Update Alerts")
+        self.reset_alerts_action.triggered.connect(self.resetAlerts)
         self.menu_bar.addMenu(self.edit_menu)
         
         # Store view_menu
@@ -699,9 +703,11 @@ class S2RMFrontend(QWidget):
         
         downloaded_versions = []
         # Check data/game folder for versions folders in the top level
-        for folder in os.listdir(os.path.join("data", "game")):
-            if re.match(MC_VERSION_REGEX, folder):
-                downloaded_versions.append(folder)
+        for folder in os.listdir(resource_path(GAME_DATA_DIR)):
+            downloaded_versions.append(folder)
+        
+        # Sort the versions in descending order
+        downloaded_versions.sort(reverse=True)
         
         layout = QVBoxLayout()
         
@@ -738,20 +744,46 @@ class S2RMFrontend(QWidget):
         
         dialog.exec()
 
+    def resetAlerts(self):
+        # Reset the update alerts
+        set_config_value("declined_latest_program_version", False)
+        set_config_value("declined_latest_mc_version", False)
+        QMessageBox.information(self, "Update Alerts Reset", "Update alerts have been reset.")
+
     def saveVersion(self, version, dialog):
+        force_override = False
+        # Add an option for a user to overide version validation in the case of some cooked version
+        # name from april fool snapshots e.g. like shareware 3d vjskodni280hd
+        if "FORCE" in version:
+            version = version.replace("FORCE", "").replace(" ", "")
+            force_override = True
+
         # Update the config.json file with the new version (and it auto updates the label)
-        if version is None or version == "" or not version or not re.match(MC_VERSION_REGEX, version) or not get_minecraft_version_url(version):
-            QMessageBox.warning(self, "Invalid Version", "Please enter a valid version.")
+        if version.strip().lower() == "latest":
+            version = get_latest_mc_version("release")[0]
+        elif version.strip().lower() in ["snap", "snapshot"]:
+            version = get_latest_mc_version("snapshot")[0]
+        
+        if force_override:
+            pass
+        elif version is None or version == "" \
+            or not version or not re.match(MC_VERSION_REGEX, version) \
+            or not get_minecraft_version_url(version):
+            QMessageBox.warning(self, "Invalid Version", "Please enter a valid version.\n"
+                                "(Append 'FORCE' to override.)")
             return
 
-        # If the version is already downloaded, just update the label
-        if check_mc_version_in_program_exists(version):
-            self.version_action.setText(f"MC Version (current: {version})")
-        # Otherwise, download the new version
-        else:
-            check_mc_version_in_program_exists(version)
+        # Download and process the selected version if its files don't already exist
+        original_version = get_config_value("selected_mc_version")
+        set_config_value("selected_mc_version", version)
+        try:
+            check_has_selected_mc_vers()
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to download version {version}.\n{e}")
+            return
+        set_config_value("selected_mc_version", original_version)
 
-        self.mc_version = version
+        self.mc_version = version # This automatically updates the label
         dialog.accept()
 
     def clearCache(self):
@@ -760,7 +792,7 @@ class S2RMFrontend(QWidget):
         removed_versions = []
         selected_version = get_config_value("selected_mc_version")
         for folder in os.listdir(resource_path(GAME_DATA_DIR)):
-            if re.match(MC_VERSION_REGEX, folder) and folder != selected_version:
+            if folder != selected_version:
                 folder_path = resource_path(os.path.join(GAME_DATA_DIR, folder))
                 if os.path.isdir(folder_path):
                     shutil.rmtree(folder_path)
@@ -770,7 +802,9 @@ class S2RMFrontend(QWidget):
                     print(f"Cleared cache for version: {folder}")
         
         if removed_count > 0:
-            QMessageBox.information(self, "Cache Cleared", f"Cleared cache for {removed_count} versions:\n{', '.join(removed_versions)}")
+            QMessageBox.information(self, "Cache Cleared",
+                                    f"Cleared cache for {removed_count} "
+                                    f"versions:\n{', '.join(removed_versions)}")
         else:
             QMessageBox.information(self, "Cache Cleared", "No versions were cleared from the cache.")
 

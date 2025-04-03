@@ -15,7 +15,7 @@ from src.constants import BLOCKS_JSON, CONFIG_PATH, DATA_DIR, ENTITIES_JSON, GAM
 from data.parse_mc_data import cleanup_downloads, create_mc_data_dirs, \
     parse_blocks_list, parse_entities_list, parse_items_list, parse_items_stack_sizes, \
         save_json_file
-from data.download_game_data import download_game_data, get_current_mc_version
+from data.download_game_data import download_game_data, get_latest_mc_version
 from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 
 def update_config(redownload=False, delete=True):
@@ -37,7 +37,7 @@ def update_config(redownload=False, delete=True):
         prompt_program_update(latest_s2rm)
     
     # Update config with the latest mc version
-    if get_config_value("latest_mc_version") != (latest_mc_version := get_current_mc_version()[0]):
+    if get_config_value("latest_mc_version") != (latest_mc_version := get_latest_mc_version()[0]):
         set_config_value("latest_mc_version", latest_mc_version)
     
     # Check if the selected Minecraft version is the latest
@@ -49,12 +49,8 @@ def update_config(redownload=False, delete=True):
     
 def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
     """
-    Search for latest mc version from manifest and compare to the program's current version
-    stored in config.json.
+    Check if the selected Minecraft version has the required data files in its data/game folder.
 
-    Downloading the latest version is optional, so if a new version is found the user should be 
-    prompted to select to download this version or not with a pop-up window (using pyside 6.qt)
-    
     Parameters
     ----------
     redownload : bool
@@ -65,7 +61,8 @@ def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
     Returns
     -------
     bool
-        True if the latest version is already downloaded, False if the latest version is not found.
+        True if the selected version is already downloaded, False if the selected version is not 
+        found and had to be redownloaded.
     """
     # Remove MC_DOWNLOADS_DIR if it exists just to be sure
     try:
@@ -231,7 +228,7 @@ def prompt_program_update(latest_s2rm):
         if response == QMessageBox.No:
             set_config_value("declined_latest_program_version", True)
         elif response == QMessageBox.Yes:
-            webbrowser.open(S2RM_RELEASES_URL)  # Open the GitHub releases page
+            webbrowser.open(S2RM_RELEASES_URL)
 
 def prompt_mc_update(latest_mc_version: str):
     if not get_config_value("declined_latest_mc_version"):
@@ -259,6 +256,7 @@ def prompt_mc_update(latest_mc_version: str):
             set_config_value("declined_latest_mc_version", True)
         elif response == QMessageBox.Yes:
             set_config_value("selected_mc_version", latest_mc_version)
+            check_has_selected_mc_vers(latest_mc_version)
 
 def get_latest_s2rm_release() -> str:
     """
