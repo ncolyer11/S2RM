@@ -1,5 +1,7 @@
 #!/bin/bash
 
+S2_APP_ID="lnx"
+
 # Check if conda is available
 if ! command -v conda &> /dev/null; then
     echo "Conda is not installed or not in the PATH. Please install Conda and try again."
@@ -74,9 +76,14 @@ fi
 selected_version=$(find_highest_version)
 echo "Selected Minecraft version: $selected_version"
 
+# Delete previous zip build folder
+if [ -d "S2RM_${S2_APP_ID}" ]; then
+    rm -rf "S2RM_${S2_APP_ID}"
+fi
+
 # Build with PyInstaller --windowed to remove terminal
 python -m PyInstaller \
-    --name "S2RM" \
+    --name "S2RM_$S2_APP_ID" \
     --add-data "src/*.py:src" \
     --add-data "src/*.json:src" \
     --add-data "src/icon.ico:src" \
@@ -93,13 +100,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Compress the output folder
-zip -r "S2RM/S2RM.zip" "S2RM"
+# Compress the output folder and rename the zip using the app identifier
+zip -r "S2RM_${S2_APP_ID}.zip" "S2RM_${S2_APP_ID}"
 
 # Check if compression was successful
 if [ $? -ne 0 ]; then
     echo "Compression failed. Exiting."
     exit 1
 fi
+
+mv "S2RM_${S2_APP_ID}.zip" "S2RM_lnx/"
 
 echo "Build and compression completed successfully."

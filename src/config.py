@@ -217,8 +217,8 @@ def prompt_program_update(latest_s2rm):
 
         # Create and configure message box
         msgBox = QMessageBox()
-        msgBox.setWindowTitle("New Version Available")
-        msgBox.setText(f"A new version ({latest_s2rm}) is available.")
+        msgBox.setWindowTitle("New S2RM Version Available")
+        msgBox.setText(f"A new version of S2RM ({latest_s2rm}) is available.")
         msgBox.setInformativeText("Would you like to update now?")
         msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
         msgBox.setDefaultButton(QMessageBox.Yes)
