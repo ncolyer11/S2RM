@@ -164,7 +164,7 @@ def generate_raw_materials_table_dict(version: str) -> dict[str, list[dict[str, 
     recipe_graph = build_crafting_graph(raw_materials_cost)
     raw_materials_dict = generate_master_raw_mats_list(recipe_graph, version)
     calculate_block_ingredients(recipe_graph, raw_materials_dict, version) 
-    calculate_entity_ingredients(recipe_graph, raw_materials_dict, version)
+    # calculate_entity_ingredients(recipe_graph, raw_materials_dict, version)
     
     # Ensure the raw materials list is sorted alphabetically by item name
     return dict(sorted(raw_materials_dict.items()))
@@ -186,7 +186,6 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph, version: str) -> dic
 def calculate_block_ingredients(recipe_graph: nx.DiGraph, 
                                 raw_materials_dict: dict[str, list[dict[str, float]]], version: str):
     """Calculates the raw materials for blocks, breaking down blocks such as concrete, etc."""
-
     items_path = resource_path(os.path.join(GAME_DATA_DIR, version, ITEMS_JSON))
     blocks_path = resource_path(os.path.join(GAME_DATA_DIR, version, BLOCKS_JSON))
     with open(items_path, 'r') as f_i, open(blocks_path, 'r') as f_b:
@@ -220,9 +219,12 @@ def calculate_block_ingredients(recipe_graph: nx.DiGraph,
 def calculate_entity_ingredients(recipe_graph: nx.DiGraph, 
                                  raw_materials_dict: dict[str, list[dict[str, float]]], version: str):
     """Calculates the raw materials for entities, breaking down entities such as carts, golems, etc."""
-    entities_path = resource_path(os.path.join(GAME_DATA_DIR, version, ENTITIES_JSON))
-    with open(entities_path, 'r') as f:
-        entities_list = sorted(json.load(f))
+    # NOTE Entities actually do need to be processed each time as they can have
+    # varying nbt and so won't just have a base 'recipe' each time
+    
+    # entities_path = resource_path(os.path.join(GAME_DATA_DIR, version, ENTITIES_JSON))
+    # with open(entities_path, 'r') as f:
+    #     entities_list = sorted(json.load(f))
         
 def get_ingredients(recipe_graph: nx.DiGraph, target_item: str) -> list[dict[str, float]]:
     """Lists all raw materials needed to craft a target item, handling circular dependencies."""
