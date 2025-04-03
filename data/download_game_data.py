@@ -29,7 +29,6 @@ def check_mc_version_in_program_exists(mc_version: str) -> bool:
 def download_game_data(specific_version = None, fix_redownload = False) -> str:
     # Delete any existing minecraft_downloads folder
     try:
-        print(f"Deleting dir: {resource_path(MC_DOWNLOADS_DIR)}")
         shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))
     except FileNotFoundError:
         pass
@@ -56,7 +55,6 @@ def download_game_data(specific_version = None, fix_redownload = False) -> str:
     # Cleanup the JAR file after extraction and ensure config selected version is set
     if git_downloaded and jar_downloaded:
         cleanup_jar_file(version_id)
-        print(f"successfully downloaded game data for version {version_id}")
         return version_id
     else:
         shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))

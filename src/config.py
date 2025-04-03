@@ -76,7 +76,6 @@ def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
     selected_mc_version = get_config_value("selected_mc_version")
     # Check if the selected version has raw_materials_table and limited_stack_items.json files
     if has_data_files(selected_mc_version) and not redownload:
-        print("Game data files found. No need to redownload mate.")
         return True
 
     # At this point, the user would've already been prompted to update the programs selected mc
@@ -88,12 +87,10 @@ def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
         print("Issue downloading the selected version. "
               "Backup version downloaded and set as selected instead.")
 
-    print("setting configfsd24424")
     set_config_value("selected_mc_version", actually_downloaded_version)
 
     # Generate raw_materials_table and limited_stack_items.json files
     # using the downloaded and parsed game data
-    print("getting mats table from config check has selected mc vers")
     get_mats_table_and_lim_stacked_items(delete)
 
     return False
@@ -154,7 +151,6 @@ def get_mats_table_and_lim_stacked_items(delete=True):
     if delete:
         cleanup_downloads()
     
-    print("removing leftovers in get mats table and lim stacked items")
     # Empty the data/game/<mc_version> directory if it exists
     version_dir = resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version))
     if os.path.exists(version_dir):
