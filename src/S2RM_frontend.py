@@ -62,8 +62,8 @@ WINDOW_HEIGHT = 850
 # Notes
 # menu to change default path for input files (saves data to persistent config.json file)
 # open window to scroll through all items (with icons) and select which ones should be 'raw' - > would then attempt to Regen the mats list before accepting these changes (catch a recursion error)
-
-# change how the raw mats list is generated to do entity processing then instead of having to redo it everytime an entity is called during runtime. also means u can display all entities and input materials before converting them directly using the raw material json file
+# - even better, grey out items that would cause a recursion error and dynamically update these
+# based on the current selection (this should be fun to calculate efficiently :)
 
 # see code camp pyside6 tutorial 5hr 
 # For making new applications (or redoing old ones COUGH stemlight) use qt design studio: https://doc.qt.io/qtdesignstudio/studio-installation.html
@@ -242,9 +242,6 @@ class S2RMFrontend(QWidget):
         raw_header.setStretchLastSection(True)
         
         layout.addLayout(table_layout)
-
-        # Enable sorting
-        # self.table.setSortingEnabled(True) # XXX doesn't work numerically and doesn't shift out blank cells
 
         # Current problem with adding sorting to input items:
         #  - starts with exclude cells matching their input item counterparts via the same row index

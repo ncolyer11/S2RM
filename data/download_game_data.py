@@ -10,11 +10,6 @@ from src.helpers import download_file, resource_path
 from src.constants import BACKUP_VERSION, GAME_DATA_DIR, MC_CODE_REPO_URL, MC_CODE_TO_DOWNLOAD, \
     MC_DOWNLOADS_DIR
 
-# TODO: finish logic for this. consider redoing to make all folder creation and deletion happen at
-# one point in the program for reliability. also add better handling for temp folders etc
-
-# XXX ireckon the only data you need for this shi is just the limited stacked items list
-# and the materials table list for each version, can delete all kinds of stuff after that
 def check_mc_version_in_program_exists(mc_version: str) -> bool:
     """
     Check if a given mc version has a folder in game data with a materials table, limited
