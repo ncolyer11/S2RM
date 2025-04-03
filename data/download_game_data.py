@@ -82,7 +82,7 @@ def check_mc_version_in_program_exists(mc_version: str) -> bool:
     
     return matching_versions
 
-def download_game_data(specific_version = None, fix_redownload = False) -> bool:
+def download_game_data(specific_version = None, fix_redownload = False) -> str:
     # Delete any existing minecraft_downloads folder
     try:
         shutil.rmtree(MC_DOWNLOADS_DIR)
@@ -112,14 +112,19 @@ def download_game_data(specific_version = None, fix_redownload = False) -> bool:
     if git_downloaded and jar_downloaded:
         cleanup_jar_file(version_id)
         set_config_value("selected_mc_version", version_id)
-        return True
+        return version_id
     else:
         shutil.rmtree(MC_DOWNLOADS_DIR)
-        print(f"\nFailed to download game data: git: {git_downloaded}, jar:{jar_downloaded}. "
+        print(f"\nFailed to download game data: git: {git_downloaded}, jar: {jar_downloaded}. "
               f"Removing downloads directory.\n"
               f"Downloading backup version {BACKUP_VERSION} instead...\n")
         if not fix_redownload:
-            return download_game_data(BACKUP_VERSION, fix_redownload=True)
+            if not check_mc_version_in_program_exists(BACKUP_VERSION):
+                return download_game_data(BACKUP_VERSION, fix_redownload=True)
+            else:
+                print(f"Game data already exists for backup version {BACKUP_VERSION}.")
+                set_config_value("selected_mc_version", BACKUP_VERSION)
+                return BACKUP_VERSION
         else:
             raise ValueError(F"Failed to download to backup version: {BACKUP_VERSION}.")
 def get_minecraft_version_url(version_id: str) -> str | None:

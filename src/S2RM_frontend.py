@@ -732,7 +732,7 @@ class S2RMFrontend(QWidget):
             self.version_action.setText(f"MC Version (current: {version})")
         # Otherwise, download the new version
         else:
-            download_game_data(version)
+            version = download_game_data(version)
             calculate_materials_table()
 
         self.mc_version = version
