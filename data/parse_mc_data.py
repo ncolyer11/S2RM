@@ -4,8 +4,8 @@ import json
 import shutil
 
 from src.resource_path import resource_path
-from src.constants import DATA_DIR, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR
-from src.S2RM_backend import block_to_item_name
+from src.constants import BLOCKS_JSON, DATA_DIR, ENTITIES_JSON, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR
+from src.helpers import block_to_item_name
 
 def create_mc_data_dirs(mc_version: str):
     try:
@@ -173,11 +173,11 @@ if __name__ == '__main__':
 
     # Parse and save entities list
     entities_list = parse_entities_list()
-    save_json_file(selected_mc_version, 'entities.json', entities_list, True)
+    save_json_file(selected_mc_version, ENTITIES_JSON, entities_list, True)
     
     # Parse and save blocks list
     blocks_list = parse_blocks_list()
-    save_json_file(selected_mc_version, 'blocks.json', blocks_list, True)
+    save_json_file(selected_mc_version, BLOCKS_JSON, blocks_list, True)
     
     
     

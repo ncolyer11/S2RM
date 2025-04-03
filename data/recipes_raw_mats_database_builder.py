@@ -8,9 +8,11 @@ from tqdm import tqdm
 from collections import defaultdict
 
 from src.resource_path import resource_path
-from data.graph_recipes import build_crafting_graph, display_graph_sample, list_crafting_recipes
-from src.constants import BLOCKS_WITHOUT_ITEM, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, \
-    AXIOM_MATERIALS_REGEX, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, RAW_MATS_TABLE_NAME, TAGGED_MATERIALS_BASE
+from src.helpers import convert_block_to_item
+from data.graph_recipes import build_crafting_graph
+from src.constants import BLOCKS_JSON, BLOCKS_WITHOUT_ITEM, ENTITIES_JSON, GAME_DATA_DIR, \
+    IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, ITEMS_JSON, MC_DOWNLOADS_DIR, \
+    PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
@@ -140,7 +142,7 @@ def get_recipe_data_from_json(recipe_path: str) -> dict:
 
     return recipe_json_raw_data
 
-def add_ingredient(ingredients: dict, item: str):
+def add_ingredient(ingredients: dict[str, dict], item: str):
     # If their are multiple items available, take the shortest name one (most likely to be a raw material)
     item = (item if not isinstance(item, list) else min(item, key=len)).replace('minecraft:', '')
     ingredients[item] = ingredients.setdefault(item, 0) + 1.0
@@ -160,36 +162,69 @@ def generate_raw_materials_table_dict(version: str) -> dict[str, list[dict[str, 
     raw_materials_cost = get_raw_materials_cost_dict(recipe_json_raw_data)
         
     recipe_graph = build_crafting_graph(raw_materials_cost)
-    raw_materials_dict = generate_master_raw_mats_list(recipe_graph, version)    
-    calculate_entity_ingredients(raw_materials_dict)
+    raw_materials_dict = generate_master_raw_mats_list(recipe_graph, version)
+    calculate_block_ingredients(recipe_graph, raw_materials_dict, version) 
+    calculate_entity_ingredients(recipe_graph, raw_materials_dict, version)
     
-    return raw_materials_dict
-
-def calculate_entity_ingredients(raw_materials_dict: dict[str, list[dict[str, float]]]):
-    """Calculates the raw materials for entities, breaking down entities such as carts, golems, etc."""
-    ...
+    # Ensure the raw materials list is sorted alphabetically by item name
+    return dict(sorted(raw_materials_dict.items()))
 
 def generate_master_raw_mats_list(recipe_graph: nx.DiGraph, version: str) -> dict[str, list[dict[str, float]]]:
     """Generates a master list of all items and their raw materials."""
     # Open data/items.json and get items field
-    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, 'items.json'))
-    with open(items_path, 'r') as file:
-        master_items_list = json.load(file)
-    
-    for item in BLOCKS_WITHOUT_ITEM:
-        master_items_list.append(item)
-
-    # Sort master items list alphabetically
-    master_items_list.sort()
+    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, ITEMS_JSON))
+    with open(items_path, 'r') as f:
+        # Ensure the items list is sorted alphabetically
+        master_items_list = sorted(json.load(f))
 
     master_raw_mats_list = {}
     for item in master_items_list:
-        # print(f"Getting raw mats for: {item}")
         master_raw_mats_list[item] = get_ingredients(recipe_graph, item)
 
     return master_raw_mats_list
-    
-def get_ingredients(graph: nx.DiGraph, target_item: str) -> list[dict[str, float]]:
+
+def calculate_block_ingredients(recipe_graph: nx.DiGraph, 
+                                raw_materials_dict: dict[str, list[dict[str, float]]], version: str):
+    """Calculates the raw materials for blocks, breaking down blocks such as concrete, etc."""
+
+    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, ITEMS_JSON))
+    blocks_path = resource_path(os.path.join(GAME_DATA_DIR, version, BLOCKS_JSON))
+    with open(items_path, 'r') as f_i, open(blocks_path, 'r') as f_b:
+        # Ensure the items list is sorted alphabetically
+        items_list = sorted(json.load(f_i))
+        blocks_list = sorted(json.load(f_b))
+
+    # Get the list of blocks that aren't in items_list
+    blocks_list = [block for block in blocks_list if block not in items_list]
+
+    for block in blocks_list:
+        block_ingredients = []
+        
+        # Deconstruct the block into 1 or more items (e.g. a candle cake -> candle + cake)
+        items = convert_block_to_item(block)
+        for item in items:
+            block_ingredients.extend(get_ingredients(recipe_graph, item))
+        
+        # Combine individual item ingredient dictions into a single one
+        block_ingredients_dict = {}
+        for ingredient in block_ingredients:
+            item, quantity = ingredient["item"], ingredient["quantity"]
+            block_ingredients_dict[item] = block_ingredients_dict.get(item, 0) + quantity
+
+        # Sort the ingredients by quantity (descending), then by name
+        raw_materials_dict[block] = sorted(
+            [{"item": item, "quantity": quantity} for item, quantity in block_ingredients_dict.items()],
+            key=lambda x: (-x["quantity"], x["item"])
+        )
+            
+def calculate_entity_ingredients(recipe_graph: nx.DiGraph, 
+                                 raw_materials_dict: dict[str, list[dict[str, float]]], version: str):
+    """Calculates the raw materials for entities, breaking down entities such as carts, golems, etc."""
+    entities_path = resource_path(os.path.join(GAME_DATA_DIR, version, ENTITIES_JSON))
+    with open(entities_path, 'r') as f:
+        entities_list = sorted(json.load(f))
+        
+def get_ingredients(recipe_graph: nx.DiGraph, target_item: str) -> list[dict[str, float]]:
     """Lists all raw materials needed to craft a target item, handling circular dependencies."""
     # Convert 'uncraftable' (created outside a crafting table) to their raw base material
     target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)
@@ -199,11 +234,11 @@ def get_ingredients(graph: nx.DiGraph, target_item: str) -> list[dict[str, float
         target_item += '_block'
 
     # Return single item if it doesn't have a crafting recipe
-    if target_item not in graph:
+    if target_item not in recipe_graph:
         return [{"item": target_item, "quantity": 1.0}]
 
     raw_materials = defaultdict(float)
-    _get_ingredients_recursive(graph, target_item, raw_materials)
+    _get_ingredients_recursive(recipe_graph, target_item, raw_materials)
 
     # Convert to sorted list, highest quantity first, then by item name alphabetically
     return sorted(
@@ -240,6 +275,11 @@ def _handle_special_cases(graph: nx.DiGraph, target_item: str, raw_materials: di
         _get_ingredients_recursive(graph, 'netherite_scrap', raw_materials, 4.0 * quantity)
         _get_ingredients_recursive(graph, 'gold_ingot', raw_materials, 4.0 * quantity)
         return True
+
+    # Can't have users thinking they need a shit-ton of honey now do we
+    if target_item == 'sugar':
+        _get_ingredients_recursive(graph, 'sugar_cane', raw_materials, 1.0 * quantity)
+        return True
     
     # Another case for an environmentally 'crafted' blocks with no simply interchangeable raw material
     if re.match(r'(stripped|carved)_', target_item):
@@ -262,4 +302,4 @@ def _handle_smithing_template(graph: nx.DiGraph, target_item: str, raw_materials
             _get_ingredients_recursive(graph, ingredient, raw_materials, quantity * weight)
 
 if __name__ == '__main__':
-    main()
+    ...

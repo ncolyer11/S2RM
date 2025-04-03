@@ -13,6 +13,7 @@ GAME_DATA_DIR = "data/game"
 MC_DOWNLOADS_DIR = "mc_downloads"
 CONFIG_PATH = "src/config.json"
 ICON_PATH = "src/icon.ico"
+
 MC_CODE_TO_DOWNLOAD = [
     ('minecraft/src/net/minecraft/world/item/Items.java',
         os.path.join(MC_DOWNLOADS_DIR, 'Items.java')),
@@ -23,9 +24,12 @@ MC_CODE_TO_DOWNLOAD = [
 ]
 
 BACKUP_VERSION = "1.21.5" # The latest version that I know this program's parsing works with
+ITEMS_JSON = "items.json"
+BLOCKS_JSON = "blocks.json"
+ENTITIES_JSON = "entities.json"
 LIMTED_STACKS_NAME = "limited_stack_items.json"
 RAW_MATS_TABLE_NAME = "raw_materials_table.json"
-GAME_DATA_FILES = ["blocks.json", "items.json", "entities.json", "limited_stack_items.json"]
+GAME_DATA_FILES = [BLOCKS_JSON, ITEMS_JSON, ENTITIES_JSON, LIMTED_STACKS_NAME]
 
 ICE_PER_ICE = 9
 DF_STACK_SIZE = 64

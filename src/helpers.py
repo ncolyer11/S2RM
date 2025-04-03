@@ -8,7 +8,8 @@ from dataclasses import dataclass
 
 from src.use_config import get_config_value
 from src.resource_path import resource_path
-from src.constants import DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, SHULKER_BOX_SIZE
+from src.constants import BLOCK_TAGS, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, \
+    SHULKER_BOX_SIZE
 
 @dataclass
 class TableCols:
@@ -248,3 +249,42 @@ def int_to_roman(n: int) -> str:
             n -= value
         
     return result
+
+def convert_block_to_item(block_name: str) -> list[str]:
+    """
+    Uses a raw block name used by the game, finds its equivalent item name, and returns it as a list
+    of item names.
+    
+    A list is used as some blocks can break down into multiple items, e.g. a candle cake.
+    """
+    block_name = block_to_item_name(block_name)
+
+    # Handle 1 block -> 2 items edge cases
+    if "candle" in block_name and "cake" in block_name:
+        return ["candle", "cake"]
+    elif match := re.match(r'(lava|water|powder_snow)_cauldron', block_name):
+        return ["cauldron", f"{match.group(1)}_bucket"]
+
+    return [block_name] if isinstance(block_name, str) else block_name
+
+def block_to_item_name(block_name: str) -> str:
+    """
+    Takes a block name used by the game, and converts it to the internal name used for its item.
+    
+    Returns the processed block name (likely to also be its item name) if no item name is found
+    in BLOCK_TAGS.
+    """
+    is_quoted = block_name.startswith('"')
+    data_name = block_name.lower().replace('"', '')
+
+    data_name = re.sub(r'wall_', '', data_name)
+    data_name = re.sub(r'attached_', '', data_name)
+    data_name = re.sub(r'potted_', '', data_name)
+    
+    data_name = BLOCK_TAGS.get(data_name, data_name)
+
+    if match := re.match(r'(weeping|twisting)_vines_plant', data_name):
+        data_name = f"{match.group(1)}_vines"
+
+    item_name = f'"{data_name}"' if is_quoted else data_name
+    return item_name

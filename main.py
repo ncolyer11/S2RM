@@ -1,5 +1,6 @@
+from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 from src.S2RM_frontend import start
-from src.config import update_config
+from src.config import check_has_selected_mc_vers, update_config
 
 
 # TODO
@@ -14,4 +15,6 @@ def main():
     start()
 
 if __name__ == "__main__":
+    check_has_selected_mc_vers(redownload=True)
+    exit(0)
     main()

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from src.use_config import get_config_value, set_config_value, create_default_config
 from src.resource_path import resource_path
-from src.constants import CONFIG_PATH, DATA_DIR, GAME_DATA_DIR, GAME_DATA_FILES, ICON_PATH, \
+from src.constants import BLOCKS_JSON, CONFIG_PATH, DATA_DIR, ENTITIES_JSON, GAME_DATA_DIR, GAME_DATA_FILES, ICON_PATH, ITEMS_JSON, \
     LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
         S2RM_RELEASES_URL
 from data.parse_mc_data import cleanup_downloads, create_mc_data_dirs, \
@@ -131,15 +131,15 @@ def get_mats_table_and_lim_stacked_items(delete=True):
     
     # Parse and save items list
     items_list = parse_items_list()
-    save_json_file(selected_mc_version, 'items.json', items_list)
+    save_json_file(selected_mc_version, ITEMS_JSON, items_list)
     
     # Parse and save entities list
     entities_list = parse_entities_list()
-    save_json_file(selected_mc_version, 'entities.json', entities_list)
+    save_json_file(selected_mc_version, ENTITIES_JSON, entities_list)
     
     # Parse and save blocks list
     blocks_list = parse_blocks_list()
-    save_json_file(selected_mc_version, 'blocks.json', blocks_list)
+    save_json_file(selected_mc_version, BLOCKS_JSON, blocks_list)
     
     # Parse item stack sizes
     items_stack_sizes = parse_items_stack_sizes()
