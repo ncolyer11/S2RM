@@ -74,12 +74,12 @@ fi
 selected_version=$(find_highest_version)
 echo "Selected Minecraft version: $selected_version"
 
-# Build with PyInstaller
+# Build with PyInstaller --windowed to remove terminal
 python -m PyInstaller \
     --name "S2RM" \
-    --windowed \
     --add-data "src/*.py:src" \
     --add-data "src/*.json:src" \
+    --add-data "src/icon.ico:src" \
     --add-data "data/*.py:data" \
     --add-data "data/game/$selected_version/limited_stack_items.json:data/game/$selected_version" \
     --add-data "data/game/$selected_version/raw_materials_table.json:data/game/$selected_version" \
