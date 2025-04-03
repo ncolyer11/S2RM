@@ -15,16 +15,17 @@ from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                                QRadioButton, QButtonGroup, QMenuBar, QMenu, QLineEdit, QMessageBox,
                                QSizePolicy, QProgressBar, QComboBox)
 
-from data.parse_mc_data import calculate_materials_table
+from src.resource_path import resource_path
 from src.constants import GAME_DATA_DIR, ICE_PER_ICE, MC_VERSION_REGEX, PROGRAM_VERSION, \
     OUTPUT_JSON_VERSION, ICON_PATH
-from src.helpers import format_quantities, clamp, get_materials_table, resource_path, \
-    verify_regexes, TableCols
-from src.config import get_config_value, set_config_value
+from src.helpers import format_quantities, clamp, verify_regexes, TableCols
+from src.use_config import get_config_value, set_config_value, print_config
+from src.config import get_materials_table
 from src.porting import forwardportJson, get_error_message
 from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
 from data.download_game_data import check_mc_version_in_program_exists, download_game_data, get_minecraft_version_url
+from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
@@ -127,15 +128,15 @@ class S2RMFrontend(QWidget):
         save_json_action.triggered.connect(self.saveJson)
         # Export on the other hand doesn't mean it can be reloaded necessarily
         export_to_csv_action = self.file_menu.addAction("Export to CSV")
-        export_to_csv_action.triggered.connect(self.exportCSV)
+        export_to_csv_action.triggered.connect(lambda: self.exportCSV(use_values=True))
         # Clear mc versions cache
-        clear_cache_action = self.file_menu.addAction("Clear MC Versions Cache")
+        clear_cache_action = self.file_menu.addAction("Clear Saved MC Versions")
         clear_cache_action.triggered.connect(self.clearCache)
         self.menu_bar.addMenu(self.file_menu)
         
         # Add Edit Menu
         self.edit_menu = QMenu("Edit", self)
-        self.version_action = self.edit_menu.addAction(f"MC Version (current: {self.__mc_version})")
+        self.version_action = self.edit_menu.addAction(f"MC Version: {self.__mc_version}")
         self.version_action.triggered.connect(self.showVersionDialog)
         self.menu_bar.addMenu(self.edit_menu)
         
@@ -145,6 +146,8 @@ class S2RMFrontend(QWidget):
         dark_mode_action.setCheckable(True)
         dark_mode_action.triggered.connect(self.toggleDarkMode)
         dark_mode_action.setChecked(True)
+        print_config_action = self.view_menu.addAction("Print Config")
+        print_config_action.triggered.connect(self.printConfig)
         self.menu_bar.addMenu(self.view_menu)
         layout.addWidget(self.menu_bar)
 
@@ -275,13 +278,10 @@ class S2RMFrontend(QWidget):
         
         if file_paths:
             self.file_paths = file_paths
-            start_time = time.time_ns()
             self.processSelectedFiles()
-            print(f"Time to process files: {(time.time_ns() - start_time) / 1e6:.2f} ms")
 
     def processSelectedFiles(self, file_paths=None):
-        # ... (your existing code for file selection and setup)
-
+        start_time = time.time_ns()
         self.loading_dialog = LoadingDialog(self)
         self.loading_dialog.show()
 
@@ -320,6 +320,8 @@ class S2RMFrontend(QWidget):
                 self.updateTableText()
                 self.loading_dialog.close()
                 self.loading_dialog = None
+                
+                print(f"Time to process files: {(time.time_ns() - start_time) / 1e6:.2f} ms")
 
         process_file(0) # start processing the first file.
 
@@ -362,7 +364,7 @@ class S2RMFrontend(QWidget):
         for row, material in enumerate(self.tt.raw_materials):
             self.__set_raw_materials_cell(row, RAW_MATERIALS_COL_NUM, self.tt.raw_materials[row])
             self.__set_raw_materials_cell(row, RAW_QUANTITIES_COL_NUM, self.tt.raw_quantities[row])
-            self.__add_checkbox(row, material)
+            self.__add_checkbox(row, self.tt.collected_data[row])
 
         # Delete data after new input items
         for row in range(len(self.tt.input_items), self.input_table.rowCount()):
@@ -456,12 +458,16 @@ class S2RMFrontend(QWidget):
         # Save the JSON file to the desktop or elsewhere
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_dialog = QFileDialog()
+        despaced_name = self.file_paths[0].split('/')[-1].split('.')[0].replace(" ", "_")
+        default_json_name = f"{despaced_name}_materials_table.json"
         file_path, _ = file_dialog.getSaveFileName(
-            self, "Save JSON File",os.path.join(desktop_path, "materials_table.json"),
+            self, "Save JSON File",os.path.join(desktop_path, default_json_name),
             "JSON files (*.json);;All files (*.*)"
         )
-
+        
         if file_path:
+            if not file_path.endswith(".json"):
+                file_path += ".json"
             try:
                 with open(file_path, "w") as f:
                     json.dump(table_dict, f, indent=4)
@@ -521,32 +527,38 @@ class S2RMFrontend(QWidget):
         else:
             print("No file selected")
 
-    def exportCSV(self):
+    def exportCSV(self, use_values: bool = True):
         """Export the current table text to a CSV file."""
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_dialog = QFileDialog()
+        despaced_name = self.file_paths[0].split('/')[-1].split('.')[0].replace(" ", "_")
+        default_csv_name = f"{despaced_name}_raw_materials_table.csv"
         file_path, _ = file_dialog.getSaveFileName(
-            self, "Export CSV File", os.path.join(desktop_path, "raw_materials_table.csv"),
+            self, "Export CSV File", os.path.join(desktop_path, default_csv_name),
             "CSV files (*.csv);;All files (*.*)"
         )
+        
+        table = self.tv if use_values else self.tt
         if file_path:
+            if not file_path.endswith(".csv"):
+                file_path += ".csv"
             try:
                 with open(file_path, "w") as f:
                     # Write headers
                     f.write(",".join(TABLE_HEADERS) + "\n")
 
                     # Get the maximum number of rows
-                    max_rows = max(len(self.tt.input_items), len(self.tt.input_quantities), len(self.tt.exclude),
-                                len(self.tt.raw_materials), len(self.tt.raw_quantities), len(self.tt.collected_data))
+                    max_rows = max(len(table.input_items), len(table.input_quantities), len(table.exclude),
+                                len(table.raw_materials), len(table.raw_quantities), len(table.collected_data))
                                     
                     for row in range(max_rows):
                         row_data = [
-                            self.tt.input_items[row] if row < len(self.tt.input_items) else "",
-                            self.tt.input_quantities[row] if row < len(self.tt.input_quantities) else "",
-                            self.tt.exclude[row] if row < len(self.tt.exclude) else "",
-                            self.tt.raw_materials[row] if row < len(self.tt.raw_materials) else "",
-                            self.tt.raw_quantities[row] if row < len(self.tt.raw_quantities) else "",
-                            self.tt.collected_data[row] if row < len(self.tt.collected_data) else ""
+                            table.input_items[row] if row < len(table.input_items) else "",
+                            table.input_quantities[row] if row < len(table.input_quantities) else "",
+                            table.exclude[row] if row < len(table.exclude) else "",
+                            table.raw_materials[row] if row < len(table.raw_materials) else "",
+                            table.raw_quantities[row] if row < len(table.raw_quantities) else "",
+                            table.collected_data[row] if row < len(table.collected_data) else ""
                         ]
                         f.write(",".join(map(str, row_data)) + "\n")
                 print(f"CSV saved successfully to: {file_path}")
@@ -674,6 +686,7 @@ class S2RMFrontend(QWidget):
     
     def updateCollected(self, row, state):
         self.tv.collected_data[row] = Qt.CheckState(state) == Qt.CheckState.Checked
+        self.tt.collected_data[row] = self.tv.collected_data[row]
 
     def showVersionDialog(self):
         dialog = QDialog(self)
@@ -732,8 +745,7 @@ class S2RMFrontend(QWidget):
             self.version_action.setText(f"MC Version (current: {version})")
         # Otherwise, download the new version
         else:
-            version = download_game_data(version)
-            calculate_materials_table()
+            check_mc_version_in_program_exists(version)
 
         self.mc_version = version
         dialog.accept()
@@ -743,9 +755,9 @@ class S2RMFrontend(QWidget):
         removed_count = 0
         removed_versions = []
         selected_version = get_config_value("selected_mc_version")
-        for folder in os.listdir(os.path.join("data", "game")):
+        for folder in os.listdir(resource_path(GAME_DATA_DIR)):
             if re.match(MC_VERSION_REGEX, folder) and folder != selected_version:
-                folder_path = os.path.join("data", "game", folder)
+                folder_path = resource_path(os.path.join(GAME_DATA_DIR, folder))
                 if os.path.isdir(folder_path):
                     shutil.rmtree(folder_path)
                     removed_count += 1
@@ -764,7 +776,10 @@ class S2RMFrontend(QWidget):
             self.setDarkMode()
         else:
             self.setLightMode()
-
+    
+    def printConfig(self, checked):
+        print_config()
+    
     def setDarkMode(self):
         app.setStyle('Fusion')
         palette = QPalette()
@@ -876,11 +891,11 @@ class S2RMFrontend(QWidget):
             f'href="https://github.com/ncolyer11/S2RM">Source</a>{non_breaking_spaces}'
         )
 
-    def __add_checkbox(self, row, material):
+    def __add_checkbox(self, row, status):
         """Add a checkbox to the table at the given row."""
         # Add checkbox
         checkbox = QCheckBox()
-        checkbox.setChecked(self.tv.collected_data[row])
+        checkbox.setChecked(status)
         checkbox.stateChanged.connect(lambda state, row=row: self.updateCollected(row, state))
         
         # Create a widget to center the checkbox

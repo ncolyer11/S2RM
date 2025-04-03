@@ -7,11 +7,10 @@ import networkx as nx
 from tqdm import tqdm
 from collections import defaultdict
 
-from src.helpers import resource_path
-from data.graph_recipes import build_crafting_graph, \
-    display_graph_sample, list_crafting_recipes
-from constants import BLOCKS_WITHOUT_ITEM, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, PRIORITY_CRAFTING_METHODS, RAW_MATS_TABLE_NAME, \
-    TAGGED_MATERIALS_BASE
+from src.resource_path import resource_path
+from data.graph_recipes import build_crafting_graph, display_graph_sample, list_crafting_recipes
+from src.constants import BLOCKS_WITHOUT_ITEM, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, \
+    AXIOM_MATERIALS_REGEX, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, RAW_MATS_TABLE_NAME, TAGGED_MATERIALS_BASE
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
@@ -122,15 +121,16 @@ def get_smelting_ingredients(recipe) -> dict[str, int]:
 ###############
 ### HELPERS ###
 ###############
-def get_recipe_data_from_json(folder_path: str = './scripts_to_generate_raw_mats_4_all_items/recipe') -> dict:
+def get_recipe_data_from_json(recipe_path: str) -> dict:
+    """Recipe path should contain all the .json recipes when you download the game files."""
     recipe_json_raw_data = {}
-    folder_path = resource_path(folder_path)
+    recipe_path = resource_path(recipe_path)
     # Loop through every recipe.json file
-    file_list = [f for f in os.listdir(folder_path) if f.endswith('.json')]
+    file_list = [f for f in os.listdir(recipe_path) if f.endswith('.json')]
     total_files = len(file_list)
 
     for filename in tqdm(file_list, total=total_files, desc="Processing files"):
-        file_path = os.path.join(folder_path, filename)
+        file_path = os.path.join(recipe_path, filename)
         item_name = filename.split('.')[0]
         
         # Load json into the dict
@@ -148,12 +148,33 @@ def add_ingredient(ingredients: dict, item: str):
 #####################################
 ### RAW MATERIALS LIST GENERATION ###
 #####################################
-def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
+def generate_raw_materials_table_dict(version: str) -> dict[str, list[dict[str, float]]]:
+    """
+    Top-level function for generating a versions raw materials table for every crafting recipe.
+    
+    This includes 'crafting recipes' for entities, and blocks without typical crafting recipes,
+    e.g. concrete, chipped anvils.
+    """
+    recipe_path = resource_path(os.path.join(MC_DOWNLOADS_DIR, 'recipe'))
+    recipe_json_raw_data = get_recipe_data_from_json(recipe_path)
+    raw_materials_cost = get_raw_materials_cost_dict(recipe_json_raw_data)
+        
+    recipe_graph = build_crafting_graph(raw_materials_cost)
+    raw_materials_dict = generate_master_raw_mats_list(recipe_graph, version)    
+    calculate_entity_ingredients(raw_materials_dict)
+    
+    return raw_materials_dict
+
+def calculate_entity_ingredients(raw_materials_dict: dict[str, list[dict[str, float]]]):
+    """Calculates the raw materials for entities, breaking down entities such as carts, golems, etc."""
+    ...
+
+def generate_master_raw_mats_list(recipe_graph: nx.DiGraph, version: str) -> dict[str, list[dict[str, float]]]:
     """Generates a master list of all items and their raw materials."""
     # Open data/items.json and get items field
-    items_path = resource_path(os.path.join(GAME_DATA_DIR, 'items.json'))
+    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, 'items.json'))
     with open(items_path, 'r') as file:
-        master_items_list = json.load(file)['items']
+        master_items_list = json.load(file)
     
     for item in BLOCKS_WITHOUT_ITEM:
         master_items_list.append(item)
@@ -166,10 +187,9 @@ def generate_master_raw_mats_list(recipe_graph: nx.DiGraph):
         # print(f"Getting raw mats for: {item}")
         master_raw_mats_list[item] = get_ingredients(recipe_graph, item)
 
-    with open(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME, 'w')) as f:
-        json.dump(master_raw_mats_list, f, indent=4)
-
-def get_ingredients(graph: nx.DiGraph, target_item: str) -> list[dict]:
+    return master_raw_mats_list
+    
+def get_ingredients(graph: nx.DiGraph, target_item: str) -> list[dict[str, float]]:
     """Lists all raw materials needed to craft a target item, handling circular dependencies."""
     # Convert 'uncraftable' (created outside a crafting table) to their raw base material
     target_item = re.sub(r'^(chipped|damaged)_anvil$', 'anvil', target_item)

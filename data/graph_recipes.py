@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib import colors
 
-from constants import NODE_COLOUR, AXIOM_MATERIALS_REGEX
+from src.constants import NODE_COLOUR, AXIOM_MATERIALS_REGEX
 
 ############################
 ### RECIPE GRAPH RELATED ###

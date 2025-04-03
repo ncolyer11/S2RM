@@ -1,15 +1,14 @@
+import json
 import re
 import os
-import sys
-import json
 import requests
 
 from tqdm import tqdm
 from dataclasses import dataclass
 
-from src.config import create_default_config, get_config_value
-from src.constants import CONFIG_PATH, DATA_DIR, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, \
-    RAW_MATS_TABLE_NAME, SHULKER_BOX_SIZE
+from src.use_config import get_config_value
+from src.resource_path import resource_path
+from src.constants import DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, SHULKER_BOX_SIZE
 
 @dataclass
 class TableCols:
@@ -27,29 +26,6 @@ class TableCols:
         self.raw_materials = []
         self.raw_quantities = []
         self.collected_data = []
-
-def check_connection() -> bool:
-    """Check if the user is connected to the internet and if the config file exists."""
-    try:
-        requests.get("https://www.google.com", timeout=5)
-    except requests.ConnectionError:
-        print("No internet connection. Skipping game data download.")
-        return False
-    except requests.Timeout:
-        print("Connection timed out. Skipping game data download.")
-        return False
-    except requests.RequestException as e:
-        print(f"An error occurred: {e}")
-        return False
-
-    # Check if the config file exists
-    if not os.path.exists(resource_path(CONFIG_PATH)):
-        print("Config file not found. Generating a new default config file "
-              "and skipping game data download.")
-        create_default_config()
-        return False
-    
-    return True
 
 def clamp(n, smallest, largest):
     return max(smallest, min(n, largest))
@@ -77,6 +53,7 @@ def verify_regexes(search_str: str) -> list[str] | bool:
 
 def download_file(url, output_path) -> bool:
     """Download a file with a progress bar."""
+    output_path = resource_path(output_path)
     try:
         # Send GET request and then raise an exception for bad HTTP status codes
         response = requests.get(url, stream=True)
@@ -101,7 +78,7 @@ def download_file(url, output_path) -> bool:
                 size = file.write(data)
                 progress_bar.update(size)
         
-        print(f"Successfully downloaded {url}\n")
+        print(f"Successfully downloaded {url} to path {output_path}\n")
         return True
     
     except Exception as e:
@@ -138,7 +115,8 @@ def format_quantities(materials: list[str], qs_vals_text: tuple[list[int], list[
         formatted_quantity = get_shulkers_stacks_and_items(quantity, material, is_exclude_col)
         quantity_text[i] = formatted_quantity
 
-def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand: bool = False) -> str:
+def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand: bool = False,
+                                  limited_stack_items: dict[str, int] | None = None) -> str:
     """
     Return a formatted string of the quantity in the form of 'x (y SB + z stacks + a)'.
     
@@ -150,6 +128,9 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
         The name of the item, used to determine the stack size. Defaults to "".
     shorthand : bool, optional
         Whether to use shorthand names for item stacks and shulker boxes. Defaults to False.
+    limited_stack_items : dict[str, int], optional
+        A dictionary mapping item names to their stack sizes. Defaults to None. If none, read dict
+        from the currently selected mc version data folder.
     
     Returns
     -------
@@ -158,12 +139,13 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
     """
     # Shulkers can't be stacked and also can't be put in other shulker boxes
     if "shulker_box" in item_name:
-        return str(quantity)
+        return str(int(quantity))
 
-    LIMITED_STACK_ITEMS = get_limit_stack_items() # XXX opening this file every time is inefficient
-    
     # Determine the stack size for this item
-    stack_size = LIMITED_STACK_ITEMS.get(item_name, DF_STACK_SIZE)
+    if limited_stack_items is None:
+        limited_stack_items = get_limit_stack_items()
+
+    stack_size = limited_stack_items.get(item_name, DF_STACK_SIZE)
     # Calculate how many items fit in a shulker box
     shulker_box_capacity = stack_size * SHULKER_BOX_SIZE
     
@@ -195,7 +177,7 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
         return " ".join(parts) or "0"
     else:
         # Start with the total quantity
-        result = f"{quantity}"
+        result = f"{int(quantity)}"
         
         # Only add parentheses if we have something to break down
         has_breakdown = num_shulker_boxes > 0 or (stack_size > 1 and num_stacks > 0)
@@ -217,6 +199,21 @@ def get_shulkers_stacks_and_items(quantity: int, item_name: str = "", shorthand:
                 result += f" ({' + '.join(parts)})"
                 
         return result
+
+def get_limit_stack_items(version="current"):
+    """
+    Load a dictionary containing all items that don't stack to 64, and their stack size (either
+    16 or 1).
+    """
+    try:
+        if version == "current":
+            version = get_config_value("selected_mc_version")
+
+        with open(resource_path(os.path.join(GAME_DATA_DIR, version, LIMTED_STACKS_NAME)), "r") as f:
+            return json.load(f)
+    except FileNotFoundError as e:
+        print(f"File {LIMTED_STACKS_NAME} not found in {GAME_DATA_DIR}/{version}: {e}")
+        return None
 
 def print_formatted_entity_data(entity_data):
     """Print out the data of an entity.data object from the litemapy library in a formatted way."""
@@ -251,42 +248,3 @@ def int_to_roman(n: int) -> str:
             n -= value
         
     return result
-
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
-def get_materials_table(version="current"):
-    """
-    Load the raw materials table containing the number of raw materials required to craft one
-    of each item.
-    """
-    try:
-        if version == "current":
-            version = get_config_value("selected_mc_version")
-            
-        with open(resource_path(os.path.join(DATA_DIR, version, RAW_MATS_TABLE_NAME)), "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return None
-
-def get_limit_stack_items(version="current"):
-    """
-    Load a dictionary containing all items that don't stack to 64, and their stack size (either
-    16 or 1).
-    """
-    try:
-        if version == "current":
-            version = get_config_value("selected_mc_version")
-
-        with open(resource_path(os.path.join(GAME_DATA_DIR, version, LIMTED_STACKS_NAME)), "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return None
-    

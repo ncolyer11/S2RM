@@ -1,5 +1,4 @@
 import os
-import sys
 
 PROGRAM_VERSION = "1.3.3"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
@@ -197,25 +196,14 @@ GOLEM_RECIPES = {
 
 # Condenseable items that don't follow a specific naming pattern, e.g. ingots -> blocks
 CONDENSABLES = {
-    "bone_meal": {"bone_block", 9},
-    "coal": {"coal_block", 9},
-    "diamond": {"diamond_block", 9},
-    "emerald": {"emerald_block", 9},
-    "honey_bottle": {"honey_block", 4},
-    "lapis_lazuli": {"lapis_block", 9},
-    "redstone": {"redstone_block", 9},
-    "slime_ball": {"slime_block", 9},
-    "snowball": {"snow_block", 4},
-    "wheat": {"hay_block", 9},
+    "bone_meal": ("bone_block", 9),
+    "coal": ("coal_block", 9),
+    "diamond": ("diamond_block", 9),
+    "emerald": ("emerald_block", 9),
+    "honey_bottle": ("honey_block", 4),
+    "lapis_lazuli": ("lapis_block", 9),
+    "redstone": ("redstone_block", 9),
+    "slime_ball": ("slime_block", 9),
+    "snowball": ("snow_block", 4),
+    "wheat": ("hay_block", 9),
 }
-
-# To get this to build to .exe we need this code, but to avoid circular dependencies it needs to be here, kinda eh
-def constants_py_resource_path(relative_path):
-    """Get absolute path to resource, works for dev and for PyInstaller"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)

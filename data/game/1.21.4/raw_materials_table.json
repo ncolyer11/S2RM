@@ -816,7 +816,7 @@
         },
         {
             "item": "black_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "black_terracotta": [
@@ -1004,12 +1004,6 @@
     "blue_dye": [
         {
             "item": "blue_dye",
-            "quantity": 1.0
-        }
-    ],
-    "blue_egg": [
-        {
-            "item": "blue_egg",
             "quantity": 1.0
         }
     ],
@@ -1359,12 +1353,6 @@
             "quantity": 1.0
         }
     ],
-    "brown_egg": [
-        {
-            "item": "brown_egg",
-            "quantity": 1.0
-        }
-    ],
     "brown_glazed_terracotta": [
         {
             "item": "clay_ball",
@@ -1418,7 +1406,7 @@
         },
         {
             "item": "brown_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "brown_terracotta": [
@@ -1501,21 +1489,9 @@
             "quantity": 1.0
         }
     ],
-    "bush": [
-        {
-            "item": "bush",
-            "quantity": 1.0
-        }
-    ],
     "cactus": [
         {
             "item": "cactus",
-            "quantity": 1.0
-        }
-    ],
-    "cactus_flower": [
-        {
-            "item": "cactus_flower",
             "quantity": 1.0
         }
     ],
@@ -1529,12 +1505,12 @@
             "quantity": 3.0
         },
         {
-            "item": "sugar_cane",
-            "quantity": 2.0
-        },
-        {
             "item": "egg",
             "quantity": 1.0
+        },
+        {
+            "item": "honey_bottle",
+            "quantity": 0.6666666666666666
         }
     ],
     "calcite": [
@@ -3635,8 +3611,8 @@
             "quantity": 1.0
         },
         {
-            "item": "sugar_cane",
-            "quantity": 1.0
+            "item": "honey_bottle",
+            "quantity": 0.3333333333333333
         }
     ],
     "fern": [
@@ -3690,12 +3666,6 @@
     "fire_coral_fan": [
         {
             "item": "fire_coral_fan",
-            "quantity": 1.0
-        }
-    ],
-    "firefly_bush": [
-        {
-            "item": "firefly_bush",
             "quantity": 1.0
         }
     ],
@@ -4278,7 +4248,7 @@
         },
         {
             "item": "gray_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "gray_terracotta": [
@@ -4442,7 +4412,7 @@
         },
         {
             "item": "green_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "green_terracotta": [
@@ -5063,12 +5033,6 @@
             "quantity": 0.5
         }
     ],
-    "leaf_litter": [
-        {
-            "item": "oak_leaves",
-            "quantity": 1.0
-        }
-    ],
     "leather": [
         {
             "item": "leather",
@@ -5276,7 +5240,7 @@
         },
         {
             "item": "light_blue_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "light_blue_terracotta": [
@@ -5675,8 +5639,12 @@
             "quantity": 8.0
         },
         {
-            "item": "iron_ingot",
-            "quantity": 1.0
+            "item": "ancient_debris",
+            "quantity": 4.0
+        },
+        {
+            "item": "gold_ingot",
+            "quantity": 4.0
         }
     ],
     "loom": [
@@ -6107,7 +6075,7 @@
             "quantity": 1.0
         },
         {
-            "item": "vine",
+            "item": "moss_block",
             "quantity": 1.0
         }
     ],
@@ -6117,7 +6085,7 @@
             "quantity": 0.5
         },
         {
-            "item": "vine",
+            "item": "moss_block",
             "quantity": 0.5
         }
     ],
@@ -6127,7 +6095,7 @@
             "quantity": 1.5
         },
         {
-            "item": "vine",
+            "item": "moss_block",
             "quantity": 1.5
         }
     ],
@@ -6137,47 +6105,47 @@
             "quantity": 1.0
         },
         {
-            "item": "vine",
+            "item": "moss_block",
             "quantity": 1.0
         }
     ],
     "mossy_stone_brick_slab": [
         {
-            "item": "stone",
+            "item": "moss_block",
             "quantity": 0.5
         },
         {
-            "item": "vine",
+            "item": "stone",
             "quantity": 0.5
         }
     ],
     "mossy_stone_brick_stairs": [
         {
-            "item": "stone",
+            "item": "moss_block",
             "quantity": 1.5
         },
         {
-            "item": "vine",
+            "item": "stone",
             "quantity": 1.5
         }
     ],
     "mossy_stone_brick_wall": [
         {
-            "item": "stone",
+            "item": "moss_block",
             "quantity": 1.0
         },
         {
-            "item": "vine",
+            "item": "stone",
             "quantity": 1.0
         }
     ],
     "mossy_stone_bricks": [
         {
-            "item": "stone",
+            "item": "moss_block",
             "quantity": 1.0
         },
         {
-            "item": "vine",
+            "item": "stone",
             "quantity": 1.0
         }
     ],
@@ -7050,7 +7018,7 @@
         },
         {
             "item": "orange_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "orange_terracotta": [
@@ -7544,7 +7512,7 @@
         },
         {
             "item": "pink_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "pink_terracotta": [
@@ -7987,8 +7955,8 @@
             "quantity": 1.0
         },
         {
-            "item": "sugar_cane",
-            "quantity": 1.0
+            "item": "honey_bottle",
+            "quantity": 0.3333333333333333
         }
     ],
     "pumpkin_seeds": [
@@ -8138,7 +8106,7 @@
         },
         {
             "item": "purple_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "purple_terracotta": [
@@ -8928,12 +8896,6 @@
         },
         {
             "item": "iron_ingot",
-            "quantity": 1.0
-        }
-    ],
-    "short_dry_grass": [
-        {
-            "item": "short_dry_grass",
             "quantity": 1.0
         }
     ],
@@ -9775,8 +9737,8 @@
     ],
     "sugar": [
         {
-            "item": "sugar_cane",
-            "quantity": 1.0
+            "item": "honey_bottle",
+            "quantity": 0.3333333333333333
         }
     ],
     "sugar_cane": [
@@ -9809,11 +9771,11 @@
             "quantity": 1.0
         },
         {
-            "item": "red_mushroom",
+            "item": "cornflower",
             "quantity": 1.0
         },
         {
-            "item": "wither_rose",
+            "item": "red_mushroom",
             "quantity": 1.0
         },
         {
@@ -9839,12 +9801,6 @@
             "quantity": 1.0
         }
     ],
-    "tall_dry_grass": [
-        {
-            "item": "tall_dry_grass",
-            "quantity": 1.0
-        }
-    ],
     "tall_grass": [
         {
             "item": "tall_grass",
@@ -9865,18 +9821,6 @@
         {
             "item": "clay_ball",
             "quantity": 4.0
-        }
-    ],
-    "test_block": [
-        {
-            "item": "test_block",
-            "quantity": 1.0
-        }
-    ],
-    "test_instance_block": [
-        {
-            "item": "test_instance_block",
-            "quantity": 1.0
         }
     ],
     "tide_armor_trim_smithing_template": [
@@ -10360,7 +10304,7 @@
         },
         {
             "item": "honeycomb",
-            "quantity": 1.0
+            "quantity": 0.75
         },
         {
             "item": "blaze_rod",
@@ -10458,7 +10402,7 @@
         },
         {
             "item": "honeycomb",
-            "quantity": 1.0
+            "quantity": 0.75
         },
         {
             "item": "blaze_rod",
@@ -10556,7 +10500,7 @@
         },
         {
             "item": "honeycomb",
-            "quantity": 1.0
+            "quantity": 0.75
         },
         {
             "item": "blaze_rod",
@@ -10654,7 +10598,7 @@
         },
         {
             "item": "honeycomb",
-            "quantity": 1.0
+            "quantity": 0.75
         },
         {
             "item": "blaze_rod",
@@ -10954,7 +10898,7 @@
         },
         {
             "item": "white_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "white_terracotta": [
@@ -10993,14 +10937,8 @@
             "quantity": 0.5
         },
         {
-            "item": "vine",
+            "item": "moss_block",
             "quantity": 0.5
-        }
-    ],
-    "wildflowers": [
-        {
-            "item": "wildflowers",
-            "quantity": 1.0
         }
     ],
     "wind_charge": [
@@ -11246,7 +11184,7 @@
         },
         {
             "item": "yellow_dye",
-            "quantity": 0.125
+            "quantity": 0.046875
         }
     ],
     "yellow_terracotta": [

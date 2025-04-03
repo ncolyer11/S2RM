@@ -3,21 +3,26 @@ import re
 import json
 import shutil
 
+from src.resource_path import resource_path
+from src.constants import DATA_DIR, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR
 from src.S2RM_backend import block_to_item_name
-from src.helpers import resource_path
-from src.config import get_config_value, get_current_mc_version
-from src.constants import DATA_DIR, GAME_DATA_DIR, INVALID_BLOCKS, MC_DOWNLOADS_DIR, LIMTED_STACKS_NAME
 
 def create_mc_data_dirs(mc_version: str):
     try:
         # Ensure 'data' directory exists
-        os.makedirs(DATA_DIR, exist_ok=True)
+        os.makedirs(resource_path(DATA_DIR), exist_ok=True)
         
         # Then make the game data directory
-        os.makedirs(GAME_DATA_DIR, exist_ok=True)
-            
+        os.makedirs(resource_path(GAME_DATA_DIR), exist_ok=True)
+        
+        # Remove the old mc version directory if it exists
+        version_dir = resource_path(os.path.join(GAME_DATA_DIR, mc_version))
+        if os.path.exists(version_dir):
+            shutil.rmtree(version_dir)
+            print(f"Removed old directory: {version_dir} for {mc_version}")
+        
         # Then make the new mc version directory
-        os.makedirs(os.path.join(GAME_DATA_DIR, mc_version), exist_ok=True)
+        os.makedirs(version_dir, exist_ok=False)
     except Exception as e:
         print(f"Error creating directories: {e}")
 
@@ -30,7 +35,7 @@ def parse_items_list():
     """
     try:
         # Directory with item JSONs
-        item_dir = os.path.join(MC_DOWNLOADS_DIR, 'items')
+        item_dir = resource_path(os.path.join(MC_DOWNLOADS_DIR, 'items'))
         
         # Get list of item names (filenames without .json)
         items = [
@@ -113,6 +118,7 @@ def parse_entities_list():
         .replace("register(", "\n") \
         .split("\n")
 
+    # XXX why is this using the block to item func for entities?
     entity_names = [block_to_item_name(line.split(',')[0].strip()) for line in lines]
 
     # Remove unrelated lines in the code
@@ -138,7 +144,7 @@ def save_json_file(mc_version, filename, data):
         Data to be saved as JSON
     """
     try:
-        output_path = os.path.join(GAME_DATA_DIR, mc_version, filename)
+        output_path = resource_path(os.path.join(GAME_DATA_DIR, mc_version, filename))
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=4)
@@ -151,53 +157,11 @@ def cleanup_downloads():
     Remove the minecraft_downloads directory
     """
     try:
-        if os.path.exists(MC_DOWNLOADS_DIR):
-            shutil.rmtree(MC_DOWNLOADS_DIR)
+        if os.path.exists(resource_path(MC_DOWNLOADS_DIR)):
+            shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))
             print("Cleaned up downloads directory")
     except Exception as e:
         print(f"Error cleaning up downloads: {e}")
-
-def calculate_materials_table(delete=True):
-    """
-    Parse the Minecraft game data and save it to JSON files after parsing.
-    
-    Parameters
-    ----------
-    delete : bool, optional
-        Whether to delete the downloads directory after parsing (default is True)
-    cache : bool, optional
-        Whether to cache the parsed data so it doesn't get wiped after switching/updating versions
-        (default is False).
-    # XXX remove cache and replace it with a manual tool to delete specific downloaded versions (plus a clear all (but selected) option)
-    """
-    # Get the selected Minecraft version
-    mc_version = get_config_value("selected_mc_version")
-    
-    # XXX oh this stuff all should be done right after downloading an mc version
-    # this function should be part of that and a new one should be created just for
-    # loading a spefici versions materials table into the backend scope
-    # Create the 'data/game' directories
-    create_mc_data_dirs(mc_version)
-    
-    # Parse and save items list
-    items_list = parse_items_list()
-    save_json_file(mc_version, 'items.json', items_list)
-    
-    # Parse and save entities list
-    entities_list = parse_entities_list()
-    save_json_file(mc_version, 'entities.json', entities_list)
-    
-    # Parse and save blocks list
-    blocks_list = parse_blocks_list()
-    save_json_file(mc_version, 'blocks.json', blocks_list)
-    
-    # Parse item stack sizes
-    items_stack_sizes = parse_items_stack_sizes()
-    save_json_file(mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
-    
-    # Remove the downloads directory if specified
-    if delete:
-        cleanup_downloads()
 
 if __name__ == '__main__':
     # items = parse_blocks_list()
@@ -208,4 +172,4 @@ if __name__ == '__main__':
     # for entity in entities:
     #     print(entity)
 
-    calculate_materials_table(delete=False)
+    ...

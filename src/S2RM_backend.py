@@ -1,3 +1,4 @@
+import json
 import re
 import os
 
@@ -5,8 +6,8 @@ from itertools import product
 from litemapy import Schematic, Entity, TileEntity
 from unicodedata import category as unicode_category
 
-from src.constants import CONDENSABLES, GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, \
-    SIMPLE_ENTITIES, SHULKER_BOX_SIZE
+from src.constants import CONDENSABLES, GOLEM_RECIPES, HEADGEAR_KWS, INVALID_BLOCKS, \
+    INVALID_ENTITIES, ITEM_TAGS, DF_STACK_SIZE, BLOCK_TAGS, SIMPLE_ENTITIES, SHULKER_BOX_SIZE
 from src.helpers import add_material, int_to_roman, get_limit_stack_items, \
     print_formatted_entity_data
 
@@ -58,7 +59,6 @@ def get_litematica_dir():
             return appdata_litematica_path
 
     return "" # Return an empty string if directory not found
-
 
 def process_exclude_string(input_str: str, material: str) -> int:
     """
@@ -126,7 +126,8 @@ def condense_material(processed_materials: dict, material: str, quantity: float)
 ################## HELPERS ##################
 #############################################
 
-def add_resources(materials: dict, material: str, block_name: str, quantity: float, compact_num: int = 9):
+def add_resources(materials: dict, material: str, block_name: str, quantity: float,
+                  compact_num: int = 9):
     """Adds a compacted resource, both its block form and remaining resources, to a materials dict."""
     blocks_needed = int(quantity // compact_num)
     remaining_ingots = quantity - (blocks_needed * compact_num)

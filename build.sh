@@ -24,8 +24,8 @@ python -m PyInstaller \
     --add-data "data/*.json:data" \
     --add-data "data/*.py:data" \
     --add-data "data/game:data/game" \
-    --icon "src/icon.ico" \
     --distpath "." \
+    --noconfirm \
 main.py
 
 # Check if PyInstaller was successful
