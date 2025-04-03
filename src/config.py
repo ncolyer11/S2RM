@@ -47,7 +47,7 @@ def update_config(redownload=False, delete=True):
     # Check if the user has the selected mc version downloaded
     check_has_selected_mc_vers(redownload, delete)
     
-def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
+def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool | str:
     """
     Check if the selected Minecraft version has the required data files in its data/game folder.
 
@@ -80,16 +80,22 @@ def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool:
     # So if the files for the selected mc version aren't found, then we need to redownload the
     # mc files, parse them, and reconstruct the raw_materials_table and limited_stack_items.jsons
     actually_downloaded_version = download_game_data(selected_mc_version)
+    issue_downloading = False
     if actually_downloaded_version != selected_mc_version:
         print("Issue downloading the selected version. "
               "Backup version downloaded and set as selected instead.")
+        issue_downloading = "issue"
 
     set_config_value("selected_mc_version", actually_downloaded_version)
 
     # Generate raw_materials_table and limited_stack_items.json files
     # using the downloaded and parsed game data
-    get_mats_table_and_lim_stacked_items(delete)
+    if not has_data_files(actually_downloaded_version):
+        get_mats_table_and_lim_stacked_items(delete)
 
+    if issue_downloading:
+        return issue_downloading
+    
     return False
 
 def has_data_files(version: str) -> bool:

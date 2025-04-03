@@ -777,13 +777,15 @@ class S2RMFrontend(QWidget):
         original_version = get_config_value("selected_mc_version")
         set_config_value("selected_mc_version", version)
         try:
-            check_has_selected_mc_vers()
+            if check_has_selected_mc_vers() == "issue":
+                raise ValueError("Version doesn't exist")
+            self.mc_version = version # This automatically updates the label
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to download version {version}.\n{e}")
+            set_config_value("selected_mc_version", original_version)
+            self.mc_version = original_version
             return
-        set_config_value("selected_mc_version", original_version)
 
-        self.mc_version = version # This automatically updates the label
         dialog.accept()
 
     def clearCache(self):
