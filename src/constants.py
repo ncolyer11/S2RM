@@ -176,6 +176,7 @@ BLOCK_TAGS = {
 SIMPLE_ENTITIES = {
     "painting",
     "armor_stand",
+    "ender_crystal",
 }
 
 # Entities that don't make sense to include in the items list

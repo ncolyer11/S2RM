@@ -53,7 +53,7 @@ RAW_QUANTITIES_COL_NUM = RAW_MATERIALS_COL_NUM + 1
 COLLECTIONS_COL_NUM = RAW_QUANTITIES_COL_NUM + 1
 
 FILE_LABEL_TEXT = "Select material list file(s):"
-TRUNCATE_LEN = 70
+TRUNCATE_LEN = 65
 WINDOW_X = 20
 WINDOW_Y = 20
 WINDOW_WIDTH = 1250
@@ -276,6 +276,13 @@ class S2RMFrontend(QWidget):
         if file_paths:
             self.file_paths = file_paths
             self.processSelectedFiles()
+            file_names = ", ".join(os.path.basename(path) for path in file_paths)
+            # Truncate file names if they are too long
+            if len(file_names) > TRUNCATE_LEN:
+                truncated_names = file_names[:TRUNCATE_LEN]
+                skipped_files = len(file_paths) - truncated_names.count(",") 
+                file_names = truncated_names + f"... + {skipped_files} more"
+            self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
 
     def processSelectedFiles(self, file_paths=None):
         start_time = time.time_ns()
@@ -353,6 +360,7 @@ class S2RMFrontend(QWidget):
 
         # Set new values for the input materials table
         for row, material in enumerate(self.tt.input_items):
+            print(f"Material: {material}")
             self.__set_input_materials_cell(row, INPUT_ITEMS_COL_NUM, material.replace("$", "")) # Remove $ from encoded entities
             self.__set_input_materials_cell(row, INPUT_QUANTITIES_COL_NUM, self.tt.input_quantities[row])
             self.__set_exclude_text_cell(row, self.tt.exclude[row])
