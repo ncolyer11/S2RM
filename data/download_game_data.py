@@ -258,4 +258,4 @@ def extract_item_jsons(jar: zipfile.ZipFile) -> list[str]:
     return item_files
 
 if __name__ == '__main__':
-    download_game_data()
+    download_game_data("1.21.5")

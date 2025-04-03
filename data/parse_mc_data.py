@@ -105,6 +105,8 @@ def parse_blocks_list():
         if item_names[i].replace('"', '') in INVALID_BLOCKS or item_names[i] == item_names[i - 1]:
             item_names.pop(i)
 
+    item_names = [item.replace('"', '') for item in item_names]
+
     return item_names
 
 def parse_entities_list():
@@ -118,19 +120,18 @@ def parse_entities_list():
         .replace("register(", "\n") \
         .split("\n")
 
-    # XXX why is this using the block to item func for entities?
-    entity_names = [block_to_item_name(line.split(',')[0].strip()) for line in lines]
+    entity_names = [line.split(',')[0].strip() for line in lines]
 
     # Remove unrelated lines in the code
     for i in range(len(entity_names) - 1,  -1, -1):
         if not entity_names[i].startswith('"'):
             entity_names.pop(i)
 
-    entity_names.sort()
+    entity_names = [entity.replace('"', '') for entity in entity_names]
 
     return entity_names
 
-def save_json_file(mc_version, filename, data):
+def save_json_file(mc_version, filename, data, just_whack_in_current_dir=False):
     """
     Save data to a JSON file in the GAME_DATA_DIR directory for a specific minecraft version
     
@@ -142,9 +143,13 @@ def save_json_file(mc_version, filename, data):
         Name of the output file
     data : list or dict
         Data to be saved as JSON
+    just_whack_in_current_dir : bool
+        If True, save the file in the current directory instead of GAME_DATA_DIR
     """
     try:
         output_path = resource_path(os.path.join(GAME_DATA_DIR, mc_version, filename))
+        if just_whack_in_current_dir:
+            output_path = os.path.join(os.getcwd(), filename)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=4)
@@ -164,12 +169,15 @@ def cleanup_downloads():
         print(f"Error cleaning up downloads: {e}")
 
 if __name__ == '__main__':
-    # items = parse_blocks_list()
-    # for item in items:
-    #     print(item)
+    selected_mc_version = "1.21.5"
 
-    # entities = parse_entities_list()
-    # for entity in entities:
-    #     print(entity)
-
-    ...
+    # Parse and save entities list
+    entities_list = parse_entities_list()
+    save_json_file(selected_mc_version, 'entities.json', entities_list, True)
+    
+    # Parse and save blocks list
+    blocks_list = parse_blocks_list()
+    save_json_file(selected_mc_version, 'blocks.json', blocks_list, True)
+    
+    
+    
