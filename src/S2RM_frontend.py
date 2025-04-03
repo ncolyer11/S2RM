@@ -549,7 +549,7 @@ class S2RMFrontend(QWidget):
             try:
                 with open(file_path, "w") as f:
                     # Write headers
-                    f.write(",".join(TABLE_HEADERS) + "\n")
+                    f.write(",".join(HEADERS_LIST) + "\n")
 
                     # Get the maximum number of rows
                     max_rows = max(len(table.input_items), len(table.input_quantities), len(table.exclude),
