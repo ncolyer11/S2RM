@@ -7,7 +7,7 @@ from litemapy import Schematic
 from unicodedata import category as unicode_category
 
 from src.constants import CONDENSABLES, INVALID_BLOCKS, ITEM_TAGS, DF_STACK_SIZE, SHULKER_BOX_SIZE
-from src.helpers import get_limit_stack_items, convert_block_to_item
+from src.helpers import block_to_item_name, get_limit_stack_items, convert_block_to_item
 from src.entity_processing import get_materials_from_entity, get_materials_from_inventories
 
 def input_file_to_mats_dict(input_file: str) -> dict[str, int]:
@@ -210,10 +210,10 @@ def process_litematic_file(input_file: str) -> dict[str, int]:
             if block_name in INVALID_BLOCKS:
                 continue
             
-            # Some blocks may break down into 2 items, e.g. a full cauldron or a candle cake
-            item_names = convert_block_to_item(block_name)
-            for item_name in item_names:
-                materials[item_name] = materials.get(item_name, 0) + 1
+            # Store direct block, even if it doesn't exist as an item as the
+            # new raw_materials_table.json now has recipes for these cases
+            item_name = block_to_item_name(block_name)
+            materials[item_name] = materials.get(item_name, 0) + 1
     
         # Get materials required to craft/obtain entities
         for entity in region.entities:

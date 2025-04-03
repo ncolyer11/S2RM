@@ -1,6 +1,6 @@
 import os
-import json
 import re
+import json
 
 import networkx as nx
 
@@ -10,9 +10,8 @@ from collections import defaultdict
 from src.resource_path import resource_path
 from src.helpers import convert_block_to_item
 from data.graph_recipes import build_crafting_graph
-from src.constants import BLOCKS_JSON, BLOCKS_WITHOUT_ITEM, ENTITIES_JSON, GAME_DATA_DIR, \
-    IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, ITEMS_JSON, MC_DOWNLOADS_DIR, \
-    PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
+from src.constants import BLOCKS_JSON, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, \
+    ITEMS_JSON, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()

@@ -15,6 +15,4 @@ def main():
     start()
 
 if __name__ == "__main__":
-    check_has_selected_mc_vers(redownload=True)
-    exit(0)
     main()

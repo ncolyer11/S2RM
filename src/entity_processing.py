@@ -16,10 +16,12 @@ def get_materials_from_entity(materials: dict[str, int], entity: Entity):
 
 def get_materials_from_inventories(materials: dict[str, int], tile_entity: TileEntity):
     """Extracts materials from inventories by checking their NBT."""
-    data = tile_entity.data
     items = []
+
+    data = tile_entity.data
     if "Items" in data:
         items = data["Items"]
+    # Single item case for entities such as item frames
     elif "Item" in data:
         items = [data["Item"]]
 
