@@ -49,13 +49,18 @@ def get_litematica_dir():
     Gets the Litematica directory, checking for S2RM specific directories first, and then the default.
     """
     if appdata_path := os.getenv('APPDATA'):
-        appdata_litematica_path = os.path.join(appdata_path, ".minecraft", "schematics")
+        appdata_minecraft_path = os.path.join(appdata_path, ".minecraft")
+        appdata_litematica_path = os.path.join(appdata_minecraft_path, "schematics")
+
+        # Check if .minecraft and schematics folders exist
+        if not os.path.exists(appdata_minecraft_path) or not os.path.exists(appdata_litematica_path):
+            return ""
+
         for dir_name in os.listdir(appdata_litematica_path):
             if "s2rm" in dir_name.lower():
                 return os.path.join(appdata_litematica_path, dir_name)
 
-        if os.path.exists(appdata_litematica_path):
-            return appdata_litematica_path
+        return appdata_litematica_path
 
     return "" # Return an empty string if directory not found
 
