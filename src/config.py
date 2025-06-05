@@ -254,6 +254,10 @@ def prompt_mc_update(latest_mc_version: str):
         msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msgBox.setDefaultButton(QMessageBox.Yes)
         
+        # Rename buttons
+        msgBox.button(QMessageBox.Yes).setText("Update")
+        msgBox.button(QMessageBox.No).setText("Decline")
+        
         # Check the user's response
         response = msgBox.exec()
         app.quit()
