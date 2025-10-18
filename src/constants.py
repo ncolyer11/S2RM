@@ -1,6 +1,6 @@
 import os
 
-PROGRAM_VERSION = "1.3.4"
+PROGRAM_VERSION = "1.3.5"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 
 S2RM_API_RELEASES_URL = "https://api.github.com/repos/ncolyer11/S2RM/releases/latest"
