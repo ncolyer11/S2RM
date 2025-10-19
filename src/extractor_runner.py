@@ -16,8 +16,8 @@ TARGET_FILES = (
 _ALLOWED_SEGMENT_CHARS = {".", "-", "_"}
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _EXTRACTOR_ROOT = _PROJECT_ROOT / "extractor"
-_STAGING_ROOT = _EXTRACTOR_ROOT / "game_data"
-_DATA_GAME_ROOT = _PROJECT_ROOT / "data" / "game"
+_GAME_DATA_ROOT = _EXTRACTOR_ROOT / "game_data"
+_ARTIFACT_STORE_ROOT = _EXTRACTOR_ROOT / "artifact-store"
 
 
 class ExtractionError(RuntimeError):
@@ -59,12 +59,7 @@ def _run_extractor(version: str) -> None:
 
 def _sources_root(version: str) -> Path:
     normalised = normalise_version(version)
-    return _STAGING_ROOT / sanitise_segment(normalised)
-
-
-def _data_root(version: str) -> Path:
-    normalised = normalise_version(version)
-    return _DATA_GAME_ROOT / sanitise_segment(normalised)
+    return _GAME_DATA_ROOT / sanitise_segment(normalised)
 
 
 def _locate_source_file(root: Path, relative_path: Path) -> Path | None:
@@ -81,14 +76,12 @@ def _locate_source_file(root: Path, relative_path: Path) -> Path | None:
 
 
 def ensure_extracted_sources(version: str, *, force: bool = False) -> Path:
-    destination_root = _data_root(version)
-    if force or _missing_any(destination_root):
-        _collect_sources(version, destination_root, force=force)
-    if _missing_any(destination_root):
-        raise ExtractionError(
-            f"Extraction finished but sources are missing for {version} at {destination_root}."
-        )
-    return destination_root
+    sources_root = _sources_root(version)
+    if force or _missing_any(sources_root):
+        _run_extractor(normalise_version(version))
+    if _missing_any(sources_root):
+        raise ExtractionError(f"Extraction finished but sources are missing for {version} at {sources_root}.")
+    return sources_root
 
 
 def copy_sources(version: str, destination: Path, *, overwrite: bool = True) -> None:
@@ -100,74 +93,43 @@ def copy_sources(version: str, destination: Path, *, overwrite: bool = True) -> 
         if source_path is None:
             raise ExtractionError(f"Missing extracted file: {relative_path}")
         destination_path = destination / relative_path.name
-        try:
-            if source_path.resolve() == destination_path.resolve():
-                continue
-        except OSError:
-            # If either path cannot be resolved (e.g. it does not exist yet), continue with copy.
-            pass
         if destination_path.exists():
             if overwrite:
                 destination_path.unlink()
             else:
                 continue
         shutil.copy2(source_path, destination_path)
+    shutil.rmtree(sources_root, ignore_errors=True)
 
 
 def _missing_any(root: Path) -> bool:
     return any(_locate_source_file(root, relative_path) is None for relative_path in TARGET_FILES)
 
 
-def _collect_sources(version: str, destination_root: Path, *, force: bool) -> None:
-    staging_root = _sources_root(version)
-    if force and staging_root.exists():
-        shutil.rmtree(staging_root, ignore_errors=True)
-
-    _run_extractor(normalise_version(version))
-
-    if not staging_root.exists():
-        raise ExtractionError(f"Extractor did not produce sources for {version} at {staging_root}.")
-
-    destination_root.mkdir(parents=True, exist_ok=True)
-
-    for relative_path in TARGET_FILES:
-        source_path = _locate_source_file(staging_root, relative_path)
-        if source_path is None:
-            raise ExtractionError(f"Missing extracted file: {relative_path} in {staging_root}")
-        target_path = destination_root / relative_path.name
-        if target_path.exists():
-            target_path.unlink()
-        shutil.move(str(source_path), str(target_path))
-
-    try:
-        shutil.rmtree(staging_root)
-    except OSError:
-        # Leave the staging directory behind if something else is holding onto it.
-        pass
-
-
 def list_missing_sources(version: str) -> Iterable[Path]:
-    version_root = _data_root(version)
+    sources_root = _sources_root(version)
     for relative_path in TARGET_FILES:
-        if _locate_source_file(version_root, relative_path) is None:
-            yield version_root / relative_path.name
+        if _locate_source_file(sources_root, relative_path) is None:
+            yield sources_root / relative_path
 
 
-def resolve_source_path(version: str, relative_path: Path) -> Path:
-    sources_root = ensure_extracted_sources(version)
-    path = _locate_source_file(sources_root, relative_path)
-    if path is None:
-        raise ExtractionError(f"Missing extracted file: {relative_path}")
-    return path
+def cleanup_extractor_runtime(*, remove_build: bool = False) -> None:
+    """Remove transient extractor artefacts to keep the repository clean."""
+    for path in (_GAME_DATA_ROOT, _ARTIFACT_STORE_ROOT):
+        shutil.rmtree(path, ignore_errors=True)
+
+    if remove_build:
+        build_root = _EXTRACTOR_ROOT / "build"
+        shutil.rmtree(build_root, ignore_errors=True)
 
 
 __all__ = [
     "ExtractionError",
     "TARGET_FILES",
     "copy_sources",
+    "cleanup_extractor_runtime",
     "ensure_extracted_sources",
     "list_missing_sources",
-    "resolve_source_path",
     "normalise_version",
     "sanitise_segment",
 ]

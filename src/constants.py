@@ -65,6 +65,7 @@ TAGGED_MATERIALS_BASE = {
     # Tool and crafting materials
     "#wooden_tool_materials": "oak_planks",
     "#stone_tool_materials": "cobblestone",
+    "#copper_tool_materials": "copper_ingot",
     "#iron_tool_materials": "iron_ingot",
     "#diamond_tool_materials": "diamond",
     "#netherite_tool_materials": "netherite_ingot",

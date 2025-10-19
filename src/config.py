@@ -11,14 +11,15 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from src.use_config import get_config_value, set_config_value, create_default_config
 from src.resource_path import resource_path
-from src.constants import CONFIG_PATH, DATA_DIR, GAME_DATA_DIR, ICON_PATH, LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
+from src.constants import CONFIG_PATH, DATA_DIR, GAME_DATA_DIR, ICON_PATH, \
+    LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
         S2RM_RELEASES_URL
 from data.parse_mc_data import cleanup_downloads, create_mc_data_dirs, \
     parse_blocks_list, parse_items_list, parse_items_stack_sizes
 from data.download_game_data import download_game_data, get_latest_mc_version
 from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 from data.versioned_game_data import save_versioned_json
-from src.extractor_runner import TARGET_FILES, copy_sources
+from src.extractor_runner import copy_sources
 from src.versioned_json import apply_versioned_payload, resolve_best_version, version_key
 
 def update_config(redownload=False, delete=True):
@@ -102,39 +103,34 @@ def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool | 
     return False
 
 def has_data_files(version: str) -> bool:
-    """
-    Check if the specified version has the required data files in it's data/game folder:
-    - RAW_MATS_TABLE_NAME
-    - LIMTED_STACKS_NAME
-    """
-    version_path = resource_path(os.path.join(GAME_DATA_DIR, version))
-    if not os.path.exists(version_path):
+    """Check whether the versioned payloads contain data for *version*."""
+    limited_path = resource_path(os.path.join(GAME_DATA_DIR, LIMTED_STACKS_NAME))
+    raw_path = resource_path(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME))
+
+    if not (os.path.exists(limited_path) and os.path.exists(raw_path)):
         return False
 
-    for relative_path in TARGET_FILES:
-        if not os.path.exists(os.path.join(version_path, relative_path.name)):
-            return False
+    try:
+        with open(raw_path, "r", encoding="utf-8") as handle:
+            raw_payload = json.load(handle)
+        with open(limited_path, "r", encoding="utf-8") as handle:
+            limited_payload = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return False
 
-    for filename in (LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME):
-        root_path = resource_path(os.path.join(GAME_DATA_DIR, filename))
-        if not os.path.exists(root_path):
-            return False
+    if not isinstance(raw_payload, dict) or not isinstance(limited_payload, dict):
+        return False
 
-        try:
-            with open(root_path, "r", encoding="utf-8") as handle:
-                data = json.load(handle)
-        except (OSError, json.JSONDecodeError):
-            return False
+    available_raw_versions = [key for key in raw_payload.keys() if key != "version"]
+    available_limited_versions = [key for key in limited_payload.keys() if key != "version"]
 
-        if isinstance(data, dict):
-            available_versions = [key for key in data.keys() if key != "version"]
-            try:
-                if resolve_best_version(available_versions, version) is None:
-                    return False
-            except ValueError:
-                return False
+    try:
+        raw_version = resolve_best_version(available_raw_versions, version)
+        limited_version = resolve_best_version(available_limited_versions, version)
+    except ValueError:
+        return False
 
-    return True
+    return raw_version is not None and limited_version is not None
 
 def get_mats_table_and_lim_stacked_items(delete=True):
     """
@@ -156,19 +152,18 @@ def get_mats_table_and_lim_stacked_items(delete=True):
     destination_dir = Path(resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version)))
     copy_sources(selected_mc_version, destination_dir)
 
-    try:
-        items_list = parse_items_list()
-        blocks_list = parse_blocks_list(selected_mc_version)
-        items_stack_sizes = parse_items_stack_sizes(selected_mc_version)
+    items_list = parse_items_list()
+    blocks_list = parse_blocks_list(selected_mc_version)
+    items_stack_sizes = parse_items_stack_sizes(selected_mc_version)
 
-        raw_mats_table = generate_raw_materials_table_dict(
-            selected_mc_version,
-            items_list=items_list,
-            blocks_list=blocks_list,
-        )
-    finally:
-        if delete:
-            cleanup_downloads()
+    raw_mats_table = generate_raw_materials_table_dict(
+        selected_mc_version,
+        items_list=items_list,
+        blocks_list=blocks_list,
+    )
+
+    if delete:
+        cleanup_downloads()
 
     save_versioned_json(selected_mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
     save_versioned_json(selected_mc_version, RAW_MATS_TABLE_NAME, raw_mats_table)
@@ -205,7 +200,7 @@ def get_materials_table(version="current"):
         if version == "current":
             version = get_config_value("selected_mc_version")
 
-        with open(resource_path(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME)), "r") as f:
+        with open(resource_path(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME)), "r", encoding="utf-8") as f:
             data = json.load(f)
 
         if not isinstance(data, dict) or "version" not in data:

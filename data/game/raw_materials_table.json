@@ -1,6 +1,730 @@
 {
-    "version": "1.21.5",
-    "1.21.5": {
+    "version": "1.21.9",
+    "1.21.9": {
+        "acacia_shelf": [
+            {
+                "item": "acacia_log",
+                "quantity": 1.0
+            }
+        ],
+        "bamboo_shelf": [
+            {
+                "item": "bamboo",
+                "quantity": 9.0
+            }
+        ],
+        "birch_shelf": [
+            {
+                "item": "birch_log",
+                "quantity": 1.0
+            }
+        ],
+        "cherry_shelf": [
+            {
+                "item": "cherry_log",
+                "quantity": 1.0
+            }
+        ],
+        "copper_axe": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "copper_bars": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "copper_boots": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            }
+        ],
+        "copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            }
+        ],
+        "copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            }
+        ],
+        "copper_chestplate": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            }
+        ],
+        "copper_golem_spawn_egg": [
+            {
+                "item": "copper_golem_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            }
+        ],
+        "copper_helmet": [
+            {
+                "item": "copper_ingot",
+                "quantity": 5.0
+            }
+        ],
+        "copper_hoe": [
+            {
+                "item": "copper_ingot",
+                "quantity": 2.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "copper_horse_armor": [
+            {
+                "item": "copper_horse_armor",
+                "quantity": 1.0
+            }
+        ],
+        "copper_lantern": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "copper_leggings": [
+            {
+                "item": "copper_ingot",
+                "quantity": 7.0
+            }
+        ],
+        "copper_nugget": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.1111111111111111
+            }
+        ],
+        "copper_pickaxe": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "copper_shovel": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "copper_sword": [
+            {
+                "item": "copper_ingot",
+                "quantity": 2.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.125
+            }
+        ],
+        "copper_torch": [
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.027777777777777776
+            }
+        ],
+        "copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            }
+        ],
+        "crimson_shelf": [
+            {
+                "item": "crimson_stem",
+                "quantity": 1.0
+            }
+        ],
+        "dark_oak_shelf": [
+            {
+                "item": "dark_oak_log",
+                "quantity": 1.0
+            }
+        ],
+        "exposed_copper_bars": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "exposed_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            }
+        ],
+        "exposed_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            }
+        ],
+        "exposed_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            }
+        ],
+        "exposed_copper_lantern": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "exposed_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            }
+        ],
+        "exposed_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            }
+        ],
+        "iron_chain": [
+            {
+                "item": "iron_ingot",
+                "quantity": 1.2222222222222223
+            }
+        ],
+        "jungle_shelf": [
+            {
+                "item": "jungle_log",
+                "quantity": 1.0
+            }
+        ],
+        "mangrove_shelf": [
+            {
+                "item": "mangrove_log",
+                "quantity": 1.0
+            }
+        ],
+        "oak_shelf": [
+            {
+                "item": "oak_log",
+                "quantity": 1.0
+            }
+        ],
+        "oxidized_copper_bars": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "oxidized_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            }
+        ],
+        "oxidized_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            }
+        ],
+        "oxidized_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            }
+        ],
+        "oxidized_copper_lantern": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "oxidized_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            }
+        ],
+        "oxidized_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            }
+        ],
+        "pale_oak_shelf": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.0
+            }
+        ],
+        "spruce_shelf": [
+            {
+                "item": "spruce_log",
+                "quantity": 1.0
+            }
+        ],
+        "warped_shelf": [
+            {
+                "item": "warped_stem",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_copper_bars": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "waxed_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_copper_lantern": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "waxed_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_exposed_copper_bars": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "waxed_exposed_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_exposed_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_exposed_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_exposed_copper_lantern": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "waxed_exposed_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_exposed_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_oxidized_copper_bars": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "waxed_oxidized_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_oxidized_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_oxidized_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_oxidized_copper_lantern": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "waxed_oxidized_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_oxidized_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_weathered_copper_bars": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "waxed_weathered_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_weathered_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_weathered_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_weathered_copper_lantern": [
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "waxed_weathered_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "waxed_weathered_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            },
+            {
+                "item": "honeycomb",
+                "quantity": 1.0
+            }
+        ],
+        "weathered_copper_bars": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.375
+            }
+        ],
+        "weathered_copper_chain": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.2222222222222223
+            }
+        ],
+        "weathered_copper_chest": [
+            {
+                "item": "copper_ingot",
+                "quantity": 8.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            }
+        ],
+        "weathered_copper_golem_statue": [
+            {
+                "item": "copper_golem_statue",
+                "quantity": 1.0
+            }
+        ],
+        "weathered_copper_lantern": [
+            {
+                "item": "copper_ingot",
+                "quantity": 0.9166666666666666
+            },
+            {
+                "item": "coal",
+                "quantity": 0.25
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.03125
+            }
+        ],
+        "weathered_copper_trapdoor": [
+            {
+                "item": "copper_ingot",
+                "quantity": 4.0
+            }
+        ],
+        "weathered_lightning_rod": [
+            {
+                "item": "copper_ingot",
+                "quantity": 3.0
+            }
+        ]
+    },
+    "1.21.8": {
         "acacia_boat": [
             {
                 "item": "acacia_log",
@@ -813,6 +1537,28 @@
                 "quantity": 0.125
             }
         ],
+        "black_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "black_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "black_shulker_box": [
             {
                 "item": "oak_log",
@@ -1075,6 +1821,28 @@
             {
                 "item": "blue_dye",
                 "quantity": 0.125
+            }
+        ],
+        "blue_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "blue_ice": [
@@ -1453,6 +2221,28 @@
             {
                 "item": "brown_dye",
                 "quantity": 0.125
+            }
+        ],
+        "brown_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "brown_mushroom": [
@@ -2747,6 +3537,28 @@
                 "quantity": 0.125
             }
         ],
+        "cyan_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "cyan_shulker_box": [
             {
                 "item": "oak_log",
@@ -3410,6 +4222,16 @@
         "dragon_head": [
             {
                 "item": "dragon_head",
+                "quantity": 1.0
+            }
+        ],
+        "dried_ghast": [
+            {
+                "item": "ghast_tear",
+                "quantity": 8.0
+            },
+            {
+                "item": "soul_sand",
                 "quantity": 1.0
             }
         ],
@@ -4405,6 +5227,24 @@
                 "quantity": 0.125
             }
         ],
+        "gray_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "gray_shulker_box": [
             {
                 "item": "oak_log",
@@ -4595,6 +5435,24 @@
                 "quantity": 0.125
             }
         ],
+        "green_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "green_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "green_shulker_box": [
             {
                 "item": "oak_log",
@@ -4686,6 +5544,12 @@
         "hanging_roots": [
             {
                 "item": "hanging_roots",
+                "quantity": 1.0
+            }
+        ],
+        "happy_ghast_spawn_egg": [
+            {
+                "item": "happy_ghast_spawn_egg",
                 "quantity": 1.0
             }
         ],
@@ -5250,11 +6114,7 @@
         "lead": [
             {
                 "item": "string",
-                "quantity": 2.0
-            },
-            {
-                "item": "slime_ball",
-                "quantity": 0.5
+                "quantity": 2.5
             }
         ],
         "leaf_litter": [
@@ -5465,6 +6325,24 @@
                 "quantity": 0.125
             }
         ],
+        "light_blue_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "light_blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "light_blue_shulker_box": [
             {
                 "item": "oak_log",
@@ -5653,6 +6531,24 @@
             {
                 "item": "light_gray_dye",
                 "quantity": 0.125
+            }
+        ],
+        "light_gray_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "light_gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "light_gray_shulker_box": [
@@ -5873,6 +6769,24 @@
             {
                 "item": "lime_dye",
                 "quantity": 0.125
+            }
+        ],
+        "lime_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "lime_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "lime_shulker_box": [
@@ -6105,6 +7019,24 @@
             {
                 "item": "magenta_dye",
                 "quantity": 0.125
+            }
+        ],
+        "magenta_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "magenta_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "magenta_shulker_box": [
@@ -6621,6 +7553,12 @@
                 "quantity": 1.0
             }
         ],
+        "music_disc_lava_chicken": [
+            {
+                "item": "music_disc_lava_chicken",
+                "quantity": 1.0
+            }
+        ],
         "music_disc_mall": [
             {
                 "item": "music_disc_mall",
@@ -6666,6 +7604,12 @@
         "music_disc_strad": [
             {
                 "item": "music_disc_strad",
+                "quantity": 1.0
+            }
+        ],
+        "music_disc_tears": [
+            {
+                "item": "music_disc_tears",
                 "quantity": 1.0
             }
         ],
@@ -7343,6 +8287,24 @@
                 "quantity": 0.125
             }
         ],
+        "orange_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "orange_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "orange_shulker_box": [
             {
                 "item": "oak_log",
@@ -7855,6 +8817,24 @@
             {
                 "item": "pink_dye",
                 "quantity": 0.125
+            }
+        ],
+        "pink_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "pink_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
             }
         ],
         "pink_petals": [
@@ -8493,6 +9473,24 @@
                 "quantity": 0.125
             }
         ],
+        "purple_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "purple_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "purple_shulker_box": [
             {
                 "item": "oak_log",
@@ -8869,6 +9867,24 @@
                 "quantity": 0.125
             }
         ],
+        "red_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "red_mushroom": [
             {
                 "item": "red_mushroom",
@@ -9161,7 +10177,11 @@
         ],
         "saddle": [
             {
-                "item": "saddle",
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "iron_ingot",
                 "quantity": 1.0
             }
         ],
@@ -11371,6 +12391,20 @@
                 "quantity": 0.125
             }
         ],
+        "white_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
         "white_shulker_box": [
             {
                 "item": "oak_log",
@@ -11687,6 +12721,24 @@
             {
                 "item": "yellow_dye",
                 "quantity": 0.125
+            }
+        ],
+        "yellow_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 1.0
             }
         ],
         "yellow_shulker_box": [

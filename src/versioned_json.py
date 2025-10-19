@@ -114,6 +114,7 @@ def order_versioned_payload(data: Dict[str, Any]) -> Dict[str, Any]:
     ordered: Dict[str, Any] = {}
     if "version" in data:
         ordered["version"] = data["version"]
-    for key in sort_versions(key for key in data.keys() if key != "version"):
+    version_keys = [key for key in data.keys() if key != "version"]
+    for key in sorted(version_keys, key=version_key, reverse=True):
         ordered[key] = data[key]
     return ordered

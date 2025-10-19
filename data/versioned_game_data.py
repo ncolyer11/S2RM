@@ -22,41 +22,18 @@ def _game_data_root() -> Path:
 
 def _load_existing_payload(filename: str) -> Tuple[Optional[str], Dict[str, Any]]:
     root = _game_data_root()
-    if not root.exists():
+    target_path = root / filename
+    if not target_path.exists():
         return None, {}
 
-    shared_path = root / filename
-    if shared_path.exists():
-        try:
-            with shared_path.open("r", encoding="utf-8") as handle:
-                data = json.load(handle)
-        except (OSError, json.JSONDecodeError):
-            return None, {}
+    with target_path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
 
-        if isinstance(data, dict) and data:
-            return data.get("version"), data
+    if not isinstance(data, dict):
         return None, {}
 
-    versions = [entry.name for entry in root.iterdir() if entry.is_dir()]
-    if not versions:
-        return None, {}
-
-    for version in reversed(sort_versions(versions)):
-        path = root / version / filename
-        if not path.exists():
-            continue
-        try:
-            with path.open("r", encoding="utf-8") as handle:
-                data = json.load(handle)
-        except (OSError, json.JSONDecodeError):
-            continue
-        if not isinstance(data, dict):
-            continue
-        if "version" not in data:
-            continue
-        return data.get("version"), data
-
-    return None, {}
+    version = data.get("version")
+    return version if isinstance(version, str) else None, data
 
 
 def save_versioned_json(
@@ -89,14 +66,26 @@ def save_versioned_json(
         json.dump(ordered_payload, handle, indent=4)
         handle.write("\n")
 
-    for entry in root.iterdir():
-        if entry.is_dir():
-            legacy_path = entry / filename
-            if legacy_path.exists():
-                try:
-                    legacy_path.unlink()
-                except OSError:
-                    pass
+    legacy_path = root / version / filename
+    if legacy_path.exists():
+        try:
+            legacy_path.unlink()
+        except OSError:
+            pass
 
     return ordered_payload, diff
+
+
+def load_baseline_payload(filename: str, version: str) -> Dict[str, Any]:
+    """Return the fully-expanded payload for the latest version prior to *version*."""
+    _, existing_payload = _load_existing_payload(filename)
+    if not existing_payload:
+        return {}
+
+    candidate_versions = [key for key in existing_payload.keys() if key != "version"]
+    baseline_version = resolve_best_version(candidate_versions, version)
+    if baseline_version is None:
+        return {}
+
+    return apply_versioned_payload(existing_payload, baseline_version)
 

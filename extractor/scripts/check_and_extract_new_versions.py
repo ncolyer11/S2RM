@@ -42,16 +42,18 @@ from data.parse_mc_data import (  # noqa: E402
     parse_items_stack_sizes,
 )
 from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict  # noqa: E402
-from data.versioned_game_data import save_versioned_json  # noqa: E402
+from data.versioned_game_data import load_baseline_payload, save_versioned_json  # noqa: E402
 from src.constants import (  # noqa: E402
     LIMTED_STACKS_NAME,
     RAW_MATS_TABLE_NAME,
 )
 from src.extractor_runner import (  # noqa: E402
     TARGET_FILES,
+    cleanup_extractor_runtime,
     copy_sources,
     ensure_extracted_sources,
 )
+from src.versioned_json import resolve_best_version  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -101,20 +103,30 @@ def processed_versions() -> set[str]:
     return {entry.name for entry in DATA_GAME_DIR.iterdir() if entry.is_dir()}
 
 
-def is_version_complete(version: str) -> bool:
-    target_dir = DATA_GAME_DIR / version
-    if not target_dir.exists():
+def _payload_contains_version(filename: str, version: str) -> bool:
+    path = DATA_GAME_DIR / filename
+    if not path.exists():
+        return False
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    versions = [key for key in payload.keys() if key != "version"]
+    try:
+        return resolve_best_version(versions, version) is not None
+    except ValueError:
         return False
 
-    for relative_path in TARGET_FILES:
-        if not (target_dir / relative_path.name).exists():
-            return False
 
-    for filename in (LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME):
-        if not (DATA_GAME_DIR / filename).exists():
-            return False
-
-    return True
+def is_version_complete(version: str) -> bool:
+    target_dir = DATA_GAME_DIR / version
+    required_filenames = [relative_path.name for relative_path in TARGET_FILES]
+    if not all((target_dir / name).exists() for name in required_filenames):
+        return False
+    return all(_payload_contains_version(filename, version) for filename in (LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME))
 
 
 def versions_to_process(releases: Sequence[ReleaseInfo], seen_versions: Iterable[str]) -> Sequence[ReleaseInfo]:
@@ -152,6 +164,7 @@ def run_extractor_for_version(version: str) -> None:
 def archive_files(version: str) -> None:
     destination_root = DATA_GAME_DIR / version
     copy_sources(version, destination_root)
+    cleanup_extractor_runtime()
 
 
 def generate_version_payload(version: str) -> None:
@@ -173,6 +186,12 @@ def generate_version_payload(version: str) -> None:
             items_list=items_list,
             blocks_list=blocks_list,
         )
+
+        baseline_raw_materials = load_baseline_payload(RAW_MATS_TABLE_NAME, version)
+        if baseline_raw_materials:
+            merged_raw_materials = dict(baseline_raw_materials)
+            merged_raw_materials.update(raw_materials_table)
+            raw_materials_table = dict(sorted(merged_raw_materials.items()))
 
         _, limited_diff = save_versioned_json(version, LIMTED_STACKS_NAME, limited_stack_items)
         _, raw_diff = save_versioned_json(version, RAW_MATS_TABLE_NAME, raw_materials_table)
