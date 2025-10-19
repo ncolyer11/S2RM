@@ -1,0 +1,101 @@
+plugins {
+    id 'groovy'
+    id 'application'
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        url = "https://maven.quiltmc.org/repository/release"
+    }
+    maven {
+        name = 'Ornithe Releases'
+        url = 'https://maven.ornithemc.net/releases/'
+    }
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    it.options.encoding = 'UTF-8'
+}
+
+application {
+    mainClass = 'com.github.winplay02.gitcraft.SimpleSourceExtractor'
+    applicationDefaultJvmArgs = ['-Xmx4G', '-XX:+HeapDumpOnOutOfMemoryError']
+}
+
+sourceSets {
+    lib {
+        java {}
+    }
+}
+
+tasks.register('runExtractor', JavaExec) {
+    group = ApplicationPlugin.APPLICATION_GROUP
+    description = 'Run the lightweight SimpleSourceExtractor entry point'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.github.winplay02.gitcraft.SimpleSourceExtractor'
+}
+
+dependencies {
+    implementation sourceSets.lib.output
+    implementation "org.apache.groovy:groovy-all:${groovy_version}"
+    implementation "com.google.code.gson:gson:${gson_version}"
+    libImplementation "com.google.code.gson:gson:${gson_version}"
+
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "org.ow2.asm:asm:${project.asm_version}"
+    implementation "org.ow2.asm:asm-analysis:${project.asm_version}"
+    implementation "org.ow2.asm:asm-commons:${project.asm_version}"
+    implementation "org.ow2.asm:asm-tree:${project.asm_version}"
+    implementation "org.ow2.asm:asm-util:${project.asm_version}"
+
+    implementation("net.ornithemc:stitch:${stitch_version}") {
+        exclude module: 'enigma'
+    }
+
+    implementation "net.fabricmc:tiny-remapper:${tiny_remapper_version}"
+    implementation "net.fabricmc:access-widener:${access_widener_version}"
+    implementation "net.fabricmc:mapping-io:${mappingio_version}"
+    implementation "net.fabricmc:fabric-loom:${loom_version}"
+    implementation "net.fabricmc.unpick:unpick:${unpick_version}"
+    implementation "net.fabricmc.unpick:unpick-format-utils:${unpick_version}"
+
+    implementation("net.fabricmc:lorenz-tiny:${lorenz_tiny_version}") {
+        transitive = false
+    }
+
+    implementation "net.ornithemc:condor:${condor_version}"
+    implementation "net.ornithemc:exceptor:${exceptor_version}"
+    implementation "io.github.gaming32:signature-changer:${signature_changer_version}"
+    implementation "net.ornithemc:preen:${preen_version}"
+    implementation "net.ornithemc:nester:${nester_version}"
+
+    implementation "org.eclipse.jgit:org.eclipse.jgit:${jgit_version}"
+    libImplementation "org.eclipse.jgit:org.eclipse.jgit:${jgit_version}"
+    implementation "org.vineflower:vineflower:${vineflower_version}"
+
+    testImplementation(platform('org.junit:junit-bom:5.13.+'))
+    testImplementation('org.junit.jupiter:junit-jupiter:5.13.+')
+}
+
+configurations.configureEach {
+    resolutionStrategy.cacheDynamicVersionsFor 15, 'minutes'
+}
+
+test {
+    maxHeapSize = '4G'
+    useJUnitPlatform()
+}

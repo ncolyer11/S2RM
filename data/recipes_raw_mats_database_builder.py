@@ -10,8 +10,7 @@ from collections import defaultdict
 from src.resource_path import resource_path
 from src.helpers import convert_block_to_item
 from data.graph_recipes import build_crafting_graph
-from src.constants import BLOCKS_JSON, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, \
-    ITEMS_JSON, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
+from src.constants import IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
 
 def main():
     recipe_json_raw_data = get_recipe_data_from_json()
@@ -149,7 +148,12 @@ def add_ingredient(ingredients: dict[str, dict], item: str):
 #####################################
 ### RAW MATERIALS LIST GENERATION ###
 #####################################
-def generate_raw_materials_table_dict(version: str) -> dict[str, list[dict[str, float]]]:
+def generate_raw_materials_table_dict(
+    version: str,
+    *,
+    items_list: list[str],
+    blocks_list: list[str],
+) -> dict[str, list[dict[str, float]]]:
     """
     Top-level function for generating a versions raw materials table for every crafting recipe.
     
@@ -161,41 +165,40 @@ def generate_raw_materials_table_dict(version: str) -> dict[str, list[dict[str, 
     raw_materials_cost = get_raw_materials_cost_dict(recipe_json_raw_data)
         
     recipe_graph = build_crafting_graph(raw_materials_cost)
-    raw_materials_dict = generate_master_raw_mats_list(recipe_graph, version)
-    calculate_block_ingredients(recipe_graph, raw_materials_dict, version) 
+    raw_materials_dict = generate_master_raw_mats_list(recipe_graph, items_list)
+    calculate_block_ingredients(recipe_graph, raw_materials_dict, items_list, blocks_list, version)
     # calculate_entity_ingredients(recipe_graph, raw_materials_dict, version)
     
     # Ensure the raw materials list is sorted alphabetically by item name
     return dict(sorted(raw_materials_dict.items()))
 
-def generate_master_raw_mats_list(recipe_graph: nx.DiGraph, version: str) -> dict[str, list[dict[str, float]]]:
+def generate_master_raw_mats_list(
+    recipe_graph: nx.DiGraph,
+    items_list: list[str],
+) -> dict[str, list[dict[str, float]]]:
     """Generates a master list of all items and their raw materials."""
     # Open data/items.json and get items field
-    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, ITEMS_JSON))
-    with open(items_path, 'r') as f:
-        # Ensure the items list is sorted alphabetically
-        master_items_list = sorted(json.load(f))
-
     master_raw_mats_list = {}
-    for item in master_items_list:
+    for item in sorted(items_list):
         master_raw_mats_list[item] = get_ingredients(recipe_graph, item)
 
     return master_raw_mats_list
 
-def calculate_block_ingredients(recipe_graph: nx.DiGraph, 
-                                raw_materials_dict: dict[str, list[dict[str, float]]], version: str):
+def calculate_block_ingredients(
+    recipe_graph: nx.DiGraph,
+    raw_materials_dict: dict[str, list[dict[str, float]]],
+    items_list: list[str],
+    blocks_list: list[str],
+    version: str,
+) -> None:
     """Calculates the raw materials for blocks, breaking down blocks such as concrete, etc."""
-    items_path = resource_path(os.path.join(GAME_DATA_DIR, version, ITEMS_JSON))
-    blocks_path = resource_path(os.path.join(GAME_DATA_DIR, version, BLOCKS_JSON))
-    with open(items_path, 'r') as f_i, open(blocks_path, 'r') as f_b:
-        # Ensure the items list is sorted alphabetically
-        items_list = sorted(json.load(f_i))
-        blocks_list = sorted(json.load(f_b))
+    sorted_items = sorted(items_list)
+    sorted_blocks = sorted(blocks_list)
 
     # Get the list of blocks that aren't in items_list
-    blocks_list = [block for block in blocks_list if block not in items_list]
+    sorted_blocks = [block for block in sorted_blocks if block not in sorted_items]
 
-    for block in blocks_list:
+    for block in sorted_blocks:
         block_ingredients = []
         
         # Deconstruct the block into 1 or more items (e.g. a candle cake -> candle + cake)

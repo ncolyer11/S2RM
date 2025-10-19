@@ -10,6 +10,7 @@ from src.use_config import get_config_value
 from src.resource_path import resource_path
 from src.constants import BLOCK_TAGS, DF_STACK_SIZE, GAME_DATA_DIR, LIMTED_STACKS_NAME, \
     SHULKER_BOX_SIZE
+from src.versioned_json import apply_versioned_payload, resolve_best_version
 
 @dataclass
 class TableCols:
@@ -210,10 +211,20 @@ def get_limit_stack_items(version="current"):
         if version == "current":
             version = get_config_value("selected_mc_version")
 
-        with open(resource_path(os.path.join(GAME_DATA_DIR, version, LIMTED_STACKS_NAME)), "r") as f:
-            return json.load(f)
+        with open(resource_path(os.path.join(GAME_DATA_DIR, LIMTED_STACKS_NAME)), "r") as f:
+            data = json.load(f)
+
+        if not isinstance(data, dict) or "version" not in data:
+            return data
+
+        available_versions = [key for key in data.keys() if key != "version"]
+        target_version = resolve_best_version(available_versions, version)
+        if target_version is None:
+            raise ValueError(f"No limited stack data available for Minecraft {version}.")
+
+        return apply_versioned_payload(data, target_version)
     except FileNotFoundError as e:
-        print(f"File {LIMTED_STACKS_NAME} not found in {GAME_DATA_DIR}/{version}: {e}")
+        print(f"File {LIMTED_STACKS_NAME} not found in {GAME_DATA_DIR}: {e}")
         return None
 
 def print_formatted_entity_data(entity_data):

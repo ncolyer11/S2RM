@@ -1,22 +1,25 @@
 import json
 import os
 import shutil
-import requests
 import webbrowser
+from pathlib import Path
+
+import requests
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from src.use_config import get_config_value, set_config_value, create_default_config
 from src.resource_path import resource_path
-from src.constants import BLOCKS_JSON, CONFIG_PATH, DATA_DIR, ENTITIES_JSON, GAME_DATA_DIR, GAME_DATA_FILES, ICON_PATH, ITEMS_JSON, \
-    LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
+from src.constants import CONFIG_PATH, DATA_DIR, GAME_DATA_DIR, ICON_PATH, LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
         S2RM_RELEASES_URL
 from data.parse_mc_data import cleanup_downloads, create_mc_data_dirs, \
-    parse_blocks_list, parse_entities_list, parse_items_list, parse_items_stack_sizes, \
-        save_json_file
+    parse_blocks_list, parse_items_list, parse_items_stack_sizes
 from data.download_game_data import download_game_data, get_latest_mc_version
 from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
+from data.versioned_game_data import save_versioned_json
+from src.extractor_runner import TARGET_FILES, copy_sources
+from src.versioned_json import apply_versioned_payload, resolve_best_version, version_key
 
 def update_config(redownload=False, delete=True):
     """
@@ -104,16 +107,34 @@ def has_data_files(version: str) -> bool:
     - RAW_MATS_TABLE_NAME
     - LIMTED_STACKS_NAME
     """
-    # Check if the version has the required data files
     version_path = resource_path(os.path.join(GAME_DATA_DIR, version))
-    raw_mats_table_path = os.path.join(version_path, RAW_MATS_TABLE_NAME)
-    limited_stacks_path = os.path.join(version_path, LIMTED_STACKS_NAME)
+    if not os.path.exists(version_path):
+        return False
 
-    return (
-        os.path.exists(version_path) and
-        os.path.exists(raw_mats_table_path) and
-        os.path.exists(limited_stacks_path)
-    )
+    for relative_path in TARGET_FILES:
+        if not os.path.exists(os.path.join(version_path, relative_path.name)):
+            return False
+
+    for filename in (LIMTED_STACKS_NAME, RAW_MATS_TABLE_NAME):
+        root_path = resource_path(os.path.join(GAME_DATA_DIR, filename))
+        if not os.path.exists(root_path):
+            return False
+
+        try:
+            with open(root_path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+        except (OSError, json.JSONDecodeError):
+            return False
+
+        if isinstance(data, dict):
+            available_versions = [key for key in data.keys() if key != "version"]
+            try:
+                if resolve_best_version(available_versions, version) is None:
+                    return False
+            except ValueError:
+                return False
+
+    return True
 
 def get_mats_table_and_lim_stacked_items(delete=True):
     """
@@ -131,41 +152,26 @@ def get_mats_table_and_lim_stacked_items(delete=True):
     
     # Create the 'data/game' directories
     create_mc_data_dirs(selected_mc_version)
-    
-    # Parse and save items list
-    items_list = parse_items_list()
-    save_json_file(selected_mc_version, ITEMS_JSON, items_list)
-    
-    # Parse and save entities list
-    entities_list = parse_entities_list()
-    save_json_file(selected_mc_version, ENTITIES_JSON, entities_list)
-    
-    # Parse and save blocks list
-    blocks_list = parse_blocks_list()
-    save_json_file(selected_mc_version, BLOCKS_JSON, blocks_list)
-    
-    # Parse item stack sizes
-    items_stack_sizes = parse_items_stack_sizes()
-    
-    # Construct the raw materials table using graphs
-    raw_mats_table = generate_raw_materials_table_dict(selected_mc_version)
-    
-    # Remove the downloads directory if specified
-    if delete:
-        cleanup_downloads()
-    
-    # Empty the data/game/<mc_version> directory if it exists
-    version_dir = resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version))
-    if os.path.exists(version_dir):
-        for filename in GAME_DATA_FILES:
-            file_path = os.path.join(version_dir, filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                print(f"Removed {file_path}")
-    
-    # Save both important data files to the data/game/<mc_version> directory
-    save_json_file(selected_mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
-    save_json_file(selected_mc_version, RAW_MATS_TABLE_NAME, raw_mats_table)
+
+    destination_dir = Path(resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version)))
+    copy_sources(selected_mc_version, destination_dir)
+
+    try:
+        items_list = parse_items_list()
+        blocks_list = parse_blocks_list(selected_mc_version)
+        items_stack_sizes = parse_items_stack_sizes(selected_mc_version)
+
+        raw_mats_table = generate_raw_materials_table_dict(
+            selected_mc_version,
+            items_list=items_list,
+            blocks_list=blocks_list,
+        )
+    finally:
+        if delete:
+            cleanup_downloads()
+
+    save_versioned_json(selected_mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
+    save_versioned_json(selected_mc_version, RAW_MATS_TABLE_NAME, raw_mats_table)
 
 def check_connection() -> bool:
     """Check if the user is connected to the internet and if the config file exists."""
@@ -198,9 +204,19 @@ def get_materials_table(version="current"):
     try:
         if version == "current":
             version = get_config_value("selected_mc_version")
-            
-        with open(resource_path(os.path.join(GAME_DATA_DIR, version, RAW_MATS_TABLE_NAME)), "r") as f:
-            return json.load(f)
+
+        with open(resource_path(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME)), "r") as f:
+            data = json.load(f)
+
+        if not isinstance(data, dict) or "version" not in data:
+            return data
+
+        available_versions = [key for key in data.keys() if key != "version"]
+        target_version = resolve_best_version(available_versions, version)
+        if target_version is None:
+            raise ValueError(f"No materials table available for Minecraft {version}.")
+
+        return apply_versioned_payload(data, target_version)
     except FileNotFoundError as e:
         print("Error: Raw materials table not found.")
         raise e

@@ -51,13 +51,13 @@ def parse_items_list():
         print(f"Error parsing items list: {e}")
         return []
 
-def parse_items_stack_sizes():
+def parse_items_stack_sizes(version: str):
     """
     Parse items from `Items.java` that don't stack to 64, and their stack size (either 16 or 1)
     """
-    # Current code for this, to run on mostly parsed data tho
-    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "Items.java")), "r") as f:
-        lines = f.readlines()
+    source_path = resource_path(os.path.join(GAME_DATA_DIR, version, "Items.java"))
+    with open(source_path, "r", encoding="utf-8") as handle:
+        lines = handle.readlines()
 
     # Replace all newlines with nothing, and then replace all 'public static final Item ' with newlines
     lines = "".join(lines).replace("\n", "").replace("public static final Item ", "\n").split("\n")
@@ -76,10 +76,11 @@ def parse_items_stack_sizes():
     # Sort the dictionary by key then quantity value
     return dict(sorted(limited_stack_items.items(), key=lambda x: (x[0], x[1])))
 
-def parse_blocks_list():
+def parse_blocks_list(version: str):
     """Parses block names from Blocks.java, converting them into material names"""
-    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "Blocks.java")), "r") as f:
-        lines = f.readlines()
+    source_path = resource_path(os.path.join(GAME_DATA_DIR, version, "Blocks.java"))
+    with open(source_path, "r", encoding="utf-8") as handle:
+        lines = handle.readlines()
 
     # Replace all newlines with nothing, and then replace all 'register(' with newlines
     lines = "".join(lines) \
@@ -109,10 +110,11 @@ def parse_blocks_list():
 
     return item_names
 
-def parse_entities_list():
+def parse_entities_list(version: str):
     """Stub function for parsing entities from EntityType.java"""
-    with open(resource_path(os.path.join(MC_DOWNLOADS_DIR, "EntityType.java")), "r") as f:
-        lines = f.readlines()
+    source_path = resource_path(os.path.join(GAME_DATA_DIR, version, "EntityType.java"))
+    with open(source_path, "r", encoding="utf-8") as handle:
+        lines = handle.readlines()
 
     # Replace all newlines with nothing, and then replace all 'register(' with newlines
     lines = "".join(lines) \
@@ -172,11 +174,11 @@ if __name__ == '__main__':
     selected_mc_version = "1.21.5"
 
     # Parse and save entities list
-    entities_list = parse_entities_list()
+    entities_list = parse_entities_list(selected_mc_version)
     save_json_file(selected_mc_version, ENTITIES_JSON, entities_list, True)
     
     # Parse and save blocks list
-    blocks_list = parse_blocks_list()
+    blocks_list = parse_blocks_list(selected_mc_version)
     save_json_file(selected_mc_version, BLOCKS_JSON, blocks_list, True)
     
     

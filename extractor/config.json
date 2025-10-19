@@ -1,0 +1,53 @@
+{
+	"gitcraft_repository": {
+		"gitMail": "gitcraft@decompiled.mc",
+		"createVersionBranches": false,
+		"gcAfterRun": true,
+		"createStableVersionBranches": false,
+		"gitUser": "Mojang",
+		"gitMainlineLinearBranch": "master"
+	},
+	"gitcraft_application": {
+		"usedExceptions": "none",
+		"fallbackUnpickFlavours": [],
+		"manifestSource": "mojang",
+		"ornitheIntermediaryGeneration": 1,
+		"onlyStableReleases": false,
+		"onlySnapshots": false,
+		"usedMapping": "mojmap",
+		"singleSideVersionsOnMainBranch": false,
+		"fallbackMappings": [],
+		"skipNonLinear": false,
+		"usedSignatures": "none",
+		"patchLvt": false,
+		"usedUnpickFlavour": "none",
+		"usedNests": "none",
+		"enablePreening": false
+	},
+	"gitcraft_dataimport": {
+		"loadAssets": true,
+		"loadIntegratedDatapack": true,
+		"loadDatagenRegistry": true,
+		"sortJsonObjects": false,
+		"loadAssetsExtern": true,
+		"readableNbt": true
+	},
+	"global": {
+		"printExistingFileChecksumMatching": false,
+		"useHardlinks": true,
+		"remappingThreads": 3,
+		"maxParallelPipelineSteps": 0,
+		"checksumRemoveInvalidFiles": true,
+		"maxConcurrentHttpRequestsPerOrigin": 32,
+		"decompilingThreads": 3,
+		"printNotRunSteps": false,
+		"printExistingFileChecksumMatchingSkipped": false,
+		"maxConcurrentHttpStreams": 8,
+		"failedFetchRetryInterval": 500,
+		"maxConcurrentHttpConnections": 8
+	},
+	"integrity": {
+		"verifyChecksums": true,
+		"cacheChecksums": true
+	}
+}

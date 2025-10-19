@@ -177,4 +177,7 @@ dev
 S2RM
 S2RM_win
 S2RM_lnx
-decompiler
+data/game/1.21.5/Blocks.java
+data/game/1.21.5/EntityType.java
+data/game/1.21.5/Items.java
+extractor/.gradle/

@@ -1,14 +1,13 @@
 import os
 import shutil
-import requests
 import zipfile
 
+import requests
 from tqdm import tqdm
 
+from src.helpers import download_file
 from src.resource_path import resource_path
-from src.helpers import download_file, resource_path
-from src.constants import BACKUP_VERSION, GAME_DATA_DIR, MC_CODE_REPO_URL, MC_CODE_TO_DOWNLOAD, \
-    MC_DOWNLOADS_DIR
+from src.constants import BACKUP_VERSION, GAME_DATA_DIR, MC_DOWNLOADS_DIR
 
 def check_mc_version_in_program_exists(mc_version: str) -> bool:
     """
@@ -26,7 +25,7 @@ def check_mc_version_in_program_exists(mc_version: str) -> bool:
     
     return matching_versions
 
-def download_game_data(specific_version = None, fix_redownload = False) -> str:
+def download_game_data(specific_version=None, fix_redownload=False) -> str:
     # Delete any existing minecraft_downloads folder
     try:
         shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))
@@ -43,22 +42,17 @@ def download_game_data(specific_version = None, fix_redownload = False) -> str:
     else:
         version_id, version_url = get_latest_mc_version()
    
-    # Download .java game files from GitHub using specific version if provided
-    git_downloaded, jar_downloaded = False, False
-    for file_path, output_path in MC_CODE_TO_DOWNLOAD:
-        if download_github_file(MC_CODE_REPO_URL, file_path, output_path, version_id):
-            git_downloaded = True
-
+    jar_downloaded = False
     if version_id and version_url:
         jar_downloaded = download_minecraft_jar(version_id, version_url)
     
     # Cleanup the JAR file after extraction and ensure config selected version is set
-    if git_downloaded and jar_downloaded:
+    if jar_downloaded:
         cleanup_jar_file(version_id)
         return version_id
     else:
         shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))
-        print(f"\nFailed to download game data: git: {git_downloaded}, jar: {jar_downloaded}. "
+        print(f"\nFailed to download game data (JAR success: {jar_downloaded}). "
               f"Removing downloads directory.\n"
               f"Downloading backup version {BACKUP_VERSION} instead...\n")
         if not fix_redownload:
@@ -68,7 +62,7 @@ def download_game_data(specific_version = None, fix_redownload = False) -> str:
                 print(f"Game data already exists for backup version {BACKUP_VERSION}.")
                 return BACKUP_VERSION
         else:
-            raise ValueError(F"Failed to download to backup version: {BACKUP_VERSION}.")
+            raise ValueError(f"Failed to download to backup version: {BACKUP_VERSION}.")
 
 def get_minecraft_version_url(version_id: str) -> str | None:
     """
@@ -104,43 +98,6 @@ def get_minecraft_version_url(version_id: str) -> str | None:
     except Exception as e:
         print(f"Failed to get version URL for {version_id}: {e}")
         return None
-
-def get_latest_github_file_url(repo_path, file_path):
-    """Get the latest raw file URL from the GitHub repository"""
-    # GitHub API URL to get the latest commit for the file
-    # Source: https://docs.github.com/en/rest/reference/repos#commits
-    api_url = f"https://api.github.com/repos/{repo_path}/commits?path={file_path}&page=1&per_page=1"
-   
-    try:
-        response = requests.get(api_url)
-        response.raise_for_status()
-        commits = response.json()
-       
-        if not commits:
-            raise ValueError(f"No commits found for {file_path}")
-       
-        return f"https://raw.githubusercontent.com/{repo_path}/{commits[0]['sha']}/{file_path}"
-   
-    except Exception as e:
-        print(f"Error fetching latest file URL for {file_path}: {e}")
-        return None
-
-def download_github_file(repo_path, file_path, output_path, specific_version=None) -> bool:
-    try:
-        if specific_version:
-            # Use the specific version as the commit
-            raw_url = f"https://raw.githubusercontent.com/{repo_path}/{specific_version}/{file_path}"
-        else:
-            # Get the latest version URL
-            if not (raw_url := get_latest_github_file_url(repo_path, file_path)):
-                print(f"Could not get URL for {file_path}")
-                return False
-       
-        return download_file(raw_url, output_path)
-   
-    except Exception as e:
-        print(f"Error downloading {file_path}: {e}")
-        return False
 
 def download_minecraft_jar(version_id, version_url) -> bool:
     """Download the Minecraft version JAR and extract recipes and item JSONs"""
