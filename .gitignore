@@ -177,9 +177,7 @@ dev
 S2RM
 S2RM_win
 S2RM_lnx
-data/game/1.21.5/Blocks.java
-data/game/1.21.5/EntityType.java
-data/game/1.21.5/Items.java
-extractor/.gradle/
-extractor/artifact-store/
-extractor/game_data/
+# Maintainer-only generation artifacts (never publish decompiled/Mojang sources)
+data/game/**/*.java
+extractor/
+mc_downloads/

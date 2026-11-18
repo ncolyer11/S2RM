@@ -1,4 +1,3 @@
-from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
 from src.S2RM_frontend import start
 from src.config import check_has_selected_mc_vers, update_config
 

@@ -271,8 +271,8 @@ def convert_block_to_item(block_name: str) -> list[str]:
     block_name = block_to_item_name(block_name)
 
     # Handle 1 block -> 2 items edge cases
-    if "candle" in block_name and "cake" in block_name:
-        return ["candle", "cake"]
+    if match := re.match(r'((?:\w+_)?candle)_cake$', block_name):
+        return [match.group(1), "cake"]
     elif match := re.match(r'(lava|water|powder_snow)_cauldron', block_name):
         return ["cauldron", f"{match.group(1)}_bucket"]
 

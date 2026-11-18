@@ -4,6 +4,7 @@ import shutil
 import sys
 import copy
 import json
+import requests
 import math
 import time
 
@@ -24,8 +25,8 @@ from src.config import check_has_selected_mc_vers, get_materials_table
 from src.porting import forwardportJson, get_error_message
 from src.S2RM_backend import get_litematica_dir, input_file_to_mats_dict, condense_material, \
     process_exclude_string
-from data.download_game_data import check_mc_version_in_program_exists, download_game_data, get_latest_mc_version, get_minecraft_version_url
-from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
+from src.game_data_sync import local_versions
+from data.download_game_data import get_latest_mc_version, get_minecraft_version_url
 DARK_INPUT_CELL = "#111a14"
 LIGHT_INPUT_CELL = "#b6e0c4"
 
@@ -136,9 +137,6 @@ class S2RMFrontend(QWidget):
         self.edit_menu = QMenu("Edit", self)
         self.version_action = self.edit_menu.addAction(f"{MC_VERS_TEXT} {self.__mc_version}")
         self.version_action.triggered.connect(self.showVersionDialog)
-        # Clear all downloaded game data except the selected version
-        clear_cache_action = self.edit_menu.addAction("Clear Saved MC Versions")
-        clear_cache_action.triggered.connect(self.clearCache)
         # Let the user recieve update alerts for the program and mc version again
         self.reset_alerts_action = self.edit_menu.addAction("Reset Update Alerts")
         self.reset_alerts_action.triggered.connect(self.resetAlerts)
@@ -701,13 +699,7 @@ class S2RMFrontend(QWidget):
         dialog.setWindowTitle("Set Version")
         dialog.setFixedSize(250, 180)  # Made wider to accommodate dropdown
         
-        downloaded_versions = []
-        # Check data/game folder for versions folders in the top level
-        for folder in os.listdir(resource_path(GAME_DATA_DIR)):
-            downloaded_versions.append(folder)
-        
-        # Sort the versions in descending order
-        downloaded_versions.sort(reverse=True)
+        downloaded_versions = local_versions()
         
         layout = QVBoxLayout()
         
@@ -759,10 +751,14 @@ class S2RMFrontend(QWidget):
             force_override = True
 
         # Update the config.json file with the new version (and it auto updates the label)
-        if version.strip().lower() == "latest":
-            version = get_latest_mc_version("release")[0]
-        elif version.strip().lower() in ["snap", "snapshot"]:
-            version = get_latest_mc_version("snapshot")[0]
+        try:
+            if version.strip().lower() == "latest":
+                version = get_latest_mc_version("release")[0]
+            elif version.strip().lower() in ["snap", "snapshot"]:
+                version = get_latest_mc_version("snapshot")[0]
+        except (requests.RequestException, ValueError):
+            QMessageBox.warning(self, "Offline", "Couldn't reach Mojang's version manifest.")
+            return
         
         if force_override:
             pass
@@ -781,34 +777,13 @@ class S2RMFrontend(QWidget):
                 raise ValueError("Version doesn't exist")
             self.mc_version = version # This automatically updates the label
         except Exception as e:
-            QMessageBox.warning(self, "Error", f"Failed to download version {version}.\n{e}")
+            QMessageBox.warning(self, "Error", f"Game data for version {version} isn't available "
+                                f"(yet).\n{e}")
             set_config_value("selected_mc_version", original_version)
             self.mc_version = original_version
             return
 
         dialog.accept()
-
-    def clearCache(self):
-        # Clear the cache of downloaded versions except for the selected one
-        removed_count = 0
-        removed_versions = []
-        selected_version = get_config_value("selected_mc_version")
-        for folder in os.listdir(resource_path(GAME_DATA_DIR)):
-            if folder != selected_version:
-                folder_path = resource_path(os.path.join(GAME_DATA_DIR, folder))
-                if os.path.isdir(folder_path):
-                    shutil.rmtree(folder_path)
-                    removed_count += 1
-                    removed_versions.append(folder)
-                    
-                    print(f"Cleared cache for version: {folder}")
-        
-        if removed_count > 0:
-            QMessageBox.information(self, "Cache Cleared",
-                                    f"Cleared cache for {removed_count} "
-                                    f"versions:\n{', '.join(removed_versions)}")
-        else:
-            QMessageBox.information(self, "Cache Cleared", "No versions were cleared from the cache.")
 
     def toggleDarkMode(self, checked):
         self.dark_mode = checked

@@ -1,5 +1,5 @@
 # S2RM: Schematic to Raw Materials
-Calculates a raw material list from a Litematica material list.txt, extracting recipe data from Minecraft's `.jar` files. "Raw materials" are somewhat subjective.
+Calculates a raw material list from a Litematica material list.txt, using recipe data generated from Minecraft's own data files. "Raw materials" are somewhat subjective.
 <p align="center">
   <img src="https://github.com/user-attachments/assets/029e0acb-5a0e-484d-8c05-b21323cd4598" width="1000">
 
@@ -8,12 +8,12 @@ Calculates a raw material list from a Litematica material list.txt, extracting r
 
 ## About
 
-This tool automates the process of converting Litematica material lists into the necessary raw materials for Minecraft builds. It streamlines resource gathering by analysing recipe data directly from Minecraft's `.jar` files. Users can choose output formats (ingots or blocks), track collected materials, and save/load progress in JSON format. The application also provides a search function and quantity formatting for clarity. Please note that the definition of "raw materials" can vary.
+This tool automates the process of converting Litematica material lists into the necessary raw materials for Minecraft builds. It streamlines resource gathering using recipe data generated from Minecraft's own data files and bundled with the program. Users can choose output formats (ingots or blocks), track collected materials, and save/load progress in JSON format. The application also provides a search function and quantity formatting for clarity. Please note that the definition of "raw materials" can vary.
 
 ## Key Features
 
 * Litematica material list processing
-* Recipe data extraction from `.jar` files
+* Bundled recipe data per Minecraft version, auto-updated on new releases
 * Ingot/block output options
 * Ice type selection
 * Collected material tracking
@@ -32,6 +32,15 @@ If Windows defender keeps quartinting the program like so:
 ![image](https://github.com/user-attachments/assets/6c1fbc6e-d67d-4017-9b70-4df2a8eab6dc)
 
 Just follow this guide here to whitelist it: https://youtu.be/IjVWzqrBrFs?si=9bjolG5JntHAzSTD
+
+## Updating game data (maintainers)
+
+Recipe data is generated once with Mojang's official data generator and committed to `data/game/`; the program downloads it from this repo. Needs a Java version that matches the Minecraft release (Java 25 for 26.x).
+
+```
+S2RM_JAVA=$(which java) python -m scripts.build_version_data 26.3
+python -m scripts.check_new_releases [--watch]
+```
 
 ## Download
 

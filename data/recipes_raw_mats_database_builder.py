@@ -10,19 +10,8 @@ from collections import defaultdict
 from src.resource_path import resource_path
 from src.helpers import convert_block_to_item
 from data.graph_recipes import build_crafting_graph
-from src.constants import BLOCKS_JSON, GAME_DATA_DIR, IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, \
-    ITEMS_JSON, MC_DOWNLOADS_DIR, PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
-
-def main():
-    recipe_json_raw_data = get_recipe_data_from_json()
-    raw_materials_cost = get_raw_materials_cost_dict(recipe_json_raw_data)
-        
-    recipe_graph = build_crafting_graph(raw_materials_cost)
-    generate_master_raw_mats_list(recipe_graph)
-    
-    # list_crafting_recipes(recipe_graph, 'chiseled_resin_bricks')
-    # display_graph_sample(recipe_graph, 'chiseled_resin_bricks', depth=7)
-    # display_graph_sample(recipe_graph, 'all', depth=500)
+from src.constants import IGNORE_ITEMS_REGEX, AXIOM_MATERIALS_REGEX, MC_DOWNLOADS_DIR, \
+    PRIORITY_CRAFTING_METHODS, TAGGED_MATERIALS_BASE
 
 ######################
 ### RECIPE RELATED ###
@@ -48,7 +37,7 @@ def get_raw_materials_cost_dict(recipe_json_raw_data: dict) -> dict:
         for ingredient, count in items.items():
             # Change the name of a hashed material inside items to its base material name
             if ingredient.startswith('#'):
-                base_material = TAGGED_MATERIALS_BASE[ingredient]
+                base_material = resolve_tag(ingredient)
                 modified_items[base_material] = count
             else:
                 modified_items[ingredient] = count
@@ -60,6 +49,37 @@ def get_raw_materials_cost_dict(recipe_json_raw_data: dict) -> dict:
             raw_materials_cost[item_name] = modified_items
     
     return raw_materials_cost
+
+def resolve_tag(tag: str) -> str:
+    """Map an item tag to its base item, falling back to the shortest member for unmapped tags."""
+    tag = tag.replace('minecraft:', '')
+    if tag in TAGGED_MATERIALS_BASE:
+        return TAGGED_MATERIALS_BASE[tag]
+
+    members = _tag_members(tag[1:])
+    if not members:
+        raise KeyError(f"Unknown item tag {tag} and no generated tag data to resolve it from.")
+    choice = min(members, key=len)
+    print(f"WARNING: unmapped tag {tag} resolved to {choice}; add it to TAGGED_MATERIALS_BASE.")
+    return choice
+
+def _tag_members(tag_name: str, _seen: frozenset = frozenset()) -> list[str]:
+    """Flatten a generated item tag into plain item names."""
+    path = resource_path(os.path.join(MC_DOWNLOADS_DIR, 'tags', 'item', f'{tag_name}.json'))
+    if tag_name in _seen or not os.path.exists(path):
+        return []
+    with open(path, 'r', encoding='utf-8') as file:
+        values = json.load(file).get('values', [])
+
+    members = []
+    for value in values:
+        value = value['id'] if isinstance(value, dict) else value
+        value = value.replace('minecraft:', '')
+        if value.startswith('#'):
+            members.extend(_tag_members(value[1:], _seen | {tag_name}))
+        else:
+            members.append(value)
+    return members
 
 def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
     group = recipe.get('group', None)
@@ -80,10 +100,12 @@ def get_items_from_craft_type(recipe: dict, craft_type: str) -> dict[str, int]:
             base_item = recipe['base'].replace('minecraft:', '')
             template = recipe['template'].replace('minecraft:', '')
             return {base_material: 1.0, base_item: 1.0, template: 1.0, 'count': 1.0}
-        # Only 'crafting_transmute' recipes are bundles (which are ignored items) and shulker boxes
+        # transmute recipes dye bundles and shulker boxes (map cloning is skipped)
         case 'crafting_transmute':
             dye = recipe['material'].replace('minecraft:', '')
-            return {'shulker_box': 1.0, dye: 1.0, 'count': 1.0}
+            base = {'#minecraft:bundles': 'bundle', '#minecraft:shulker_boxes': 'shulker_box'}.get(
+                recipe.get('input'))
+            return {base: 1.0, dye: 1.0, 'count': 1.0} if base else None
         case 'dye_wool':
             if (dye := recipe['ingredients'][0].replace('minecraft:', '')) == 'white_dye':
                 return {'white_wool': 1.0, 'count': 1.0}
@@ -100,7 +122,7 @@ def get_shaped_ingredients(recipe) -> dict[str, int]:
     for key in pattern:
         item = item_keys[key]
         add_ingredient(ingredients, item)
-    ingredients['count'] = recipe['result']['count']
+    ingredients['count'] = recipe['result'].get('count', 1)
     return ingredients
 
 def get_shapeless_ingredients(recipe) -> dict[str, int]:
@@ -108,7 +130,7 @@ def get_shapeless_ingredients(recipe) -> dict[str, int]:
     for item in recipe['ingredients']:
         add_ingredient(ingredients, item)
 
-    ingredients['count'] = recipe['result']['count']
+    ingredients['count'] = recipe['result'].get('count', 1)
     return ingredients
 
 def get_smelting_ingredients(recipe) -> dict[str, int]:
@@ -127,7 +149,8 @@ def get_recipe_data_from_json(recipe_path: str) -> dict:
     recipe_json_raw_data = {}
     recipe_path = resource_path(recipe_path)
     # Loop through every recipe.json file
-    file_list = [f for f in os.listdir(recipe_path) if f.endswith('.json')]
+    # sorted: which duplicate recipe wins must not depend on filesystem order
+    file_list = sorted(f for f in os.listdir(recipe_path) if f.endswith('.json'))
     total_files = len(file_list)
 
     for filename in tqdm(file_list, total=total_files, desc="Processing files"):
@@ -135,7 +158,7 @@ def get_recipe_data_from_json(recipe_path: str) -> dict:
         item_name = filename.split('.')[0]
         
         # Load json into the dict
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             item_recipe_data = json.load(file)
             recipe_json_raw_data[item_name] = item_recipe_data
 
@@ -264,6 +287,7 @@ def get_ingredients(recipe_graph: nx.DiGraph, target_item: str) -> list[dict[str
 
 def _get_ingredients_recursive(graph: nx.DiGraph, target_item: str, raw_materials: dict, quantity=1.0):
     """Recursive helper function to find raw materials, handling circular dependencies."""
+    target_item = re.sub(r'(\w+)_concrete$', r'\1_concrete_powder', target_item)
     # For handling edge cases where items don't abide by the rules (e.g. netherite, hanging signs, etc)
     if _handle_special_cases(graph, target_item, raw_materials, quantity):
         return

@@ -1,5 +1,1680 @@
 {
-    "version": "1.21.9",
+    "version": "26.3",
+    "26.3": {
+        "abandoned_camp_map": [
+            {
+                "item": "abandoned_camp_map",
+                "quantity": 1.0
+            }
+        ],
+        "black_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "black_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "black_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "black_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "black_cushion": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "black_dye",
+                "quantity": 1.0
+            }
+        ],
+        "black_wool_slab": [
+            {
+                "item": "black_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "black_wool_stairs": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "black_dye",
+                "quantity": 1.0
+            }
+        ],
+        "blue_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "blue_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "blue_cushion": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
+            }
+        ],
+        "blue_wool_slab": [
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "blue_wool_stairs": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
+            }
+        ],
+        "brown_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "brown_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "brown_cushion": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
+            }
+        ],
+        "brown_wool_slab": [
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "brown_wool_stairs": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
+            }
+        ],
+        "buried_ancient_city_map": [
+            {
+                "item": "buried_ancient_city_map",
+                "quantity": 1.0
+            }
+        ],
+        "buried_mineshaft_map": [
+            {
+                "item": "buried_mineshaft_map",
+                "quantity": 1.0
+            }
+        ],
+        "buried_treasure_map": [
+            {
+                "item": "buried_treasure_map",
+                "quantity": 1.0
+            }
+        ],
+        "buried_trial_chambers_map": [
+            {
+                "item": "buried_trial_chambers_map",
+                "quantity": 1.0
+            }
+        ],
+        "cyan_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "cyan_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "cyan_cushion": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
+            }
+        ],
+        "cyan_wool_slab": [
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "cyan_wool_stairs": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
+            }
+        ],
+        "desert_pyramid_map": [
+            {
+                "item": "desert_pyramid_map",
+                "quantity": 1.0
+            }
+        ],
+        "desert_village_map": [
+            {
+                "item": "desert_village_map",
+                "quantity": 1.0
+            }
+        ],
+        "gray_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "gray_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "gray_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "gray_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "gray_cushion": [
+            {
+                "item": "gray_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "gray_wool_slab": [
+            {
+                "item": "gray_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "gray_wool_stairs": [
+            {
+                "item": "gray_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "green_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "green_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "green_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "green_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "green_cushion": [
+            {
+                "item": "green_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "green_wool_slab": [
+            {
+                "item": "green_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "green_wool_stairs": [
+            {
+                "item": "green_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "jungle_pyramid_map": [
+            {
+                "item": "jungle_pyramid_map",
+                "quantity": 1.0
+            }
+        ],
+        "light_blue_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "light_blue_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "light_blue_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "light_blue_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "light_blue_cushion": [
+            {
+                "item": "light_blue_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "light_blue_wool_slab": [
+            {
+                "item": "light_blue_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "light_blue_wool_stairs": [
+            {
+                "item": "light_blue_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "light_gray_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "light_gray_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "light_gray_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "light_gray_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "light_gray_cushion": [
+            {
+                "item": "light_gray_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "light_gray_wool_slab": [
+            {
+                "item": "light_gray_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "light_gray_wool_stairs": [
+            {
+                "item": "light_gray_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "lime_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "lime_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "lime_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "lime_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "lime_cushion": [
+            {
+                "item": "lime_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "lime_wool_slab": [
+            {
+                "item": "lime_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "lime_wool_stairs": [
+            {
+                "item": "lime_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "magenta_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "magenta_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "magenta_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "magenta_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "magenta_cushion": [
+            {
+                "item": "magenta_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "magenta_wool_slab": [
+            {
+                "item": "magenta_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "magenta_wool_stairs": [
+            {
+                "item": "magenta_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "mushroom_stew": [
+            {
+                "item": "brown_mushroom",
+                "quantity": 2.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.1875
+            }
+        ],
+        "ocean_monument_map": [
+            {
+                "item": "ocean_monument_map",
+                "quantity": 1.0
+            }
+        ],
+        "orange_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "orange_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "orange_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "orange_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "orange_cushion": [
+            {
+                "item": "orange_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "orange_poplar_leaves": [
+            {
+                "item": "orange_poplar_leaves",
+                "quantity": 1.0
+            }
+        ],
+        "orange_wool_slab": [
+            {
+                "item": "orange_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "orange_wool_stairs": [
+            {
+                "item": "orange_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "pink_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "pink_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "pink_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "pink_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "pink_cushion": [
+            {
+                "item": "pink_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "pink_wool_slab": [
+            {
+                "item": "pink_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "pink_wool_stairs": [
+            {
+                "item": "pink_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "plains_village_map": [
+            {
+                "item": "plains_village_map",
+                "quantity": 1.0
+            }
+        ],
+        "poplar_boat": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.25
+            }
+        ],
+        "poplar_button": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.25
+            }
+        ],
+        "poplar_chest_boat": [
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "poplar_log",
+                "quantity": 1.25
+            }
+        ],
+        "poplar_door": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.5
+            }
+        ],
+        "poplar_fence": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.3333333333333333
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.08333333333333333
+            }
+        ],
+        "poplar_fence_gate": [
+            {
+                "item": "oak_log",
+                "quantity": 0.5
+            },
+            {
+                "item": "poplar_log",
+                "quantity": 0.5
+            }
+        ],
+        "poplar_hanging_sign": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.0
+            },
+            {
+                "item": "iron_ingot",
+                "quantity": 0.4074074074074074
+            }
+        ],
+        "poplar_log": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.0
+            }
+        ],
+        "poplar_planks": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.25
+            }
+        ],
+        "poplar_pressure_plate": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.5
+            }
+        ],
+        "poplar_sapling": [
+            {
+                "item": "poplar_sapling",
+                "quantity": 1.0
+            }
+        ],
+        "poplar_shelf": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.0
+            }
+        ],
+        "poplar_sign": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.5
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.041666666666666664
+            }
+        ],
+        "poplar_slab": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.125
+            }
+        ],
+        "poplar_stairs": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.375
+            }
+        ],
+        "poplar_trapdoor": [
+            {
+                "item": "poplar_log",
+                "quantity": 0.75
+            }
+        ],
+        "poplar_wood": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.3333333333333333
+            }
+        ],
+        "purple_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "purple_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "purple_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "purple_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "purple_cushion": [
+            {
+                "item": "purple_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "purple_wool_slab": [
+            {
+                "item": "purple_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "purple_wool_stairs": [
+            {
+                "item": "purple_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "rabbit_stew": [
+            {
+                "item": "carrot",
+                "quantity": 1.0
+            },
+            {
+                "item": "potato",
+                "quantity": 1.0
+            },
+            {
+                "item": "rabbit",
+                "quantity": 1.0
+            },
+            {
+                "item": "shelf_mushroom",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.1875
+            }
+        ],
+        "red_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "red_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "red_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "red_cushion": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "red_poplar_leaves": [
+            {
+                "item": "red_poplar_leaves",
+                "quantity": 1.0
+            }
+        ],
+        "red_shrub": [
+            {
+                "item": "red_shrub",
+                "quantity": 1.0
+            }
+        ],
+        "red_wool_slab": [
+            {
+                "item": "red_dye",
+                "quantity": 0.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "red_wool_stairs": [
+            {
+                "item": "red_dye",
+                "quantity": 1.5
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "savanna_village_map": [
+            {
+                "item": "savanna_village_map",
+                "quantity": 1.0
+            }
+        ],
+        "shelf_mushroom": [
+            {
+                "item": "shelf_mushroom",
+                "quantity": 1.0
+            }
+        ],
+        "snowy_village_map": [
+            {
+                "item": "snowy_village_map",
+                "quantity": 1.0
+            }
+        ],
+        "straw_bed": [
+            {
+                "item": "wheat",
+                "quantity": 6.75
+            }
+        ],
+        "stripped_poplar_log": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.0
+            }
+        ],
+        "stripped_poplar_wood": [
+            {
+                "item": "poplar_log",
+                "quantity": 1.3333333333333333
+            }
+        ],
+        "suspicious_stew": [
+            {
+                "item": "brown_mushroom",
+                "quantity": 2.0
+            },
+            {
+                "item": "wither_rose",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.1875
+            }
+        ],
+        "swamp_hut_map": [
+            {
+                "item": "swamp_hut_map",
+                "quantity": 1.0
+            }
+        ],
+        "taiga_village_map": [
+            {
+                "item": "taiga_village_map",
+                "quantity": 1.0
+            }
+        ],
+        "warm_ocean_ruins_map": [
+            {
+                "item": "warm_ocean_ruins_map",
+                "quantity": 1.0
+            }
+        ],
+        "white_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "white_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "white_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "white_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "white_cushion": [
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "white_wool_slab": [
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            }
+        ],
+        "white_wool_stairs": [
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            }
+        ],
+        "woodland_mansion_map": [
+            {
+                "item": "woodland_mansion_map",
+                "quantity": 1.0
+            }
+        ],
+        "yellow_concrete_slab": [
+            {
+                "item": "gravel",
+                "quantity": 0.25
+            },
+            {
+                "item": "sand",
+                "quantity": 0.25
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 0.0625
+            }
+        ],
+        "yellow_concrete_stairs": [
+            {
+                "item": "gravel",
+                "quantity": 0.75
+            },
+            {
+                "item": "sand",
+                "quantity": 0.75
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 0.1875
+            }
+        ],
+        "yellow_cushion": [
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 1.5
+            }
+        ],
+        "yellow_poplar_leaves": [
+            {
+                "item": "yellow_poplar_leaves",
+                "quantity": 1.0
+            }
+        ],
+        "yellow_wool_slab": [
+            {
+                "item": "white_wool",
+                "quantity": 0.5
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 0.5
+            }
+        ],
+        "yellow_wool_stairs": [
+            {
+                "item": "white_wool",
+                "quantity": 1.5
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 1.5
+            }
+        ]
+    },
+    "26.2": {
+        "chiseled_cinnabar": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "chiseled_sulfur": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "cinnabar": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "cinnabar_brick_slab": [
+            {
+                "item": "cinnabar",
+                "quantity": 0.5
+            }
+        ],
+        "cinnabar_brick_stairs": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.5
+            }
+        ],
+        "cinnabar_brick_wall": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "cinnabar_bricks": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "cinnabar_slab": [
+            {
+                "item": "cinnabar",
+                "quantity": 0.5
+            }
+        ],
+        "cinnabar_stairs": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.5
+            }
+        ],
+        "cinnabar_wall": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "music_disc_bounce": [
+            {
+                "item": "music_disc_bounce",
+                "quantity": 1.0
+            }
+        ],
+        "polished_cinnabar": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "polished_cinnabar_slab": [
+            {
+                "item": "cinnabar",
+                "quantity": 0.5
+            }
+        ],
+        "polished_cinnabar_stairs": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.5
+            }
+        ],
+        "polished_cinnabar_wall": [
+            {
+                "item": "cinnabar",
+                "quantity": 1.0
+            }
+        ],
+        "polished_sulfur": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "polished_sulfur_slab": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 2.0
+            }
+        ],
+        "polished_sulfur_stairs": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 6.0
+            }
+        ],
+        "polished_sulfur_wall": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "potent_sulfur": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 36.0
+            }
+        ],
+        "sulfur": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "sulfur_brick_slab": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 2.0
+            }
+        ],
+        "sulfur_brick_stairs": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 6.0
+            }
+        ],
+        "sulfur_brick_wall": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "sulfur_bricks": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ],
+        "sulfur_cube_bucket": [
+            {
+                "item": "sulfur_cube_bucket",
+                "quantity": 1.0
+            }
+        ],
+        "sulfur_cube_spawn_egg": [
+            {
+                "item": "sulfur_cube_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "sulfur_slab": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 2.0
+            }
+        ],
+        "sulfur_spike": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 1.0
+            }
+        ],
+        "sulfur_stairs": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 6.0
+            }
+        ],
+        "sulfur_wall": [
+            {
+                "item": "sulfur_spike",
+                "quantity": 4.0
+            }
+        ]
+    },
+    "26.1.2": {},
+    "26.1.1": {},
+    "26.1": {
+        "golden_dandelion": [
+            {
+                "item": "dandelion",
+                "quantity": 1.0
+            },
+            {
+                "item": "gold_ingot",
+                "quantity": 0.8888888888888888
+            }
+        ],
+        "name_tag": [
+            {
+                "item": "sugar_cane",
+                "quantity": 1.0
+            },
+            {
+                "item": "iron_ingot",
+                "quantity": 0.1111111111111111
+            }
+        ]
+    },
+    "1.21.11": {
+        "camel_husk_spawn_egg": [
+            {
+                "item": "camel_husk_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "copper_nautilus_armor": [
+            {
+                "item": "copper_nautilus_armor",
+                "quantity": 1.0
+            }
+        ],
+        "copper_spear": [
+            {
+                "item": "copper_ingot",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "diamond_nautilus_armor": [
+            {
+                "item": "diamond_nautilus_armor",
+                "quantity": 1.0
+            }
+        ],
+        "diamond_spear": [
+            {
+                "item": "diamond",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "golden_nautilus_armor": [
+            {
+                "item": "golden_nautilus_armor",
+                "quantity": 1.0
+            }
+        ],
+        "golden_spear": [
+            {
+                "item": "gold_ingot",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "iron_nautilus_armor": [
+            {
+                "item": "iron_nautilus_armor",
+                "quantity": 1.0
+            }
+        ],
+        "iron_spear": [
+            {
+                "item": "iron_ingot",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "nautilus_spawn_egg": [
+            {
+                "item": "nautilus_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "netherite_horse_armor": [
+            {
+                "item": "ancient_debris",
+                "quantity": 4.0
+            },
+            {
+                "item": "gold_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "diamond",
+                "quantity": 3.5
+            },
+            {
+                "item": "diamond_horse_armor",
+                "quantity": 1.0
+            },
+            {
+                "item": "netherite_upgrade_smithing_template",
+                "quantity": 1.0
+            },
+            {
+                "item": "netherrack",
+                "quantity": 0.5
+            }
+        ],
+        "netherite_nautilus_armor": [
+            {
+                "item": "ancient_debris",
+                "quantity": 4.0
+            },
+            {
+                "item": "gold_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "diamond",
+                "quantity": 3.5
+            },
+            {
+                "item": "diamond_nautilus_armor",
+                "quantity": 1.0
+            },
+            {
+                "item": "netherite_upgrade_smithing_template",
+                "quantity": 1.0
+            },
+            {
+                "item": "netherrack",
+                "quantity": 0.5
+            }
+        ],
+        "netherite_spear": [
+            {
+                "item": "diamond",
+                "quantity": 4.5
+            },
+            {
+                "item": "ancient_debris",
+                "quantity": 4.0
+            },
+            {
+                "item": "gold_ingot",
+                "quantity": 4.0
+            },
+            {
+                "item": "netherite_upgrade_smithing_template",
+                "quantity": 1.0
+            },
+            {
+                "item": "netherrack",
+                "quantity": 0.5
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "parched_spawn_egg": [
+            {
+                "item": "parched_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "stone_spear": [
+            {
+                "item": "cobblestone",
+                "quantity": 1.0
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "wooden_spear": [
+            {
+                "item": "oak_log",
+                "quantity": 0.5
+            }
+        ],
+        "zombie_nautilus_spawn_egg": [
+            {
+                "item": "zombie_nautilus_spawn_egg",
+                "quantity": 1.0
+            }
+        ]
+    },
+    "1.21.10": {},
     "1.21.9": {
         "acacia_shelf": [
             {
@@ -724,7 +2399,629 @@
             }
         ]
     },
-    "1.21.8": {
+    "1.21.8": {},
+    "1.21.7": {
+        "music_disc_lava_chicken": [
+            {
+                "item": "music_disc_lava_chicken",
+                "quantity": 1.0
+            }
+        ]
+    },
+    "1.21.6": {
+        "black_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "black_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "blue_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "brown_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "cyan_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "dried_ghast": [
+            {
+                "item": "ghast_tear",
+                "quantity": 8.0
+            },
+            {
+                "item": "soul_sand",
+                "quantity": 1.0
+            }
+        ],
+        "gray_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "green_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "green_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "happy_ghast_spawn_egg": [
+            {
+                "item": "happy_ghast_spawn_egg",
+                "quantity": 1.0
+            }
+        ],
+        "lead": [
+            {
+                "item": "string",
+                "quantity": 2.5
+            }
+        ],
+        "light_blue_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "light_blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "light_gray_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "light_gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "lime_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "lime_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "magenta_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "magenta_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "music_disc_tears": [
+            {
+                "item": "music_disc_tears",
+                "quantity": 1.0
+            }
+        ],
+        "orange_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "orange_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "pink_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "pink_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "purple_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "purple_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "red_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "saddle": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "iron_ingot",
+                "quantity": 1.0
+            }
+        ],
+        "white_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            }
+        ],
+        "yellow_harness": [
+            {
+                "item": "leather",
+                "quantity": 3.0
+            },
+            {
+                "item": "sand",
+                "quantity": 2.0
+            },
+            {
+                "item": "white_wool",
+                "quantity": 1.0
+            },
+            {
+                "item": "yellow_dye",
+                "quantity": 1.0
+            }
+        ]
+    },
+    "1.21.5": {
+        "blue_egg": [
+            {
+                "item": "blue_egg",
+                "quantity": 1.0
+            }
+        ],
+        "brown_egg": [
+            {
+                "item": "brown_egg",
+                "quantity": 1.0
+            }
+        ],
+        "bush": [
+            {
+                "item": "bush",
+                "quantity": 1.0
+            }
+        ],
+        "cactus_flower": [
+            {
+                "item": "cactus_flower",
+                "quantity": 1.0
+            }
+        ],
+        "firefly_bush": [
+            {
+                "item": "firefly_bush",
+                "quantity": 1.0
+            }
+        ],
+        "leaf_litter": [
+            {
+                "item": "oak_leaves",
+                "quantity": 1.0
+            }
+        ],
+        "lodestone": [
+            {
+                "item": "stone",
+                "quantity": 8.0
+            },
+            {
+                "item": "iron_ingot",
+                "quantity": 1.0
+            }
+        ],
+        "short_dry_grass": [
+            {
+                "item": "short_dry_grass",
+                "quantity": 1.0
+            }
+        ],
+        "tall_dry_grass": [
+            {
+                "item": "tall_dry_grass",
+                "quantity": 1.0
+            }
+        ],
+        "test_block": [
+            {
+                "item": "test_block",
+                "quantity": 1.0
+            }
+        ],
+        "test_instance_block": [
+            {
+                "item": "test_instance_block",
+                "quantity": 1.0
+            }
+        ],
+        "wildflowers": [
+            {
+                "item": "wildflowers",
+                "quantity": 1.0
+            }
+        ]
+    },
+    "1.21.4": {
+        "chiseled_resin_bricks": [
+            {
+                "item": "resin_clump",
+                "quantity": 4.0
+            }
+        ],
+        "closed_eyeblossom": [
+            {
+                "item": "closed_eyeblossom",
+                "quantity": 1.0
+            }
+        ],
+        "creaking_heart": [
+            {
+                "item": "resin_clump",
+                "quantity": 9.0
+            },
+            {
+                "item": "pale_oak_log",
+                "quantity": 2.0
+            }
+        ],
+        "open_eyeblossom": [
+            {
+                "item": "open_eyeblossom",
+                "quantity": 1.0
+            }
+        ],
+        "pale_moss_carpet": [
+            {
+                "item": "pale_moss_block",
+                "quantity": 0.6666666666666666
+            }
+        ],
+        "pale_oak_boat": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.25
+            }
+        ],
+        "pale_oak_button": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "pale_oak_chest_boat": [
+            {
+                "item": "oak_log",
+                "quantity": 2.0
+            },
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.25
+            }
+        ],
+        "pale_oak_door": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.5
+            }
+        ],
+        "pale_oak_fence": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.3333333333333333
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.08333333333333333
+            }
+        ],
+        "pale_oak_fence_gate": [
+            {
+                "item": "oak_log",
+                "quantity": 0.5
+            },
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.5
+            }
+        ],
+        "pale_oak_hanging_sign": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.0
+            },
+            {
+                "item": "iron_ingot",
+                "quantity": 0.4074074074074074
+            }
+        ],
+        "pale_oak_planks": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.25
+            }
+        ],
+        "pale_oak_pressure_plate": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.5
+            }
+        ],
+        "pale_oak_sign": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.5
+            },
+            {
+                "item": "oak_log",
+                "quantity": 0.041666666666666664
+            }
+        ],
+        "pale_oak_slab": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.125
+            }
+        ],
+        "pale_oak_stairs": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.375
+            }
+        ],
+        "pale_oak_trapdoor": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 0.75
+            }
+        ],
+        "pale_oak_wood": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.3333333333333333
+            }
+        ],
+        "resin_block": [
+            {
+                "item": "resin_clump",
+                "quantity": 9.0
+            }
+        ],
+        "resin_brick": [
+            {
+                "item": "resin_clump",
+                "quantity": 1.0
+            }
+        ],
+        "resin_brick_slab": [
+            {
+                "item": "resin_clump",
+                "quantity": 2.0
+            }
+        ],
+        "resin_brick_stairs": [
+            {
+                "item": "resin_clump",
+                "quantity": 6.0
+            }
+        ],
+        "resin_brick_wall": [
+            {
+                "item": "resin_clump",
+                "quantity": 4.0
+            }
+        ],
+        "resin_bricks": [
+            {
+                "item": "resin_clump",
+                "quantity": 4.0
+            }
+        ],
+        "resin_clump": [
+            {
+                "item": "resin_clump",
+                "quantity": 1.0
+            }
+        ],
+        "stripped_pale_oak_log": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.0
+            }
+        ],
+        "stripped_pale_oak_wood": [
+            {
+                "item": "pale_oak_log",
+                "quantity": 1.3333333333333333
+            }
+        ]
+    },
+    "1.21.3": {},
+    "1.21.2": {
         "acacia_boat": [
             {
                 "item": "acacia_log",
@@ -1431,15 +3728,15 @@
         ],
         "black_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "black_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -1469,6 +3766,10 @@
             {
                 "item": "sugar_cane",
                 "quantity": 2.0
+            },
+            {
+                "item": "black_dye",
+                "quantity": 1.0
             },
             {
                 "item": "egg",
@@ -1535,28 +3836,6 @@
             {
                 "item": "black_dye",
                 "quantity": 0.125
-            }
-        ],
-        "black_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "black_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "red_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "black_shulker_box": [
@@ -1711,15 +3990,15 @@
         ],
         "blue_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -1749,6 +4028,10 @@
             {
                 "item": "sugar_cane",
                 "quantity": 2.0
+            },
+            {
+                "item": "blue_dye",
+                "quantity": 1.0
             },
             {
                 "item": "egg",
@@ -1807,12 +4090,6 @@
                 "quantity": 1.0
             }
         ],
-        "blue_egg": [
-            {
-                "item": "blue_egg",
-                "quantity": 1.0
-            }
-        ],
         "blue_glazed_terracotta": [
             {
                 "item": "clay_ball",
@@ -1821,28 +4098,6 @@
             {
                 "item": "blue_dye",
                 "quantity": 0.125
-            }
-        ],
-        "blue_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "blue_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "red_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "blue_ice": [
@@ -2111,15 +4366,15 @@
         ],
         "brown_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "brown_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -2149,6 +4404,10 @@
             {
                 "item": "sugar_cane",
                 "quantity": 2.0
+            },
+            {
+                "item": "brown_dye",
+                "quantity": 1.0
             },
             {
                 "item": "egg",
@@ -2207,12 +4466,6 @@
                 "quantity": 1.0
             }
         ],
-        "brown_egg": [
-            {
-                "item": "brown_egg",
-                "quantity": 1.0
-            }
-        ],
         "brown_glazed_terracotta": [
             {
                 "item": "clay_ball",
@@ -2221,28 +4474,6 @@
             {
                 "item": "brown_dye",
                 "quantity": 0.125
-            }
-        ],
-        "brown_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "brown_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "red_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "brown_mushroom": [
@@ -2371,21 +4602,9 @@
                 "quantity": 1.0
             }
         ],
-        "bush": [
-            {
-                "item": "bush",
-                "quantity": 1.0
-            }
-        ],
         "cactus": [
             {
                 "item": "cactus",
-                "quantity": 1.0
-            }
-        ],
-        "cactus_flower": [
-            {
-                "item": "cactus_flower",
                 "quantity": 1.0
             }
         ],
@@ -2769,12 +4988,6 @@
                 "quantity": 4.0
             }
         ],
-        "chiseled_resin_bricks": [
-            {
-                "item": "resin_clump",
-                "quantity": 4.0
-            }
-        ],
         "chiseled_sandstone": [
             {
                 "item": "sand",
@@ -2836,12 +5049,6 @@
             },
             {
                 "item": "redstone",
-                "quantity": 1.0
-            }
-        ],
-        "closed_eyeblossom": [
-            {
-                "item": "closed_eyeblossom",
                 "quantity": 1.0
             }
         ],
@@ -3191,12 +5398,8 @@
         ],
         "creaking_heart": [
             {
-                "item": "resin_clump",
-                "quantity": 9.0
-            },
-            {
-                "item": "pale_oak_log",
-                "quantity": 2.0
+                "item": "creaking_heart",
+                "quantity": 1.0
             }
         ],
         "creaking_spawn_egg": [
@@ -3431,15 +5634,15 @@
         ],
         "cyan_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "cyan_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -3469,6 +5672,10 @@
             {
                 "item": "sugar_cane",
                 "quantity": 2.0
+            },
+            {
+                "item": "cyan_dye",
+                "quantity": 1.0
             },
             {
                 "item": "egg",
@@ -3535,28 +5742,6 @@
             {
                 "item": "cyan_dye",
                 "quantity": 0.125
-            }
-        ],
-        "cyan_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "cyan_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "red_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "cyan_shulker_box": [
@@ -4225,16 +6410,6 @@
                 "quantity": 1.0
             }
         ],
-        "dried_ghast": [
-            {
-                "item": "ghast_tear",
-                "quantity": 8.0
-            },
-            {
-                "item": "soul_sand",
-                "quantity": 1.0
-            }
-        ],
         "dried_kelp": [
             {
                 "item": "dried_kelp",
@@ -4644,12 +6819,6 @@
         "fire_coral_fan": [
             {
                 "item": "fire_coral_fan",
-                "quantity": 1.0
-            }
-        ],
-        "firefly_bush": [
-            {
-                "item": "firefly_bush",
                 "quantity": 1.0
             }
         ],
@@ -5121,15 +7290,15 @@
         ],
         "gray_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -5162,6 +7331,10 @@
             },
             {
                 "item": "egg",
+                "quantity": 1.0
+            },
+            {
+                "item": "gray_dye",
                 "quantity": 1.0
             },
             {
@@ -5225,24 +7398,6 @@
             {
                 "item": "gray_dye",
                 "quantity": 0.125
-            }
-        ],
-        "gray_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "gray_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "gray_shulker_box": [
@@ -5329,15 +7484,15 @@
         ],
         "green_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
-            },
-            {
                 "item": "green_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "leather",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -5370,6 +7525,10 @@
             },
             {
                 "item": "egg",
+                "quantity": 1.0
+            },
+            {
+                "item": "green_dye",
                 "quantity": 1.0
             },
             {
@@ -5433,24 +7592,6 @@
             {
                 "item": "green_dye",
                 "quantity": 0.125
-            }
-        ],
-        "green_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "green_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "green_shulker_box": [
@@ -5544,12 +7685,6 @@
         "hanging_roots": [
             {
                 "item": "hanging_roots",
-                "quantity": 1.0
-            }
-        ],
-        "happy_ghast_spawn_egg": [
-            {
-                "item": "happy_ghast_spawn_egg",
                 "quantity": 1.0
             }
         ],
@@ -6114,13 +8249,11 @@
         "lead": [
             {
                 "item": "string",
-                "quantity": 2.5
-            }
-        ],
-        "leaf_litter": [
+                "quantity": 2.0
+            },
             {
-                "item": "oak_leaves",
-                "quantity": 1.0
+                "item": "slime_ball",
+                "quantity": 0.5
             }
         ],
         "leather": [
@@ -6219,15 +8352,15 @@
         ],
         "light_blue_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "light_blue_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -6264,6 +8397,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "light_blue_dye",
                 "quantity": 1.0
             },
             {
@@ -6323,24 +8460,6 @@
             {
                 "item": "light_blue_dye",
                 "quantity": 0.125
-            }
-        ],
-        "light_blue_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "light_blue_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "light_blue_shulker_box": [
@@ -6427,15 +8546,15 @@
         ],
         "light_gray_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "light_gray_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -6472,6 +8591,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "light_gray_dye",
                 "quantity": 1.0
             },
             {
@@ -6531,24 +8654,6 @@
             {
                 "item": "light_gray_dye",
                 "quantity": 0.125
-            }
-        ],
-        "light_gray_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "light_gray_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "light_gray_shulker_box": [
@@ -6665,15 +8770,15 @@
         ],
         "lime_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "lime_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -6710,6 +8815,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "lime_dye",
                 "quantity": 1.0
             },
             {
@@ -6769,24 +8878,6 @@
             {
                 "item": "lime_dye",
                 "quantity": 0.125
-            }
-        ],
-        "lime_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "lime_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "lime_shulker_box": [
@@ -6861,8 +8952,12 @@
                 "quantity": 8.0
             },
             {
-                "item": "iron_ingot",
-                "quantity": 1.0
+                "item": "ancient_debris",
+                "quantity": 4.0
+            },
+            {
+                "item": "gold_ingot",
+                "quantity": 4.0
             }
         ],
         "loom": [
@@ -6915,15 +9010,15 @@
         ],
         "magenta_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "magenta_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -6960,6 +9055,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "magenta_dye",
                 "quantity": 1.0
             },
             {
@@ -7019,24 +9118,6 @@
             {
                 "item": "magenta_dye",
                 "quantity": 0.125
-            }
-        ],
-        "magenta_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "magenta_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "magenta_shulker_box": [
@@ -7553,12 +9634,6 @@
                 "quantity": 1.0
             }
         ],
-        "music_disc_lava_chicken": [
-            {
-                "item": "music_disc_lava_chicken",
-                "quantity": 1.0
-            }
-        ],
         "music_disc_mall": [
             {
                 "item": "music_disc_mall",
@@ -7604,12 +9679,6 @@
         "music_disc_strad": [
             {
                 "item": "music_disc_strad",
-                "quantity": 1.0
-            }
-        ],
-        "music_disc_tears": [
-            {
-                "item": "music_disc_tears",
                 "quantity": 1.0
             }
         ],
@@ -8145,12 +10214,6 @@
                 "quantity": 1.0
             }
         ],
-        "open_eyeblossom": [
-            {
-                "item": "open_eyeblossom",
-                "quantity": 1.0
-            }
-        ],
         "orange_banner": [
             {
                 "item": "orange_dye",
@@ -8181,15 +10244,15 @@
         ],
         "orange_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "orange_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -8226,6 +10289,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "orange_dye",
                 "quantity": 1.0
             },
             {
@@ -8285,24 +10352,6 @@
             {
                 "item": "orange_dye",
                 "quantity": 0.125
-            }
-        ],
-        "orange_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "orange_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "orange_shulker_box": [
@@ -8473,66 +10522,50 @@
         ],
         "pale_moss_carpet": [
             {
-                "item": "pale_moss_block",
-                "quantity": 0.6666666666666666
+                "item": "pale_moss_carpet",
+                "quantity": 1.0
             }
         ],
         "pale_oak_boat": [
             {
-                "item": "pale_oak_log",
-                "quantity": 1.25
+                "item": "pale_oak_boat",
+                "quantity": 1.0
             }
         ],
         "pale_oak_button": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.25
+                "item": "pale_oak_button",
+                "quantity": 1.0
             }
         ],
         "pale_oak_chest_boat": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "pale_oak_log",
-                "quantity": 1.25
+                "item": "pale_oak_chest_boat",
+                "quantity": 1.0
             }
         ],
         "pale_oak_door": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.5
+                "item": "pale_oak_door",
+                "quantity": 1.0
             }
         ],
         "pale_oak_fence": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.3333333333333333
-            },
-            {
-                "item": "oak_log",
-                "quantity": 0.08333333333333333
+                "item": "pale_oak_fence",
+                "quantity": 1.0
             }
         ],
         "pale_oak_fence_gate": [
             {
-                "item": "oak_log",
-                "quantity": 0.5
-            },
-            {
-                "item": "pale_oak_log",
-                "quantity": 0.5
+                "item": "pale_oak_fence_gate",
+                "quantity": 1.0
             }
         ],
         "pale_oak_hanging_sign": [
             {
-                "item": "pale_oak_log",
+                "item": "pale_oak_hanging_sign",
                 "quantity": 1.0
-            },
-            {
-                "item": "iron_ingot",
-                "quantity": 0.4074074074074074
             }
         ],
         "pale_oak_leaves": [
@@ -8549,14 +10582,14 @@
         ],
         "pale_oak_planks": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.25
+                "item": "pale_oak_planks",
+                "quantity": 1.0
             }
         ],
         "pale_oak_pressure_plate": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.5
+                "item": "pale_oak_pressure_plate",
+                "quantity": 1.0
             }
         ],
         "pale_oak_sapling": [
@@ -8567,36 +10600,32 @@
         ],
         "pale_oak_sign": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.5
-            },
-            {
-                "item": "oak_log",
-                "quantity": 0.041666666666666664
+                "item": "pale_oak_sign",
+                "quantity": 1.0
             }
         ],
         "pale_oak_slab": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.125
+                "item": "pale_oak_slab",
+                "quantity": 1.0
             }
         ],
         "pale_oak_stairs": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.375
+                "item": "pale_oak_stairs",
+                "quantity": 1.0
             }
         ],
         "pale_oak_trapdoor": [
             {
-                "item": "pale_oak_log",
-                "quantity": 0.75
+                "item": "pale_oak_trapdoor",
+                "quantity": 1.0
             }
         ],
         "pale_oak_wood": [
             {
-                "item": "pale_oak_log",
-                "quantity": 1.3333333333333333
+                "item": "pale_oak_wood",
+                "quantity": 1.0
             }
         ],
         "panda_spawn_egg": [
@@ -8713,15 +10742,15 @@
         ],
         "pink_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "pink_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -8758,6 +10787,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "pink_dye",
                 "quantity": 1.0
             },
             {
@@ -8817,24 +10850,6 @@
             {
                 "item": "pink_dye",
                 "quantity": 0.125
-            }
-        ],
-        "pink_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "pink_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "pink_petals": [
@@ -9367,15 +11382,15 @@
         ],
         "purple_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "purple_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -9412,6 +11427,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "purple_dye",
                 "quantity": 1.0
             },
             {
@@ -9471,24 +11490,6 @@
             {
                 "item": "purple_dye",
                 "quantity": 0.125
-            }
-        ],
-        "purple_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "purple_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "purple_shulker_box": [
@@ -9761,15 +11762,15 @@
         ],
         "red_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
-            },
-            {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
                 "item": "red_dye",
+                "quantity": 1.0
+            },
+            {
+                "item": "string",
                 "quantity": 1.0
             }
         ],
@@ -9806,6 +11807,10 @@
             },
             {
                 "item": "honeycomb",
+                "quantity": 1.0
+            },
+            {
+                "item": "red_dye",
                 "quantity": 1.0
             },
             {
@@ -9865,24 +11870,6 @@
             {
                 "item": "red_dye",
                 "quantity": 0.125
-            }
-        ],
-        "red_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "red_dye",
-                "quantity": 1.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "red_mushroom": [
@@ -10091,48 +12078,6 @@
                 "quantity": 1.0
             }
         ],
-        "resin_block": [
-            {
-                "item": "resin_clump",
-                "quantity": 9.0
-            }
-        ],
-        "resin_brick": [
-            {
-                "item": "resin_clump",
-                "quantity": 1.0
-            }
-        ],
-        "resin_brick_slab": [
-            {
-                "item": "resin_clump",
-                "quantity": 2.0
-            }
-        ],
-        "resin_brick_stairs": [
-            {
-                "item": "resin_clump",
-                "quantity": 6.0
-            }
-        ],
-        "resin_brick_wall": [
-            {
-                "item": "resin_clump",
-                "quantity": 4.0
-            }
-        ],
-        "resin_bricks": [
-            {
-                "item": "resin_clump",
-                "quantity": 4.0
-            }
-        ],
-        "resin_clump": [
-            {
-                "item": "resin_clump",
-                "quantity": 1.0
-            }
-        ],
         "respawn_anchor": [
             {
                 "item": "glowstone_dust",
@@ -10177,11 +12122,7 @@
         ],
         "saddle": [
             {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "iron_ingot",
+                "item": "saddle",
                 "quantity": 1.0
             }
         ],
@@ -10360,12 +12301,6 @@
             },
             {
                 "item": "iron_ingot",
-                "quantity": 1.0
-            }
-        ],
-        "short_dry_grass": [
-            {
-                "item": "short_dry_grass",
                 "quantity": 1.0
             }
         ],
@@ -11159,14 +13094,14 @@
         ],
         "stripped_pale_oak_log": [
             {
-                "item": "pale_oak_log",
+                "item": "stripped_pale_oak_log",
                 "quantity": 1.0
             }
         ],
         "stripped_pale_oak_wood": [
             {
-                "item": "pale_oak_log",
-                "quantity": 1.3333333333333333
+                "item": "stripped_pale_oak_wood",
+                "quantity": 1.0
             }
         ],
         "stripped_spruce_log": [
@@ -11271,12 +13206,6 @@
                 "quantity": 1.0
             }
         ],
-        "tall_dry_grass": [
-            {
-                "item": "tall_dry_grass",
-                "quantity": 1.0
-            }
-        ],
         "tall_grass": [
             {
                 "item": "tall_grass",
@@ -11297,18 +13226,6 @@
             {
                 "item": "clay_ball",
                 "quantity": 4.0
-            }
-        ],
-        "test_block": [
-            {
-                "item": "test_block",
-                "quantity": 1.0
-            }
-        ],
-        "test_instance_block": [
-            {
-                "item": "test_instance_block",
-                "quantity": 1.0
             }
         ],
         "tide_armor_trim_smithing_template": [
@@ -12289,12 +14206,12 @@
         ],
         "white_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "string",
+                "quantity": 1.0
             },
             {
                 "item": "white_dye",
@@ -12338,6 +14255,10 @@
             },
             {
                 "item": "string",
+                "quantity": 1.0
+            },
+            {
+                "item": "white_dye",
                 "quantity": 1.0
             }
         ],
@@ -12389,20 +14310,6 @@
             {
                 "item": "white_dye",
                 "quantity": 0.125
-            }
-        ],
-        "white_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
             }
         ],
         "white_shulker_box": [
@@ -12477,12 +14384,6 @@
             {
                 "item": "vine",
                 "quantity": 0.5
-            }
-        ],
-        "wildflowers": [
-            {
-                "item": "wildflowers",
-                "quantity": 1.0
             }
         ],
         "wind_charge": [
@@ -12617,12 +14518,12 @@
         ],
         "yellow_bundle": [
             {
-                "item": "oak_log",
-                "quantity": 2.0
+                "item": "leather",
+                "quantity": 1.0
             },
             {
-                "item": "shulker_shell",
-                "quantity": 2.0
+                "item": "string",
+                "quantity": 1.0
             },
             {
                 "item": "yellow_dye",
@@ -12666,6 +14567,10 @@
             },
             {
                 "item": "string",
+                "quantity": 1.0
+            },
+            {
+                "item": "yellow_dye",
                 "quantity": 1.0
             }
         ],
@@ -12721,24 +14626,6 @@
             {
                 "item": "yellow_dye",
                 "quantity": 0.125
-            }
-        ],
-        "yellow_harness": [
-            {
-                "item": "leather",
-                "quantity": 3.0
-            },
-            {
-                "item": "sand",
-                "quantity": 2.0
-            },
-            {
-                "item": "white_wool",
-                "quantity": 1.0
-            },
-            {
-                "item": "yellow_dye",
-                "quantity": 1.0
             }
         ],
         "yellow_shulker_box": [
