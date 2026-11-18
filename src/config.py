@@ -31,7 +31,11 @@ def update_config(redownload=False, delete=True):
         return
     
     # Check S2RM Github repo for if there's a newer version (release) of the program
-    if is_newer_release(latest_s2rm := get_latest_s2rm_release(), PROGRAM_VERSION):
+    try:
+        latest_s2rm = get_latest_s2rm_release()
+    except (requests.RequestException, ValueError):
+        latest_s2rm = None
+    if latest_s2rm and is_newer_release(latest_s2rm, PROGRAM_VERSION):
         prompt_program_update(latest_s2rm)
     
     # Update config with the latest mc version
@@ -206,7 +210,7 @@ def get_latest_s2rm_release() -> str:
         If the latest release name is not found in the response.
     """
     try:
-        response = requests.get(S2RM_API_RELEASES_URL)
+        response = requests.get(S2RM_API_RELEASES_URL, timeout=10)
         response.raise_for_status()
         release_data = response.json()
         latest_release = parse_release_version(release_data.get("tag_name"), release_data.get("name"))
