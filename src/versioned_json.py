@@ -96,10 +96,7 @@ def update_versioned_data(
         if baseline_version is not None:
             baseline_payload = apply_versioned_payload(data, baseline_version)
         diff = calculate_diff(baseline_payload, new_payload)
-        if diff:
-            data[version] = diff
-        else:
-            data.pop(version, None)
+        data[version] = diff
 
     if highest_recorded is None or version_key(version) >= version_key(highest_recorded):
         data["version"] = version

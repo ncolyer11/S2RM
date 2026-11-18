@@ -8,8 +8,8 @@ from src.constants import PROGRAM_VERSION, CONFIG_PATH
 DF_CONFIG = {
     "program_version": PROGRAM_VERSION,
     "declined_latest_program_version": False, # XXX rn this will never show up if the user declines
-    "selected_mc_version": "1.21.5",
-    "latest_mc_version": "1.21.5",
+    "selected_mc_version": "26.3",
+    "latest_mc_version": "26.3",
     "declined_latest_mc_version": False # change this to a timestamp or something
 }
 

@@ -1,8 +1,6 @@
 import json
 import os
-import shutil
 import webbrowser
-from pathlib import Path
 
 import requests
 
@@ -11,15 +9,10 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from src.use_config import get_config_value, set_config_value, create_default_config
 from src.resource_path import resource_path
-from src.constants import CONFIG_PATH, DATA_DIR, GAME_DATA_DIR, ICON_PATH, \
-    LIMTED_STACKS_NAME, MC_DOWNLOADS_DIR, PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, \
-        S2RM_RELEASES_URL
-from data.parse_mc_data import cleanup_downloads, create_mc_data_dirs, \
-    parse_blocks_list, parse_items_list, parse_items_stack_sizes
-from data.download_game_data import download_game_data, get_latest_mc_version
-from data.recipes_raw_mats_database_builder import generate_raw_materials_table_dict
-from data.versioned_game_data import save_versioned_json
-from src.extractor_runner import copy_sources
+from src.constants import CONFIG_PATH, GAME_DATA_DIR, ICON_PATH, \
+    PROGRAM_VERSION, RAW_MATS_TABLE_NAME, S2RM_API_RELEASES_URL, S2RM_RELEASES_URL
+from data.download_game_data import get_latest_mc_version
+from src.game_data_sync import covers, is_supported, sync_published_game_data
 from src.versioned_json import apply_versioned_payload, resolve_best_version, version_key
 
 def update_config(redownload=False, delete=True):
@@ -37,15 +30,22 @@ def update_config(redownload=False, delete=True):
         return
     
     # Check S2RM Github repo for if there's a newer version (release) of the program
-    if (latest_s2rm := get_latest_s2rm_release()) != PROGRAM_VERSION:
+    if is_newer_release(latest_s2rm := get_latest_s2rm_release(), PROGRAM_VERSION):
         prompt_program_update(latest_s2rm)
     
     # Update config with the latest mc version
-    if get_config_value("latest_mc_version") != (latest_mc_version := get_latest_mc_version()[0]):
+    try:
+        latest_mc_version = get_latest_mc_version()[0]
+    except (requests.RequestException, ValueError) as exc:
+        print(f"Could not reach Mojang's version manifest: {exc}")
+        return
+    if get_config_value("latest_mc_version") != latest_mc_version:
         set_config_value("latest_mc_version", latest_mc_version)
     
-    # Check if the selected Minecraft version is the latest
-    if get_config_value("selected_mc_version") != latest_mc_version:
+    # only offer a new version once its data has been published
+    published_version = sync_published_game_data(latest_mc_version)
+    if get_config_value("selected_mc_version") != latest_mc_version \
+            and covers(published_version, latest_mc_version):
         prompt_mc_update(latest_mc_version)
         
     # Check if the user has the selected mc version downloaded
@@ -53,120 +53,23 @@ def update_config(redownload=False, delete=True):
     
 def check_has_selected_mc_vers(redownload: bool = False, delete=True) -> bool | str:
     """
-    Check if the selected Minecraft version has the required data files in its data/game folder.
-
-    Parameters
-    ----------
-    redownload : bool
-        Force redownload of game data and recalculate the materials table.
-    delete : bool
-        Delete the mc_downloads directory after downloading the game data.
-
-    Returns
-    -------
-    bool
-        True if the selected version is already downloaded, False if the selected version is not 
-        found and had to be redownloaded.
+    Make sure the data for the selected version is available. Returns True if it already was,
+    False if it had to be downloaded, or "issue" if the newest available version was selected
+    instead. redownload forces a refresh; delete is unused.
     """
-    # Remove MC_DOWNLOADS_DIR if it exists just to be sure
-    try:
-        shutil.rmtree(resource_path(MC_DOWNLOADS_DIR))
-    except FileNotFoundError:
-        pass
-    
     selected_mc_version = get_config_value("selected_mc_version")
-    # Check if the selected version has raw_materials_table and limited_stack_items.json files
-    if has_data_files(selected_mc_version) and not redownload:
+    if is_supported(selected_mc_version) and not redownload:
         return True
 
-    # At this point, the user would've already been prompted to update the programs selected mc
-    # version to the latest one.
-    # So if the files for the selected mc version aren't found, then we need to redownload the
-    # mc files, parse them, and reconstruct the raw_materials_table and limited_stack_items.jsons
-    actually_downloaded_version = download_game_data(selected_mc_version)
-    issue_downloading = False
-    if actually_downloaded_version != selected_mc_version:
-        print("Issue downloading the selected version. "
-              "Backup version downloaded and set as selected instead.")
-        issue_downloading = "issue"
-
-    set_config_value("selected_mc_version", actually_downloaded_version)
-
-    # Generate raw_materials_table and limited_stack_items.json files
-    # using the downloaded and parsed game data
-    if not has_data_files(actually_downloaded_version):
-        get_mats_table_and_lim_stacked_items(delete)
-
-    if issue_downloading:
-        return issue_downloading
-    
-    return False
-
-def has_data_files(version: str) -> bool:
-    """Check whether the versioned payloads contain data for *version*."""
-    limited_path = resource_path(os.path.join(GAME_DATA_DIR, LIMTED_STACKS_NAME))
-    raw_path = resource_path(os.path.join(GAME_DATA_DIR, RAW_MATS_TABLE_NAME))
-
-    if not (os.path.exists(limited_path) and os.path.exists(raw_path)):
+    available = sync_published_game_data(None if redownload else selected_mc_version)
+    if is_supported(selected_mc_version):
         return False
 
-    try:
-        with open(raw_path, "r", encoding="utf-8") as handle:
-            raw_payload = json.load(handle)
-        with open(limited_path, "r", encoding="utf-8") as handle:
-            limited_payload = json.load(handle)
-    except (OSError, json.JSONDecodeError):
-        return False
-
-    if not isinstance(raw_payload, dict) or not isinstance(limited_payload, dict):
-        return False
-
-    available_raw_versions = [key for key in raw_payload.keys() if key != "version"]
-    available_limited_versions = [key for key in limited_payload.keys() if key != "version"]
-
-    try:
-        raw_version = resolve_best_version(available_raw_versions, version)
-        limited_version = resolve_best_version(available_limited_versions, version)
-    except ValueError:
-        return False
-
-    return raw_version is not None and limited_version is not None
-
-def get_mats_table_and_lim_stacked_items(delete=True):
-    """
-    Parse the Minecraft game data and save it to JSON files after parsing.
-    
-    XXX remove cache and replace it with a manual tool to delete specific downloaded versions (plus a clear all (but selected) option)
-
-    Parameters
-    ----------
-    delete : bool, optional
-        Whether to delete the excess game data files after parsing (default is True)
-    """
-    # Get the selected Minecraft version
-    selected_mc_version = get_config_value("selected_mc_version")
-    
-    # Create the 'data/game' directories
-    create_mc_data_dirs(selected_mc_version)
-
-    destination_dir = Path(resource_path(os.path.join(GAME_DATA_DIR, selected_mc_version)))
-    copy_sources(selected_mc_version, destination_dir)
-
-    items_list = parse_items_list()
-    blocks_list = parse_blocks_list(selected_mc_version)
-    items_stack_sizes = parse_items_stack_sizes(selected_mc_version)
-
-    raw_mats_table = generate_raw_materials_table_dict(
-        selected_mc_version,
-        items_list=items_list,
-        blocks_list=blocks_list,
-    )
-
-    if delete:
-        cleanup_downloads()
-
-    save_versioned_json(selected_mc_version, LIMTED_STACKS_NAME, items_stack_sizes)
-    save_versioned_json(selected_mc_version, RAW_MATS_TABLE_NAME, raw_mats_table)
+    print(f"Game data for {selected_mc_version} isn't available. "
+          f"Falling back to the newest available version ({available}).")
+    if available is not None:
+        set_config_value("selected_mc_version", available)
+    return "issue"
 
 def check_connection() -> bool:
     """Check if the user is connected to the internet and if the config file exists."""
@@ -277,7 +180,13 @@ def prompt_mc_update(latest_mc_version: str):
             set_config_value("declined_latest_mc_version", True)
         elif response == QMessageBox.Yes:
             set_config_value("selected_mc_version", latest_mc_version)
-            check_has_selected_mc_vers(latest_mc_version)
+            check_has_selected_mc_vers()
+
+def is_newer_release(latest: str, current: str) -> bool:
+    try:
+        return version_key(latest) > version_key(current)
+    except ValueError:
+        return False
 
 def get_latest_s2rm_release() -> str:
     """

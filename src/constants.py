@@ -1,10 +1,11 @@
 import os
 
-PROGRAM_VERSION = "1.3.5"
+PROGRAM_VERSION = "2.0.0"
 OUTPUT_JSON_VERSION = 8 # Track the version of the output json files for forwardporting capability
 
 S2RM_API_RELEASES_URL = "https://api.github.com/repos/ncolyer11/S2RM/releases/latest"
 S2RM_RELEASES_URL = "https://github.com/ncolyer11/S2RM/releases/latest"
+PUBLISHED_GAME_DATA_URL = "https://raw.githubusercontent.com/ncolyer11/S2RM/main/data/game"
 # File related constants
 DATA_DIR = "data"
 GAME_DATA_DIR = "data/game"
@@ -12,7 +13,7 @@ MC_DOWNLOADS_DIR = "mc_downloads"
 CONFIG_PATH = "src/config.json"
 ICON_PATH = "src/icon.ico"
 
-BACKUP_VERSION = "1.21.5" # The latest version that I know this program's parsing works with
+BACKUP_VERSION = "26.3"
 ITEMS_JSON = "items.json"
 BLOCKS_JSON = "blocks.json"
 ENTITIES_JSON = "entities.json"
@@ -54,6 +55,7 @@ TAGGED_MATERIALS_BASE = {
     "#acacia_logs": "acacia_log",
     "#dark_oak_logs": "dark_oak_log",
     "#pale_oak_logs": "pale_oak_log",
+    "#poplar_logs": "poplar_log",
     "#cherry_logs": "cherry_log",
     "#mangrove_logs": "mangrove_log",
     "#warped_stems": "warped_stem",
@@ -80,6 +82,8 @@ TAGGED_MATERIALS_BASE = {
     # Miscellaneous materials
     "#leaves": "oak_leaves",
     "#eggs": "egg",
+    "#mushrooms": "brown_mushroom",
+    "#metal_nuggets": "iron_nugget",
     "#wool": "white_wool",
 }
 

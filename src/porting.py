@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from src.helpers import format_quantities, TableCols
 from src.constants import OUTPUT_JSON_VERSION
 
@@ -47,7 +49,8 @@ def forwardportJson(table_dict, version: int) -> int:
     Returns:
         True if successful, otherwise an error code.
     """
-    if version <= 2 or OUTPUT_JSON_VERSION <= 3 or version > OUTPUT_JSON_VERSION:
+    if not isinstance(version, int) or version <= 2 or OUTPUT_JSON_VERSION <= 3 \
+            or version > OUTPUT_JSON_VERSION:
         return print_forwardporting_error(version, IV_ERR)
     
     forwardport_methods = {
@@ -59,20 +62,22 @@ def forwardportJson(table_dict, version: int) -> int:
     }
     
     # forwardport successively to the target version
-    for target_version in range(version + 1, OUTPUT_JSON_VERSION + 1):
-        if target_version in forwardport_methods:
-            print(f"Forwardporting from version {version} to {target_version}.")
-            if error_code := forwardport_methods[target_version](table_dict):
-                return print_forwardporting_error(version, error_code)
+    try:
+        for target_version in range(version + 1, OUTPUT_JSON_VERSION + 1):
+            if target_version in forwardport_methods:
+                print(f"Forwardporting from version {version} to {target_version}.")
+                if error_code := forwardport_methods[target_version](table_dict):
+                    return print_forwardporting_error(version, error_code)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return print_forwardporting_error(version, CJ_ERR)
      
-    # If any one of the following lists are empty, then they all should be, otherwise we have an error   
-    if not (bool(table_dict["input_items"]) == bool(table_dict["input_quantities"])
-        == bool(table_dict["exclude_text"]) == bool(table_dict["exclude_values"])):
+    # Each group of columns must be either all populated or all empty
+    tv = table_dict["tv"]
+    if not (bool(tv["input_items"]) == bool(tv["input_quantities"]) == bool(tv["exclude"])):
         return CJ_ERR
-    # Same with 'raw_materials' and 'raw_quantities'
-    if not (bool(table_dict["raw_materials"]) == bool(table_dict["raw_quantities"])):
+    if not (bool(tv["raw_materials"]) == bool(tv["raw_quantities"])):
         return CJ_ERR
-    
+
     table_dict["version"] = OUTPUT_JSON_VERSION
 
     return NO_ERR
@@ -98,18 +103,19 @@ def forwardporttoV5(table_dict):
     
 def forwardporttoV6(table_dict):
     """Versions below 6 used a single input materials path called 'litematica_mats_list_path'."""
-    table_dict["material_list_paths"] = [table_dict.pop("litematica_mats_list_path", [])]
+    if path := table_dict.pop("litematica_mats_list_path", None):
+        table_dict["material_list_paths"] = [path]
 
 def forwardporttoV7(table_dict):
     """
     Versions below 7 don't have the exclude_values field instead of exclude_input (now formatted).
     Also, an exclude_text field has been added to track the SB and stacks format.
     """
-    table_dict["exclude_values"] = table_dict.pop("exclude_input", []) 
-    table_dict["exclude_text"] = table_dict["exclude_values"]
+    table_dict["exclude_values"] = table_dict.pop("exclude_input", [])
+    table_dict["exclude_text"] = list(table_dict["exclude_values"])
     if not table_dict["exclude_values"]:
         return
-    
+
     excl_list = [table_dict["exclude_values"], table_dict["exclude_text"]]
     format_quantities(table_dict["input_items"], excl_list, is_exclude_col=True)
 
@@ -124,12 +130,24 @@ def forwardporttoV8(table_dict):
     tv.exclude = table_dict.pop("exclude_values", [])
     tv.raw_materials = table_dict.pop("raw_materials", [])
     tv.raw_quantities = table_dict.pop("raw_quantities", [])
-    tv.collected_data = table_dict.pop("collected", [])
-    
-    tt = tv.deepcopy()
-    tt.exclude = table_dict.pop("exclude_text")
-    table_dict["tv"] = tv
-    table_dict["tt"] = tt
+
+    # Older files stored 'collected' as a dict or as a list that may not line up with the rows
+    collected = table_dict.pop("collected", [])
+    if isinstance(collected, dict):
+        tv.collected_data = [bool(collected.get(m)) for m in tv.raw_materials]
+    else:
+        tv.collected_data = [bool(c) for c in collected][:len(tv.raw_materials)]
+        tv.collected_data += [False] * (len(tv.raw_materials) - len(tv.collected_data))
+
+    tt = TableCols(**{key: list(value) for key, value in asdict(tv).items()})
+    tt.exclude = table_dict.pop("exclude_text", [])
+    if tv.input_items:
+        format_quantities(tv.input_items, (tv.input_quantities, tt.input_quantities))
+    if tv.raw_materials:
+        format_quantities(tv.raw_materials, (tv.raw_quantities, tt.raw_quantities))
+
+    table_dict["tv"] = asdict(tv)
+    table_dict["tt"] = asdict(tt)
 
 # Helper function to print forwardporting error message
 def print_forwardporting_error(version, ec):
