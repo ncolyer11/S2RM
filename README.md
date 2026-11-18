@@ -22,6 +22,10 @@ This tool automates the process of converting Litematica material lists into the
 * Dark/light mode
 * JSON save/load
 
+## Supported Minecraft Versions
+
+1.21.2 through 26.3 (every release in between), with 26.3 as the default. Pick a version under `Edit` > version. Newer releases are added to this repo after they come out and the program picks them up automatically. Snapshots, joke versions and modded content are not supported.
+
 ## Usage
 
 1.  Drag & drop or select one or multiple Litematica files (`.litematic`) and/or material lists (`.txt` or `.json`) into the program.
@@ -35,12 +39,16 @@ Just follow this guide here to whitelist it: https://youtu.be/IjVWzqrBrFs?si=9bj
 
 ## Updating game data (maintainers)
 
-Recipe data is generated once with Mojang's official data generator and committed to `data/game/`; the program downloads it from this repo. Needs a Java version that matches the Minecraft release (Java 25 for 26.x).
+Recipe data comes from Mojang's official data generator, so no game code is decompiled or stored. It is built once per release and committed to `data/game/`; the program ships with it and downloads newer data from this repo.
 
 ```
 S2RM_JAVA=$(which java) python -m scripts.build_version_data 26.3
 python -m scripts.check_new_releases [--watch]
 ```
+
+`S2RM_JAVA` must point to a Java at least as new as the release needs (a Java 25 build works for every supported version). To rebuild old versions, delete `data/game/*.json` and run `build_version_data` for each version in ascending order, since later versions are stored as diffs of earlier ones.
+
+Builds: `build.bat` (Windows) and `build.sh` (Linux) need a conda env with the dependencies from `pyproject.toml` and PyInstaller.
 
 ## Download
 
