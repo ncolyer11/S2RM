@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import webbrowser
 
 import requests
@@ -182,6 +183,13 @@ def prompt_mc_update(latest_mc_version: str):
             set_config_value("selected_mc_version", latest_mc_version)
             check_has_selected_mc_vers()
 
+def parse_release_version(*labels: str | None) -> str | None:
+    """First dotted version number in the given release labels, e.g. 'S2RM v1.3.4' -> '1.3.4'."""
+    for label in labels:
+        if label and (match := re.search(r"\d+(?:\.\d+)+", label)):
+            return match.group(0)
+    return None
+
 def is_newer_release(latest: str, current: str) -> bool:
     try:
         return version_key(latest) > version_key(current)
@@ -201,11 +209,10 @@ def get_latest_s2rm_release() -> str:
         response = requests.get(S2RM_API_RELEASES_URL)
         response.raise_for_status()
         release_data = response.json()
-        latest_release = release_data.get("name", None)
+        latest_release = parse_release_version(release_data.get("tag_name"), release_data.get("name"))
         if latest_release is None:
-            raise ValueError("Latest release name not found in response.")
-        # Remove the "v" prefix if it exists
-        return latest_release.lstrip("v")
+            raise ValueError("Latest release version not found in response.")
+        return latest_release
     except Exception as e:
         print(f"Error fetching latest release version: {e}")
         raise e
