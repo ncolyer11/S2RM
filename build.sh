@@ -36,6 +36,9 @@ python -m PyInstaller \
     --noupx \
     --strip \
     --exclude-module matplotlib \
+    --exclude-module zstandard \
+    --exclude-module cryptography \
+    --exclude-module PySide6.QtVirtualKeyboard \
     --exclude-module PIL \
     --exclude-module contourpy \
     --exclude-module kiwisolver \
