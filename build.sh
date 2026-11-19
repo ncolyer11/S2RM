@@ -33,6 +33,36 @@ python -m PyInstaller \
     --add-data "data/game/*.json:data/game" \
     --distpath "." \
     --noconfirm \
+    --noupx \
+    --strip \
+    --exclude-module matplotlib \
+    --exclude-module PIL \
+    --exclude-module contourpy \
+    --exclude-module kiwisolver \
+    --exclude-module networkx \
+    --exclude-module tkinter \
+    --exclude-module setuptools \
+    --exclude-module pkg_resources \
+    --exclude-module wheel \
+    --exclude-module PySide6.QtQuick \
+    --exclude-module PySide6.QtQml \
+    --exclude-module PySide6.QtQuickWidgets \
+    --exclude-module PySide6.QtPdf \
+    --exclude-module PySide6.QtPdfWidgets \
+    --exclude-module PySide6.QtOpenGL \
+    --exclude-module PySide6.QtOpenGLWidgets \
+    --exclude-module PySide6.QtNetwork \
+    --exclude-module PySide6.QtSvg \
+    --exclude-module PySide6.QtSvgWidgets \
+    --exclude-module PySide6.QtWebEngineCore \
+    --exclude-module PySide6.QtMultimedia \
+    --exclude-module PySide6.Qt3DCore \
+    --exclude-module PySide6.QtCharts \
+    --exclude-module PySide6.QtDataVisualization \
+    --exclude-module PySide6.QtDesigner \
+    --exclude-module PySide6.QtHelp \
+    --exclude-module PySide6.QtSql \
+    --exclude-module PySide6.QtTest \
     main.py
 
 # Check if PyInstaller was successful
@@ -41,8 +71,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Drop unused Qt pieces that PyInstaller still collects
+find "S2RM_${S2_APP_ID}" \( -name "libQt6Pdf*" -o -name "libQt6Quick*" -o -name "libQt6Qml*" -o -name "libQt6VirtualKeyboard*" \) -delete 2>/dev/null
+rm -rf "S2RM_${S2_APP_ID}/_internal/PySide6/Qt/translations" "S2RM_${S2_APP_ID}/_internal/PySide6/Qt/qml" 2>/dev/null
+
 # Compress the output folder and rename the zip using the app identifier
-zip -r "S2RM_${S2_APP_ID}.zip" "S2RM_${S2_APP_ID}"
+zip -r -9 "S2RM_${S2_APP_ID}.zip" "S2RM_${S2_APP_ID}"
 
 # Check if compression was successful
 if [ $? -ne 0 ]; then
