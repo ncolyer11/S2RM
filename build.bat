@@ -1,6 +1,8 @@
 @echo off
 :: Define global variable for app name
 set "APP_NAME=S2RM_win"
+:: Conda env to build in (override with: set S2RM_BUILD_ENV=myenv)
+if not defined S2RM_BUILD_ENV set "S2RM_BUILD_ENV=s2rm-build"
 
 :: Check if conda is available
 where conda >nul 2>&1
@@ -10,11 +12,11 @@ if %errorlevel% neq 0 (
 )
 
 :: Activate the Anaconda environment
-CALL conda activate s2rm
+CALL conda activate %S2RM_BUILD_ENV%
 
 :: Check if the environment activation was successful
 if %errorlevel% neq 0 (
-    echo "Failed to activate the Conda environment 's2rm'. Please ensure it exists and try again."
+    echo "Failed to activate the Conda environment '%S2RM_BUILD_ENV%'. Please ensure it exists and try again."
     exit /b 1
 )
 

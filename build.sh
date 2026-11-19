@@ -1,6 +1,8 @@
 #!/bin/bash
 
 S2_APP_ID="lnx"
+# Conda env to build in (override with: S2RM_BUILD_ENV=myenv ./build.sh)
+S2RM_BUILD_ENV="${S2RM_BUILD_ENV:-s2rm-build}"
 
 # Check if conda is available
 if ! command -v conda &> /dev/null; then
@@ -10,11 +12,11 @@ fi
 
 # Activate the Anaconda environment
 source $(conda info --base)/etc/profile.d/conda.sh
-conda activate S2RM
+conda activate "$S2RM_BUILD_ENV"
 
 # Check if the environment activation was successful
 if [ $? -ne 0 ]; then
-    echo "Failed to activate the Conda environment 'S2RM'. Please ensure it exists and try again."
+    echo "Failed to activate the Conda environment '$S2RM_BUILD_ENV'. Please ensure it exists and try again."
     exit 1
 fi
 
