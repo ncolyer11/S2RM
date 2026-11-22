@@ -254,8 +254,6 @@ class S2RMFrontend(QWidget):
         self.setLayout(layout)
         self.setWindowTitle("S2RM: Schematic to Raw Materials")
         self.setGeometry(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT)
-        
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
         self.credits_and_source_label = QLabel()
         self.credits_and_source_label.setAlignment(Qt.AlignCenter)
@@ -276,17 +274,21 @@ class S2RMFrontend(QWidget):
         )
         
         if file_paths:
-            self.file_paths = file_paths
-            self.processSelectedFiles()
-            file_names = ", ".join(os.path.basename(path) for path in file_paths)
-            # Truncate file names if they are too long
-            if len(file_names) > TRUNCATE_LEN:
-                truncated_names = file_names[:TRUNCATE_LEN]
-                skipped_files = len(file_paths) - truncated_names.count(",") 
-                file_names = truncated_names + f"... + {skipped_files} more"
-            self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
+            self.loadFiles(file_paths)
 
-    def processSelectedFiles(self, file_paths=None):
+    def loadFiles(self, file_paths):
+        """Set the given files as the current input, process them and update the file label."""
+        self.file_paths = list(file_paths)
+        self.processSelectedFiles()
+        file_names = ", ".join(os.path.basename(path) for path in self.file_paths)
+        # Truncate file names if they are too long
+        if len(file_names) > TRUNCATE_LEN:
+            truncated_names = file_names[:TRUNCATE_LEN]
+            skipped_files = len(self.file_paths) - truncated_names.count(",")
+            file_names = truncated_names + f"... + {skipped_files} more"
+        self.file_label.setText(f"{FILE_LABEL_TEXT} {file_names}")
+
+    def processSelectedFiles(self):
         start_time = time.time_ns()
         self.loading_dialog = LoadingDialog(self)
         self.loading_dialog.show()
@@ -1008,7 +1010,7 @@ class DropArea(QPushButton):
                     file_paths.append(file_path)
             
             if file_paths:
-                self.parent.processSelectedFiles(file_paths)
+                self.parent.loadFiles(file_paths)
             
             event.acceptProposedAction()
         
